@@ -70,9 +70,9 @@ export const TOKEN_FAQS = [
   },
   {
     id: "brahmotsavam-pause",
-    question: "Is SSD and DD token issuance paused during annual Brahmotsavams?",
-    questionTe: "వార్షిక బ్రహ్మోత్సవాల సమయంలో SSD మరియు DD టోకెన్ల జారీ నిలిపివేయబడుతుందా?",
-    answer: "Yes. For the 2026 annual Salakatla Brahmotsavams, SSD and DD token issuance is paused from September 14 to September 23, 2026 to manage peak festival pilgrim congestion. Tokens for September 24, 2026 are scheduled to be issued on September 23 at 4:00 PM.",
-    answerTe: "అవును. 2026 వార్షిక సాలకట్ల బ్రహ్మోత్సవాల రద్దీ కారణంగా 2026 సెప్టెంబర్ 14 నుండి 23 వరకు SSD మరియు DD టోకెన్ల జారీ నిలిపివేయబడుతుంది. సెప్టెంబర్ 24, 2026 దర్శనానికి సంబంధించిన టోకెన్లు సెప్టెంబర్ 23 సాయంత్రం 4:00 గంటలకు జారీ చేయబడతాయి."
+    question: "Is SSD and DD token issuance paused during Srivari Navaratri Brahmotsavams?",
+    questionTe: "శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాల సమయంలో SSD మరియు DD టోకెన్ల జారీ నిలిపివేయబడుతుందా?",
+    answer: "Yes. On the occasion of the Srivari Navaratri Brahmotsavams, SSD and DD tokens will not be issued at Bhudevi Complex, Srinivasam, and Vishnu Nivasam from October 10, 2026 to October 21, 2026. Token issuance for darshan on October 23, 2026 will resume at 4:00 PM on October 22, 2026.",
+    answerTe: "అవును. శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాల సందర్భంగా అక్టోబర్ 10, 2026 నుండి అక్టోబర్ 21, 2026 వరకు భూదేవి కాంప్లెక్స్, శ్రీనివాసం మరియు విష్ణు నివాసం వద్ద SSD మరియు DD టోకెన్ల జారీ నిలిపివేయబడింది. అక్టోబర్ 23, 2026 దర్శనం కోసం టోకెన్ల జారీ అక్టోబర్ 22, 2026 సాయంత్రం 4:00 గంటలకు పునఃప్రారంభమవుతుంది."
   }
 ];

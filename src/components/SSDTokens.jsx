@@ -116,11 +116,13 @@ const indiaDate = new Date(
   })
 );
 
+// Srivari Navaratri Brahmotsavams: October 10 to October 21, 2026.
+// Token issuance for darshan on October 23, 2026 will resume at 4:00 PM on October 22, 2026.
 const isBrahmotsavamPause =
   indiaDate.getFullYear() === 2026 &&
-  indiaDate.getMonth() === 8 &&
-  indiaDate.getDate() >= 14 &&
-  indiaDate.getDate() <= 23;
+  indiaDate.getMonth() === 9 && // October (0-indexed: 9)
+  ((indiaDate.getDate() >= 10 && indiaDate.getDate() <= 21) ||
+   (indiaDate.getDate() === 22 && indiaDate.getHours() < 16));
 
 const isNoIssuance =
   isTodayWednesday ||
@@ -239,10 +241,10 @@ const isNoIssuance =
         ? "గురువారం దర్శనం కోసం బుధవారం టోకెన్లు జారీ చేయబడవు."
         : "No tokens are issued on Wednesdays for Thursday darshan.",
 
-        brahmotsavamNotice:
+    brahmotsavamNotice:
       lang === "te"
-        ? "సాలకట్ల బ్రహ్మోత్సవాల కారణంగా సెప్టెంబర్ 14 నుండి 23 వరకు SSD / DD టోకెన్ల జారీ నిలిపివేయబడింది. సెప్టెంబర్ 24 తేదీ టోకెన్లు సెప్టెంబర్ 23 సాయంత్రం 4:00 గంటలకు జారీ చేయబడతాయి."
-        : "SSD / DD token issuance is paused from September 14th to September 23rd due to Salakatla Brahmotsavams. Tokens for September 24 will be issued on September 23 at 4:00 PM.",
+        ? "శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాల సందర్భంగా అక్టోబర్ 10, 2026 నుండి అక్టోబర్ 21, 2026 వరకు భూదేవి కాంప్లెక్స్, శ్రీనివాసం మరియు విష్ణు నివాసం కౌంటర్లలో SSD మరియు DD టోకెన్ల జారీ నిలిపివేయబడింది. అక్టోబర్ 23, 2026 దర్శనం కోసం టోకెన్ల జారీ అక్టోబర్ 22, 2026 సాయంత్రం 4:00 గంటలకు తిరిగి ప్రారంభమవుతుంది."
+        : "On the occasion of Srivari Navaratri Brahmotsavams, SSD and DD tokens will not be issued at Bhudevi Complex, Srinivasam, and Vishnu Nivasam from October 10, 2026 to October 21, 2026. Token issuance for darshan on October 23, 2026 will resume at 4:00 PM on October 22, 2026.",
 
     genericNoIssuanceNotice:
       lang === "te"
@@ -311,12 +313,16 @@ const isNoIssuance =
     })
   );
 
+  const year = indiaDate.getFullYear();
   const month = indiaDate.getMonth();
   const day = indiaDate.getDate();
 
-  // September 14–23, 2026
+  // Show notice during Navaratri Brahmotsavams pause (October 10–22, 2026)
   const showBrahmotsavamNotice =
-    month === 8 && day >= 14 && day <= 23;
+    year === 2026 &&
+    month === 9 &&
+    day >= 10 &&
+    day <= 22;
 
   if (!showBrahmotsavamNotice) return null;
 
@@ -338,8 +344,8 @@ const isNoIssuance =
             className={`font-black text-lg sm:text-xl ${headingClass}`}
           >
             {lang === "te"
-              ? "టోకెన్ జారీ తాత్కాలికంగా నిలిపివేత"
-              : "Temporary Token Issuance Pause"}
+              ? "శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాలు - టోకెన్ జారీ తాత్కాలికంగా నిలిపివేత"
+              : "Srivari Navaratri Brahmotsavams - Temporary Token Issuance Pause"}
           </h2>
 
           <p
@@ -385,6 +391,7 @@ const isNoIssuance =
           ssdStatus={ssdStatus}
           ddStatus={ddStatus}
           isNoIssuance={isNoIssuance}
+          isBrahmotsavamPause={isBrahmotsavamPause}
           isTodayWednesday={isTodayWednesday}
         />
 
@@ -401,6 +408,9 @@ const isNoIssuance =
           headingClass={headingClass}
           mutedClass={mutedClass}
           text={text}
+          isLight={isLight}
+          isBrahmotsavamPause={isBrahmotsavamPause}
+          lang={lang}
         />
 
         <SSDVsDDComparison

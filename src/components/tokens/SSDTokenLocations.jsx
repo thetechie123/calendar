@@ -1,5 +1,5 @@
 import React from "react";
-import { ExternalLink, MapPin } from "lucide-react";
+import { AlertTriangle, ExternalLink, MapPin } from "lucide-react";
 import { TOKEN_INFO } from "../../data/tokenInfo";
 
 function TokenCentre({
@@ -50,6 +50,9 @@ export default function SSDTokenLocations({
   headingClass,
   mutedClass,
   text,
+  isLight,
+  isBrahmotsavamPause,
+  lang = "en",
 }) {
   const renderCentre = (centre) => (
     <TokenCentre
@@ -70,6 +73,23 @@ export default function SSDTokenLocations({
           {text.where}
         </h2>
       </div>
+
+      {isBrahmotsavamPause && (
+        <div
+          className={`mb-4 rounded-xl border p-3.5 flex items-start gap-3 ${
+            isLight
+              ? "bg-amber-50 border-amber-300 text-amber-900"
+              : "bg-amber-500/10 border-amber-500/30 text-amber-200"
+          }`}
+        >
+          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+          <p className="text-xs sm:text-sm font-semibold leading-relaxed">
+            {lang === "te"
+              ? "శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాల సందర్భంగా అక్టోబర్ 10 నుండి 21, 2026 వరకు భూదేవి కాంప్లెక్స్, శ్రీనివాసం మరియు విష్ణు నివాసం కౌంటర్లలో SSD మరియు DD టోకెన్ల జారీ ఉండదు. అక్టోబర్ 23 దర్శనం టోకెన్లు అక్టోబర్ 22 సాయంత్రం 4:00 గంటలకు ప్రారంభమవుతాయి."
+              : "Notice: Token counters at Bhudevi Complex, Srinivasam, and Vishnu Nivasam will not issue SSD & DD tokens from Oct 10 to Oct 21, 2026 for Srivari Navaratri Brahmotsavams. Issuance for Oct 23 darshan will resume at 4:00 PM on Oct 22, 2026."}
+          </p>
+        </div>
+      )}
 
       <div
         className={`rounded-2xl border p-5 sm:p-6 mb-4 ${cardClass}`}
