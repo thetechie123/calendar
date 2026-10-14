@@ -1004,7 +1004,7 @@ const BASE_INITIAL_EVENTS = [
   {
     id: 'ttd-2026-08-28-tirumala',
     templeId: 'tirumala-main',
-    title: 'Sravana Pournami Srivari Garuda Vahana Seva, Vikhanasa & Hayagriva Jayanti',
+    title: 'Sravana Pournami Monthly Garuda Vahana Seva & Hayagriva Jayanti',
     titleTe: 'శ్రావణ పౌర్ణమి శ్రీవారి గరుడ వాహన సేవ, శ్రీ విఖనసమహాముని జయంతి, శ్రీ హయగ్రీవ జయంతి',
     startDate: '2026-08-28',
     endDate: '2026-08-28',
@@ -1015,9 +1015,9 @@ const BASE_INITIAL_EVENTS = [
     time: '07:00 PM - 09:00 PM',
     startTime: '19:00:00',
     crowdLevel: 'Peak',
-    crowdBadge: 'Pournami Garuda Seva',
+    crowdBadge: 'Monthly Pournami Garuda Seva',
     vahanam: 'Golden Garuda Vahanam',
-    description: 'On Sravana Pournami, grand Sri Garuda Vahana Seva of Lord Venkateswara Swamy along with Sri Vikhanasa Mahamuni Jayanti and Sri Hayagriva Jayanti at Tirumala.',
+    description: 'On Sravana Pournami (Full Moon), Lord Malayappa Swamy blesses devotees atop the Golden Garuda Vahanam around the Four Mada Streets (Tirumala’s recurring monthly Pournami Garuda Seva, independent of the annual Brahmotsavams), coinciding with Sri Vikhanasa Mahamuni Jayanti and Sri Hayagriva Jayanti.',
     descriptionTe: 'ఆగస్టు 28న శ్రావణ పౌర్ణమి, శ్రీవారి గరుడ వాహన సేవ, శ్రీ విఖనసమహాముని జయంతి, శ్రీ హయగ్రీవ జయంతి సందర్భంగా తిరుమల మాడ వీధుల్లో గరుడ సేవ.'
   },
 

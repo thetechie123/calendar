@@ -63,9 +63,31 @@ export const getEventsForDate = (events, dateStr) => {
     return evt.startDate <= dateStr && dateStr <= end;
   });
 
+  // Detect whether specific single-day Brahmotsavam vahana entries exist on this date
+  const hasSpecificDayBrahmotsavam = filtered.some(evt => {
+    const isSingleDay = !evt.endDate || evt.startDate === evt.endDate;
+    const titleLower = (evt.title || '').toLowerCase();
+    const isBrahmotsavam =
+      evt.category === 'brahmotsavam' ||
+      evt.category === 'vahana-seva' ||
+      titleLower.includes('brahmotsavam') ||
+      titleLower.includes('vahanam');
+    return isSingleDay && isBrahmotsavam;
+  });
+
   const uniqueMap = new Map();
   
   filtered.forEach(evt => {
+    const isMultiDay = evt.startDate && evt.endDate && evt.startDate !== evt.endDate;
+    const titleLower = (evt.title || '').toLowerCase();
+    const isGenericMultiDayBrahmotsavam =
+      isMultiDay && (titleLower.includes('brahmotsavam') || evt.category === 'brahmotsavam');
+
+    // Suppress redundant multi-day overview card if granular morning/night vahanas already exist
+    if (hasSpecificDayBrahmotsavam && isGenericMultiDayBrahmotsavam) {
+      return;
+    }
+
     const key = `${evt.title}_${evt.startDate}`;
     
     if (!uniqueMap.has(key)) {

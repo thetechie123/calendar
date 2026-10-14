@@ -211,7 +211,18 @@ export function getRouteMetadata(pathname) {
     }
   }
 
-  return ROUTE_SEO_METADATA['/'];
+  // 404 / Unknown route metadata: Prevents soft 404 indexing
+  return {
+    title: '404 - Page Not Found | The Tirumala Verse',
+    description: 'The requested sacred guide or page could not be found. Return to The Tirumala Verse calendar, darshan tokens status, or daily sevas schedule.',
+    canonical: null,
+    ogTitle: '404 - Page Not Found | The Tirumala Verse',
+    ogDescription: 'The requested sacred guide or page could not be found.',
+    ogUrl: `${SITE_ORIGIN}/404`,
+    twitterTitle: '404 - Page Not Found | The Tirumala Verse',
+    twitterDescription: 'The requested sacred guide or page could not be found.',
+    noindex: true
+  };
 }
 
 function setMetaTag(selector, attrName, value) {
@@ -229,8 +240,14 @@ function setMetaTag(selector, attrName, value) {
 }
 
 function setCanonicalTag(href) {
-  if (!href || typeof document === 'undefined') return;
+  if (typeof document === 'undefined') return;
   let link = document.head.querySelector('link[rel="canonical"]');
+  if (!href) {
+    if (link) {
+      link.remove();
+    }
+    return;
+  }
   if (!link) {
     link = document.createElement('link');
     link.setAttribute('rel', 'canonical');
@@ -242,6 +259,7 @@ function setCanonicalTag(href) {
 /**
  * Applies route-appropriate SEO metadata to document.head.
  * Ensures the canonical URL never includes search query strings or event deep links.
+ * Emits noindex, nofollow on unknown paths to eliminate soft 404s.
  *
  * @param {string} pathname
  */
@@ -255,18 +273,25 @@ export function updateRouteMetadata(pathname) {
     document.title = meta.title;
   }
 
-  // 2. Update canonical URL (self-referencing canonical, strictly without query params)
+  // 2. Robots meta directive (noindex for 404s, index for valid pages)
+  if (meta.noindex) {
+    setMetaTag('meta[name="robots"]', 'content', 'noindex, nofollow');
+  } else {
+    setMetaTag('meta[name="robots"]', 'content', 'index, follow');
+  }
+
+  // 3. Update canonical URL (self-referencing canonical, strictly without query params)
   setCanonicalTag(meta.canonical);
 
-  // 3. Update meta description
+  // 4. Update meta description
   setMetaTag('meta[name="description"]', 'content', meta.description);
 
-  // 4. Update Open Graph tags
+  // 5. Update Open Graph tags
   setMetaTag('meta[property="og:title"]', 'content', meta.ogTitle);
   setMetaTag('meta[property="og:description"]', 'content', meta.ogDescription);
   setMetaTag('meta[property="og:url"]', 'content', meta.ogUrl);
 
-  // 5. Update Twitter tags
+  // 6. Update Twitter tags
   setMetaTag('meta[name="twitter:title"]', 'content', meta.twitterTitle);
   setMetaTag('meta[name="twitter:description"]', 'content', meta.twitterDescription);
 }

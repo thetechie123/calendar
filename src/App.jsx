@@ -27,6 +27,7 @@ const SSDTokens = lazy(() => import('./components/SSDTokens'));
 const AdminPortalModal = lazy(() => import('./components/AdminPortalModal'));
 const EventDetailModal = lazy(() => import('./components/EventDetailModal'));
 const FestivalTopicPage = lazy(() => import('./components/FestivalTopicPage'));
+const NotFoundPage = lazy(() => import('./components/NotFoundPage'));
 // Local development components (kept on disk for ongoing work):
 // const TempleList = lazy(() => import('./components/TempleList'));
 // const PilgrimGuide = lazy(() => import('./components/PilgrimGuide'));
@@ -61,6 +62,7 @@ const TAB_TO_PATH = {
   'tokens': '/tokens',
   'feedback': '/feedback',
   'overview': '/',
+  'not-found': '/404',
 };
 
 function getFestivalSlugFromPath(pathname) {
@@ -98,7 +100,10 @@ function getTabFromPathname(pathname) {
       return 'festival-topic';
     }
   }
-  return ROUTE_MAP[lowerPath] || 'calendar-page';
+  if (ROUTE_MAP[lowerPath]) {
+    return ROUTE_MAP[lowerPath];
+  }
+  return 'not-found';
 }
 
 function getPathnameFromTab(tab) {
@@ -796,6 +801,15 @@ useEffect(() => {
               onNavigateToCalendarSearch={handleNavigateToCalendarSearch}
               onSelectEvent={setSelectedEventModal}
               onNavigatePath={handleNavigatePath}
+            />
+          )}
+
+          {/* 404 NOT FOUND SECTION */}
+          {activeTab === 'not-found' && (
+            <NotFoundPage
+              lang={lang}
+              onNavigate={handleNavigatePath}
+              onNavigateHome={handleNavigateHome}
             />
           )}
         </Suspense>

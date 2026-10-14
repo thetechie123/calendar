@@ -520,7 +520,7 @@ export const PANCHANGAM_EVENTS_2026_2027 = [
   {
     id: "ttd-2026-10-14-tirumala-day3-night",
     templeId: "tirumala-main",
-    title: "Navaratri Brahmotsavam Day 3: Muthayapu Pandiri Vahanam",
+    title: "Navaratri Brahmotsavam Day 3: Muthyapu Pandiri Vahanam",
     titleTe: "నవరాత్రి బ్రహ్మోత్సవాలు 3వ రోజు: ముత్యపుపందిరి వాహనం",
     startDate: "2026-10-14",
     endDate: "2026-10-14",
@@ -532,7 +532,7 @@ export const PANCHANGAM_EVENTS_2026_2027 = [
     location: "Tirumala Four Mada Streets",
     crowdLevel: "High",
     crowdBadge: "Day 3 Night",
-    vahanam: "Muthayapu Pandiri Vahanam (Pearl Canopy)",
+    vahanam: "Muthyapu Pandiri Vahanam (Pearl Canopy)",
     description: "Flanked by consorts Sridevi and Bhudevi, Lord Malayappa Swamy is seated beneath a glittering canopy of pure white pearls reflecting peace.",
     descriptionTe: "రాత్రి 7 గంటలకు ముత్యాల హారాలు, శాంతిని ప్రసాదించే చల్లని ముత్యపుపందిరి వాహనంపై ఉభయ నాంచారులతో కొలువుదీరి స్వామివారు దర్శనమిస్తారు."
   },

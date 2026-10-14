@@ -194,7 +194,7 @@ export default function CalendarView({
           <div className="flex flex-wrap items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-gradient-to-r from-[#FF5722] to-[#FF9800] text-black shadow-sm flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-black" />
-              <span>Oct 11 – Oct 21, 2026</span>
+              <span>Oct 12 – Oct 20, 2026 (Prelude: Oct 11)</span>
             </span>
             <span className="text-xs font-bold text-[#FFD700] tracking-wide">
               {lang === 'en' ? 'Tirumala Srivari Navarathri Brahmotsavams' : 'తిరుమల శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాలు'}
@@ -207,8 +207,8 @@ export default function CalendarView({
           </h2>
           <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed max-w-3xl">
             {lang === 'en'
-              ? '9-day morning & evening Vahana Sevas, 17 Mada Street Harathi points, Swarna Ratham & 1,200 years of stone inscriptions.'
-              : '9 రోజుల వాహన సేవల సమయాలు, 18 వాహనాలు, 17 మాడ వీధుల హారతుల వివరాలు, స్వర్ణ రథోత్సవం మరియు 1200 ఏళ్ల శాసనాల చరిత్ర.'}
+              ? 'Official Schedule: Oct 12–20 (Ankurarpanam: Oct 11 eve • Chakra Snanam: Oct 20 • Parveta: Oct 21). 9-day morning & evening Vahana Sevas, 17 Mada Street Harathi points, and Swarna Ratham.'
+              : 'అధికారిక షెడ్యూల్: అక్టోబర్ 12–20 (అంకురార్పణం: అక్టోబర్ 11 సాయంత్రం • చక్రస్నానం: అక్టోబర్ 20 • పార్వేట: అక్టోబర్ 21). 9 రోజుల ఉభయ వాహన సేవల సమగ్ర వివరాలు.'}
           </p>
         </div>
         <a

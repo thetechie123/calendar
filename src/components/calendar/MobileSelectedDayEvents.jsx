@@ -80,12 +80,12 @@ export default function MobileSelectedDayEvents({
                   <div className="min-w-0 flex-1">
 
                     <div className="flex items-start justify-between gap-2">
-                      <h4 className="event-card-title font-serif text-sm font-black leading-snug">
+                      <h3 className="event-card-title font-serif text-sm font-black leading-snug">
                         {lang === 'en'
                           ? evt.title
                           : evt.titleTe ||
                             evt.title}
-                      </h4>
+                      </h3>
 
                       <span className={`shrink-0 px-2 py-0.5 rounded text-[9px] font-extrabold uppercase shadow ${statusObj.colorClass}`}>
                         {lang === 'en' ? statusObj.status : statusObj.statusTe}

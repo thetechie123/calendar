@@ -30,10 +30,10 @@ export default function CalendarMonthHeader({
               : activeMonth.labelTe}
           </h2>
 
-          <p className="hidden sm:block text-[10px] sm:text-[11px] text-[#94A3B8]">
+          <p className="text-[10px] sm:text-[11px] text-[#94A3B8]">
             {lang === 'en'
-              ? 'Swipe or drag left/right or use arrow keys'
-              : 'ఎడమ లేదా కుడి వైపుకు స్వైప్ చేయండి'}
+              ? 'Liturgical calendar & Panchangam • Updated October 2026'
+              : 'ఆలయ పంచాంగ వివరాలు • అక్టోబర్ 2026 నాటికి సరిచూడబడింది'}
           </p>
         </div>
       </div>
