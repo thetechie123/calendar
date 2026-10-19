@@ -8,6 +8,7 @@
  */
 import { SEPTEMBER_2026_EVENTS } from './templeEvents.js';
 import { PANCHANGAM_EVENTS_2026_2027 } from './panchangamEvents2026_2027.js';
+import { JANUARY_2027_QUOTA_EVENTS } from './quotaReleaseEvents.js';
 
 const BASE_INITIAL_EVENTS = [
   // JANUARY 2026
@@ -1452,6 +1453,7 @@ const BASE_INITIAL_EVENTS = [
 const baseIds = new Set(BASE_INITIAL_EVENTS.map(e => e.id));
 export const INITIAL_EVENTS = [
   ...BASE_INITIAL_EVENTS,
+  ...JANUARY_2027_QUOTA_EVENTS.filter(e => !baseIds.has(e.id)),
   ...SEPTEMBER_2026_EVENTS.filter(e => !baseIds.has(e.id)),
   ...PANCHANGAM_EVENTS_2026_2027.filter(e => !baseIds.has(e.id))
 ];

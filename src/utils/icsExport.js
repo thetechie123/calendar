@@ -2,7 +2,8 @@
 
 export function downloadIcsFile(event) {
   const title = event.title;
-  const description = `${event.description}\n\nVenue: ${event.location}\nTiming: ${event.time}\nVahanam: ${event.vahanam || 'N/A'}`;
+  const vahanamLine = (event.vahanam && event.category !== 'quota-release' && !event.id?.startsWith('ttd-quota-')) ? `\nVahanam: ${event.vahanam}` : '';
+  const description = `${event.description}\n\nVenue: ${event.location}\nTiming: ${event.time}${vahanamLine}`;
   const location = `${event.location}, Tirupati/Tirumala Region, Andhra Pradesh, India`;
 
   // Format dates: YYYYMMDD

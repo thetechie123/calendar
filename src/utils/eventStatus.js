@@ -270,7 +270,7 @@ export function shareToPlatform(platform, event, lang = 'en') {
   const date = event.startDate === event.endDate ? event.startDate : `${event.startDate} to ${event.endDate}`;
   const time = event.time ? `\n⏰ Time: ${event.time}` : '';
   const location = event.location ? `\n🛕 Location: ${event.location}` : '';
-  const vahanam = event.vahanam ? `\n🐎 Vahanam: ${event.vahanam}` : '';
+  const vahanam = (event.vahanam && event.category !== 'quota-release' && !event.id?.startsWith('ttd-quota-')) ? `\n🐎 Vahanam: ${event.vahanam}` : '';
   const origin = window.location.origin || `${window.location.protocol}//${window.location.host}`;
   const eventUrl = event && event.id ? `${origin}/?event=${encodeURIComponent(event.id)}` : window.location.href;
 

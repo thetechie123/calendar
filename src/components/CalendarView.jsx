@@ -575,7 +575,7 @@ export default function CalendarView({
                             <span>{formatEventTiming(evt)}</span>
                           </div>
 
-                          {evt.vahanam && (
+                          {evt.vahanam && evt.category !== 'quota-release' && !evt.id?.startsWith('ttd-quota-') && (
                             <span className="vahanam-value font-sans font-extrabold flex items-center gap-1">
                               <span>🛕</span>
                               <span>{evt.vahanam}</span>
