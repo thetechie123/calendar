@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Clock as ClockIcon,
-  MessageSquare,
   Globe,
   Lock,
   Sun,
@@ -167,6 +166,7 @@ export default function Header({
               </div>
             )}
 
+
             {/* Dark / Light Mode Toggle */}
             <button
               onClick={() => setThemeMode(themeMode === 'dark' ? 'light' : 'dark')}
@@ -274,6 +274,25 @@ export default function Header({
             </a>
 
             <a
+              ref={el => (tabRefs.current['pilgrim-guide'] = el)}
+              href="/pilgrim-guide"
+              onClick={(e) => {
+                if (isModifiedClick(e)) return;
+                e.preventDefault();
+                setActiveTab('pilgrim-guide');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-1.5 shrink-0 transition-all ${
+                activeTab === 'pilgrim-guide'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-[#0B0E14] shadow-md font-extrabold'
+                  : 'text-[#CBD5E1] hover:text-[#FFD700] hover:bg-[#141923]'
+              }`}
+            >
+              <span>🛕</span>
+              <span>{lang === 'en' ? 'Pilgrim Guide' : 'యాత్ర గైడ్'}</span>
+            </a>
+
+
+            <a
               ref={el => (tabRefs.current['glossary'] = el)}
               href="/glossary"
               onClick={(e) => {
@@ -328,27 +347,6 @@ export default function Header({
                 {lang === 'en' ? 'SSD / DD Tokens' : 'SSD / DD టోకెన్లు'}
               </span>
             </a>
-
-
-            {/* COMMUNITY FEEDBACK BUTTON / ADMIN INBOX */}
-            <button
-              ref={el => (tabRefs.current['feedback'] = el)}
-              onClick={() => {
-                if (isAdminLoggedIn) {
-                  onOpenAdmin('feedback-inbox');
-                } else {
-                  setActiveTab('feedback');
-                }
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-1.5 shrink-0 transition-all ${
-                activeTab === 'feedback'
-                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-[#0B0E14] shadow-md'
-                  : 'text-[#CBD5E1] hover:text-[#FFD700] hover:bg-[#141923]'
-              }`}
-            >
-              <MessageSquare className="w-4 h-4 text-[#FF5722]" />
-              <span>{isAdminLoggedIn ? (lang === 'en' ? 'Feedback Inbox' : 'అభిప్రాయాల ఇన్బాక్స్') : (lang === 'en' ? 'Feedback' : 'అభిప్రాయాలు')}</span>
-            </button>
           </nav>
 
           {/* Subtle Mobile Right-Edge Fade Scroll Indicator */}

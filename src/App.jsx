@@ -14,10 +14,12 @@ import TtdLiveStreamModal from './components/layout/TtdLiveStreamModal';
 import LogoLightboxModal from './components/layout/LogoLightboxModal';
 import AppFooter from './components/layout/AppFooter';
 import ToastContainer from './components/common/ToastContainer';
+import BottomNavBar from './components/layout/BottomNavBar';
 import { subscribeToWebPush, unsubscribeFromWebPush, ELIGIBLE_NOTIFICATION_TEMPLES } from './utils/webPush';
 import { supabase } from './utils/supabaseClient';
-import { updateRouteMetadata } from './utils/seoMetadata';
+import { updateRouteMetadata, updateEventMetadata } from './utils/seoMetadata';
 import { updateRouteStructuredData } from './utils/structuredData';
+import { checkAndDispatchDueReminders } from './utils/eventReminders';
 
 const CalendarView = lazy(() => import('./components/CalendarView'));
 const DailySchedule = lazy(() => import('./components/DailySchedule'));
@@ -28,10 +30,10 @@ const AdminPortalModal = lazy(() => import('./components/AdminPortalModal'));
 const EventDetailModal = lazy(() => import('./components/EventDetailModal'));
 const FestivalTopicPage = lazy(() => import('./components/FestivalTopicPage'));
 const NotFoundPage = lazy(() => import('./components/NotFoundPage'));
-// Local development components (kept on disk for ongoing work):
-// const TempleList = lazy(() => import('./components/TempleList'));
-// const PilgrimGuide = lazy(() => import('./components/PilgrimGuide'));
-// const HeritageGuidesDirectory = lazy(() => import('./components/HeritageGuidesDirectory'));
+const PilgrimGuide = lazy(() => import('./components/PilgrimGuide'));
+const HeritageGuidesDirectory = lazy(() => import('./components/HeritageGuidesDirectory'));
+const AboutPage = lazy(() => import('./components/AboutPage'));
+const FaqPage = lazy(() => import('./components/FaqPage'));
 const loadInitialEvents = () =>
   import('./data/initialEvents').then(module => module.INITIAL_EVENTS);
 import { getFestivalTopic } from './data/festivalTopics';
@@ -44,14 +46,16 @@ const ROUTE_MAP = {
   '/sevas': 'sevas',
   '/tokens': 'tokens',
   '/feedback': 'feedback',
+  '/about': 'about',
   '/overview': 'calendar-page',
   '/temples': 'calendar-page',
-  '/pilgrim-guide': 'calendar-page',
-  '/pilgrim': 'calendar-page',
-  '/faqs': 'calendar-page',
-  '/guides': 'calendar-page',
+  '/pilgrim-guide': 'pilgrim-guide',
+  '/pilgrim': 'pilgrim-guide',
+  '/faqs': 'faqs',
+  '/faq': 'faqs',
+  '/guides': 'heritage-guides',
   '/festivals': 'calendar-page',
-  '/heritage': 'calendar-page',
+  '/heritage': 'heritage-guides',
 };
 
 const TAB_TO_PATH = {
@@ -61,6 +65,11 @@ const TAB_TO_PATH = {
   'sevas': '/sevas',
   'tokens': '/tokens',
   'feedback': '/feedback',
+  'about': '/about',
+  'faqs': '/faqs',
+  'temples': '/temples',
+  'pilgrim-guide': '/pilgrim-guide',
+  'heritage-guides': '/guides',
   'overview': '/',
   'not-found': '/404',
 };
@@ -69,8 +78,9 @@ function getFestivalSlugFromPath(pathname) {
   if (!pathname) return null;
   const cleanPath = pathname.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
   const lowerPath = cleanPath.toLowerCase();
-  if (lowerPath.startsWith('/festivals/')) {
-    const slug = lowerPath.slice('/festivals/'.length);
+  const normalized = lowerPath.startsWith('/') ? lowerPath : '/' + lowerPath;
+  if (normalized.startsWith('/festivals/')) {
+    const slug = normalized.slice('/festivals/'.length);
     if (getFestivalTopic(slug)) {
       return slug;
     }
@@ -82,9 +92,11 @@ function isValidRoute(pathname) {
   if (!pathname) return false;
   const cleanPath = pathname.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
   const lowerPath = cleanPath.toLowerCase();
-  if (ROUTE_MAP[lowerPath]) return true;
-  if (lowerPath.startsWith('/festivals/')) {
-    const slug = lowerPath.slice('/festivals/'.length);
+  const normalized = lowerPath.startsWith('/') ? lowerPath : '/' + lowerPath;
+  if (ROUTE_MAP[normalized] || ROUTE_MAP[lowerPath]) return true;
+  if (TAB_TO_PATH[lowerPath]) return true;
+  if (normalized.startsWith('/festivals/')) {
+    const slug = normalized.slice('/festivals/'.length);
     return Boolean(getFestivalTopic(slug));
   }
   return false;
@@ -94,14 +106,22 @@ function getTabFromPathname(pathname) {
   if (!pathname) return 'calendar-page';
   const cleanPath = pathname.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
   const lowerPath = cleanPath.toLowerCase();
-  if (lowerPath.startsWith('/festivals/')) {
-    const slug = lowerPath.slice('/festivals/'.length);
+  const normalized = lowerPath.startsWith('/') ? lowerPath : '/' + lowerPath;
+
+  if (normalized.startsWith('/festivals/')) {
+    const slug = normalized.slice('/festivals/'.length);
     if (getFestivalTopic(slug)) {
       return 'festival-topic';
     }
   }
+  if (ROUTE_MAP[normalized]) {
+    return ROUTE_MAP[normalized];
+  }
   if (ROUTE_MAP[lowerPath]) {
     return ROUTE_MAP[lowerPath];
+  }
+  if (TAB_TO_PATH[lowerPath]) {
+    return lowerPath;
   }
   return 'not-found';
 }
@@ -115,6 +135,7 @@ export default function App() {
   const [activeTab, setActiveTabState] = useState(() => getTabFromPathname(window.location.pathname));
   const [festivalSlug, setFestivalSlug] = useState(() => getFestivalSlugFromPath(window.location.pathname));
   const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
+  const [selectedEventModal, setSelectedEventModal] = useState(null);
 
   const setActiveTab = (tab, replace = false) => {
     setActiveTabState(tab);
@@ -150,24 +171,36 @@ export default function App() {
   };
 
   const handleNavigatePath = (path) => {
+    if (!path) return;
+    if (TAB_TO_PATH[path]) {
+      setActiveTab(path);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     const cleanPath = path.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
     const lowerPath = cleanPath.toLowerCase();
-    const tab = getTabFromPathname(lowerPath);
-    const slug = getFestivalSlugFromPath(lowerPath);
+    const normalized = lowerPath.startsWith('/') ? lowerPath : '/' + lowerPath;
+    const tab = getTabFromPathname(normalized);
+    const slug = getFestivalSlugFromPath(normalized);
     setActiveTabState(tab);
     setFestivalSlug(slug);
-    if (window.location.pathname !== path) {
-      window.history.pushState({ tab }, '', path);
+    const targetPath = normalized;
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({ tab }, '', targetPath);
     }
-    setCurrentPath(path);
+    setCurrentPath(targetPath);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Sync route-specific SEO metadata and structured data
   useEffect(() => {
-    updateRouteMetadata(window.location.pathname);
-    updateRouteStructuredData(window.location.pathname);
-  }, [currentPath, activeTab]);
+    if (selectedEventModal) {
+      updateEventMetadata(selectedEventModal);
+    } else {
+      updateRouteMetadata(window.location.pathname);
+      updateRouteStructuredData(window.location.pathname);
+    }
+  }, [currentPath, activeTab, selectedEventModal]);
 
   const eventsListRef = useRef(null);
 
@@ -213,7 +246,7 @@ export default function App() {
   const { themeMode, setThemeMode, toggleTheme } = useTheme();
 
   const [selectedTemple, setSelectedTemple] = useState('all');
-  const [selectedEventModal, setSelectedEventModal] = useState(null);
+
 
   // Admin Modal States
   const [adminModalMode, setAdminModalMode] = useState(null); // null | 'login' | 'edit-event' | 'add-event' | 'feedback-inbox'
@@ -585,59 +618,86 @@ export default function App() {
     });
   }, [safeEventsList, todayStr]);
 
-  // Automatic Daily Desktop/Mobile Push Notification for Today's Active Utsavam
-  // Automatic Daily Desktop/Mobile Push Notification for Today's Active Utsavam
-useEffect(() => {
-  if (
-    !notificationsEnabled ||
-    !todayEvent ||
-    !('Notification' in window) ||
-    Notification.permission !== 'granted'
-  ) {
-    return;
-  }
+  const todayQuotaEvents = useMemo(() => {
+    if (!Array.isArray(safeEventsList)) return [];
+    return safeEventsList.filter(e => {
+      if (!e || typeof e !== 'object' || !e.startDate) return false;
+      if (e.category !== 'quota-release' && !String(e.id).startsWith('ttd-quota-')) return false;
+      const end = e.endDate || e.startDate;
+      return e.startDate <= todayStr && todayStr <= end;
+    });
+  }, [safeEventsList, todayStr]);
 
-  const lastNotifiedDate = localStorage.getItem(
-    'tirumala_last_notified_date'
-  );
+  // Check and dispatch due event reminders & quota release auto-enrolled alerts on load
+  useEffect(() => {
+    if (safeEventsList.length > 0) {
+      checkAndDispatchDueReminders(safeEventsList, lang);
+    }
+  }, [safeEventsList, notificationsEnabled, lang]);
 
-  if (lastNotifiedDate === todayStr) {
-    return;
-  }
+  // Automatic Daily Desktop/Mobile Push Notification for Today's Active Utsavam & Quota Releases
+  useEffect(() => {
+    if (
+      !notificationsEnabled ||
+      !('Notification' in window) ||
+      Notification.permission !== 'granted'
+    ) {
+      return;
+    }
 
-  const showTodayNotification = async () => {
-    try {
-      if ('serviceWorker' in navigator) {
+    const showNotifications = async () => {
+      try {
+        if (!('serviceWorker' in navigator)) return;
         const registration = await navigator.serviceWorker.ready;
 
-        await registration.showNotification(
-          '🌸 Today Tirumala Utsavam Alert!',
-          {
-            body: `${todayEvent.title} is taking place today at Tirumala Tirupati temples! Tap to view details.`,
-            icon: '/logo-64.png',
-            badge: '/logo-64.png',
-            data: {
-              url: 'https://thetirumalaverse.in/'
-            },
-            tag: `tirumala-daily-${todayStr}`
+        // 1. Quota Release Alert (High Priority)
+        for (const q of todayQuotaEvents) {
+          const quotaNotifKey = `tirumala_quota_notified_${q.id}_${todayStr}`;
+          if (!localStorage.getItem(quotaNotifKey)) {
+            await registration.showNotification(
+              lang === 'te' ? '🌸 టీటీడీ కోటా విడుదల అప్‌డేట్!' : '🌸 TTD January 2027 Quota Release Alert!',
+              {
+                body: lang === 'te'
+                  ? `${q.titleTe || q.title} ప్రస్తుతం అందుబాటులో ఉంది! అధికారిక పోర్టల్ ttdevasthanams.ap.gov.in లో పరిశీలించండి.`
+                  : `${q.title} is active today! Booking exclusively on ttdevasthanams.ap.gov.in.`,
+                icon: '/logo-64.png',
+                badge: '/logo-64.png',
+                data: {
+                  url: `https://thetirumalaverse.in/calendar?event=${q.id}`
+                },
+                tag: `tirumala-quota-${q.id}-${todayStr}`
+              }
+            );
+            localStorage.setItem(quotaNotifKey, todayStr);
           }
-        );
+        }
 
-        localStorage.setItem(
-          'tirumala_last_notified_date',
-          todayStr
-        );
+        // 2. Active Utsavam Alert
+        if (todayEvent) {
+          const lastNotifiedDate = localStorage.getItem('tirumala_last_notified_date');
+          if (lastNotifiedDate !== todayStr) {
+            await registration.showNotification(
+              '🌸 Today Tirumala Utsavam Alert!',
+              {
+                body: `${todayEvent.title} is taking place today at Tirumala Tirupati temples! Tap to view details.`,
+                icon: '/logo-64.png',
+                badge: '/logo-64.png',
+                data: {
+                  url: 'https://thetirumalaverse.in/'
+                },
+                tag: `tirumala-daily-${todayStr}`
+              }
+            );
+            localStorage.setItem('tirumala_last_notified_date', todayStr);
+          }
+        }
+      } catch (error) {
+        console.warn('Could not show push notification:', error);
       }
-    } catch (error) {
-      console.warn(
-        'Could not show daily Utsavam notification:',
-        error
-      );
-    }
-  };
+    };
 
-  showTodayNotification();
-}, [notificationsEnabled, todayEvent, todayStr]);
+    showNotifications();
+  }, [notificationsEnabled, todayEvent, todayQuotaEvents, todayStr, lang]);
 
   // Feedback Handlers
   const handleAddFeedback = (newFeedback) => {
@@ -791,6 +851,49 @@ useEffect(() => {
             />
           )}
 
+          {/* PILGRIM GUIDE SECTION */}
+          {activeTab === 'pilgrim-guide' && (
+            <PilgrimGuide
+              lang={lang}
+              onNavigate={handleNavigatePath}
+            />
+          )}
+
+          {/* STANDALONE FREQUENTLY ASKED QUESTIONS (FAQS) SECTION */}
+          {activeTab === 'faqs' && (
+            <FaqPage
+              lang={lang}
+              themeMode={themeMode}
+              onNavigate={handleNavigatePath}
+              onOpenFeedbackTab={() => {
+                setActiveTab('feedback');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          )}
+
+          {/* HERITAGE GUIDES DIRECTORY SECTION */}
+          {activeTab === 'heritage-guides' && (
+            <HeritageGuidesDirectory
+              lang={lang}
+              onSelectTopic={(slug) => handleNavigatePath(`/festivals/${slug}`)}
+            />
+          )}
+
+          {/* ABOUT PAGE SECTION */}
+          {activeTab === 'about' && (
+            <AboutPage
+              lang={lang}
+              themeMode={themeMode}
+              onNavigate={handleNavigatePath}
+              onOpenFeedbackTab={() => {
+                setActiveTab('feedback');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onOpenLogoModal={() => setIsLogoModalOpen(true)}
+            />
+          )}
+
           {/* FESTIVAL TOPIC PAGE SECTION */}
           {activeTab === 'festival-topic' && (
             <FestivalTopicPage
@@ -893,6 +996,18 @@ useEffect(() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
       />
+
+      {/* Mobile Bottom Navigation Bar */}
+      <BottomNavBar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        lang={lang}
+        onNavigatePath={handleNavigatePath}
+      />
+
+      {/* Mobile bottom spacer so content isn't hidden behind fixed bottom nav */}
+      <div className="h-16 sm:hidden" aria-hidden="true" />
+
 
       {/* Global Toast Notifications Container */}
       <ToastContainer themeMode={themeMode} />

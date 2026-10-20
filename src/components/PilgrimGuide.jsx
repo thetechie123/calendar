@@ -22,12 +22,16 @@ import {
   TTD_ABBREVIATIONS,
   LADDU_KIOSK_GUIDE,
   KALYANAMAHAPRASADAM_GUIDE,
-  PILGRIM_ETIQUETTE_RULES,
-  PILGRIM_FAQS
+  PILGRIM_ETIQUETTE_RULES
 } from '../data/pilgrimData';
 import useTheme from '../hooks/useTheme';
 
-export default function PilgrimGuide({ lang = 'en', defaultSection = 'abbreviations', onSelectTopic }) {
+export default function PilgrimGuide({
+  lang = 'en',
+  defaultSection = 'abbreviations',
+  onSelectTopic,
+  onNavigate
+}) {
   const { themeMode } = useTheme();
   const isLight = themeMode === 'light';
   const isTe = lang === 'te';
@@ -40,11 +44,6 @@ export default function PilgrimGuide({ lang = 'en', defaultSection = 'abbreviati
 
   // Laddu KIOSK ticket mode state
   const [kioskMode, setKioskMode] = useState('ticket'); // 'ticket' or 'aadhaar'
-
-  // FAQs state
-  const [faqSearch, setFaqSearch] = useState('');
-  const [selectedFaqCat, setSelectedFaqCat] = useState('all');
-  const [expandedFaqId, setExpandedFaqId] = useState(null);
 
   // Address copy state
   const [copiedAddress, setCopiedAddress] = useState(false);
@@ -80,22 +79,6 @@ export default function PilgrimGuide({ lang = 'en', defaultSection = 'abbreviati
       );
     });
   }, [abbrSearch, selectedAbbrCat]);
-
-  // Filtered FAQs
-  const filteredFaqs = useMemo(() => {
-    return PILGRIM_FAQS.filter(faq => {
-      const matchesCat = selectedFaqCat === 'all' || faq.category === selectedFaqCat;
-      const q = faqSearch.trim().toLowerCase();
-      if (!q) return matchesCat;
-
-      const qEn = faq.questionEn.toLowerCase();
-      const qTe = (faq.questionTe || '').toLowerCase();
-      const aEn = faq.answerEn.toLowerCase();
-      const aTe = (faq.answerTe || '').toLowerCase();
-
-      return matchesCat && (qEn.includes(q) || qTe.includes(q) || aEn.includes(q) || aTe.includes(q));
-    });
-  }, [faqSearch, selectedFaqCat]);
 
   return (
     <div className="space-y-8 py-4 max-w-5xl mx-auto">
@@ -173,18 +156,6 @@ export default function PilgrimGuide({ lang = 'en', defaultSection = 'abbreviati
           >
             <span>🌸</span>
             <span>{isTe ? 'ఆలయ నియమావళి & పూల నిషేధం' : 'Sanctum Etiquette & Rules'}</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSection('faqs')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
-              activeSection === 'faqs'
-                ? 'bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black shadow-lg font-extrabold'
-                : 'bg-white/5 text-[#CBD5E1] hover:text-[#FFD700] hover:bg-white/10'
-            }`}
-          >
-            <HelpCircle className="w-4 h-4 text-[#FFD700]" />
-            <span>{isTe ? 'ప్రశ్నోత్తరాలు (FAQs)' : 'Pilgrim FAQs'}</span>
           </button>
 
           <button
@@ -507,106 +478,32 @@ export default function PilgrimGuide({ lang = 'en', defaultSection = 'abbreviati
         </section>
       )}
 
-      {/* SECTION 5: PILGRIM & TEMPLE FAQS */}
-      {activeSection === 'faqs' && (
-        <section className="space-y-6">
-          <div className="glass-card p-5 sm:p-6 rounded-2xl border border-[#D4AF37]/30 space-y-4 bg-[#141923]/70">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h2 className={`font-serif text-xl sm:text-2xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                  {isTe ? 'తరచుగా అడిగే పవిత్ర ప్రశ్నలు & సమాధానాలు' : 'Frequently Asked Pilgrim & Ritual Questions'}
-                </h2>
-                <p className="text-xs text-[#94A3B8]">
-                  {isTe ? 'ఆలయ నియమాలు, దర్శన పద్ధతులు మరియు సంప్రదాయాల సమగ్ర సమాచారం' : 'Verified answers on sanctum traditions, laddu kiosks, offerings, and etiquette'}
-                </p>
-              </div>
-
-              {/* Instant Search Bar */}
-              <div className="relative min-w-[240px]">
-                <Search className="w-4 h-4 absolute left-3 top-3 text-[#D4AF37]" />
-                <input
-                  type="text"
-                  value={faqSearch}
-                  onChange={e => setFaqSearch(e.target.value)}
-                  placeholder={isTe ? 'ప్రశ్నలలో వెతకండి...' : 'Search questions or keywords...'}
-                  className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#0B0E14] border border-[#D4AF37]/40 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
-                />
-              </div>
-            </div>
-
-            {/* Category Filter Pills */}
-            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
-              {[
-                { id: 'all', labelEn: 'All Questions', labelTe: 'అన్ని ప్రశ్నలు' },
-                { id: 'rules', labelEn: 'Sacred Rules', labelTe: 'ఆలయ నియమాలు' },
-                { id: 'rituals', labelEn: 'Rituals & Sanctions', labelTe: 'పూజలు & క్రతువులు' },
-                { id: 'traditions', labelEn: 'Puranic Traditions', labelTe: 'పురాణ సంప్రదాయాలు' },
-                { id: 'amenities', labelEn: 'Pilgrim Amenities', labelTe: 'యాత్రికుల సేవలు' }
-              ].map(cat => (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedFaqCat(cat.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                    selectedFaqCat === cat.id
-                      ? 'bg-[#FFD700] text-black shadow'
-                      : 'bg-white/5 text-slate-300 hover:bg-white/10'
-                  }`}
-                >
-                  <span>{isTe ? cat.labelTe : cat.labelEn}</span>
-                </button>
-              ))}
-            </div>
+      {/* DEDICATED FAQS CALLOUT CARD */}
+      <section className="p-6 sm:p-7 rounded-2xl border transition-colors bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-[#FFD700] border border-amber-500/40 flex items-center justify-center shrink-0">
+            <HelpCircle className="w-6 h-6" />
           </div>
-
-          {/* FAQs Accordion */}
-          <div className="space-y-3">
-            {filteredFaqs.map(faq => {
-              const isExpanded = expandedFaqId === faq.id;
-              return (
-                <div
-                  key={faq.id}
-                  className="glass-card rounded-2xl border border-[#D4AF37]/30 hover:border-[#FFD700] transition-colors bg-[#141923]/60 overflow-hidden"
-                >
-                  <button
-                    onClick={() => setExpandedFaqId(isExpanded ? null : faq.id)}
-                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="w-7 h-7 rounded-lg bg-amber-500/10 border border-[#FFD700]/30 text-[#FFD700] text-xs font-bold flex items-center justify-center shrink-0">
-                        Q
-                      </span>
-                      <h3 className={`font-serif text-sm sm:text-base font-bold ${isLight ? 'text-slate-900' : 'text-slate-100'}`}>
-                        {isTe ? faq.questionTe : faq.questionEn}
-                      </h3>
-                    </div>
-
-                    <ChevronDown
-                      className={`w-4 h-4 text-[#D4AF37] shrink-0 transition-transform duration-300 ${
-                        isExpanded ? 'rotate-180' : 'rotate-0'
-                      }`}
-                    />
-                  </button>
-
-                  {isExpanded && (
-                    <div className="px-4 sm:px-5 pb-5 pt-1 space-y-3 border-t border-white/5">
-                      <div className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line bg-[#0B0E14] p-4 rounded-xl border border-white/5">
-                        {isTe ? faq.answerTe : faq.answerEn}
-                      </div>
-
-                      {faq.source && (
-                        <div className="text-[11px] text-[#94A3B8] font-medium flex items-center gap-1.5 pl-1">
-                          <span>📜</span>
-                          <span><strong>Source:</strong> {faq.source}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          <div className="space-y-0.5">
+            <h3 className={`font-serif font-bold text-base sm:text-lg ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              {isTe ? 'తరచుగా అడిగే పవిత్ర ప్రశ్నలు (FAQs)' : 'Frequently Asked Pilgrim Questions (FAQs)'}
+            </h3>
+            <p className={`text-xs max-w-xl ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+              {isTe
+                ? 'దర్శనం టోకెన్లు, లడ్డూ కియోస్క్లు, వస్త్రధారణ నియమాలు మరియు పూజా సంప్రదాయాలపై అన్ని ప్రశ్నల సమాధానాలు మా ప్రత్యేక ప్రశ్నోత్తరాల పేజీలో అందుబాటులో ఉన్నాయి.'
+                : 'Looking for answers on SSD/DD darshan tokens, UPI laddu kiosks, dress code, and sacred rituals? Explore our dedicated FAQ directory.'}
+            </p>
           </div>
-        </section>
-      )}
+        </div>
+
+        <button
+          onClick={() => (onNavigate ? onNavigate('/faqs') : null)}
+          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black font-extrabold text-xs inline-flex items-center gap-1.5 shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
+        >
+          <span>{isTe ? 'ప్రశ్నోత్తరాల పేజీ చూడండి' : 'Explore Dedicated FAQs'}</span>
+          <span>→</span>
+        </button>
+      </section>
 
       {/* SECTION 6: HERITAGE & STANDALONE GUIDES DIRECTORY */}
       {activeSection === 'heritage-guides' && (

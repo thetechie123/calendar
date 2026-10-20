@@ -390,89 +390,89 @@ export const PILGRIM_FAQS = [
     category: 'rules',
     questionEn: 'Why are pilgrims not allowed to wear flowers in their hair at Tirumala?',
     questionTe: 'తిరుమలలో భక్తులు తలలో పూలు ఎందుకు ధరించకూడదు?',
-    answerEn: 'According to centuries-old Sri Vaishnava tradition and the Venkatachala Mahatmyam, Tirumala is glorified as the "Pushpa Mandapam" (Pavilion of Flowers). Every flower blooming across the sacred hills is deemed the sovereign property of Lord Venkateswara. All blossoms are consecrated inside the temple\'s "Pula Ara" (flower vault) for decorating the Mula Virat\'s divine jewels, weapons, and chest consorts. To wear flowers meant for the Divine on one\'s own body is considered an infringement of reverence; hence, devotees abstain from wearing flowers anywhere atop Tirumala.',
-    answerTe: 'శ్రీవైష్ణవ సంప్రదాయం ప్రకారం తిరుమల క్షేత్రాన్ని "పుష్ప మండపం"గా కీర్తిస్తారు. ఈ పవిత్ర కొండపై పూసే ప్రతి పువ్వు శ్రీవేంకటేశ్వర స్వామివారి దివ్య కైంకర్యానికి మాత్రమే సొంతం. ఆ పువ్వులను ఆలయంలోని "పూల అర"లో భద్రపరచి స్వామివారి ఆభరణాలు, ఆయుధాలు మరియు వక్షస్థల లక్ష్మీదేవికి సమర్పిస్తారు. పరమాత్ముని పూజకు ఉద్దేశించిన పుష్పాలను మానవులు తమ అలంకరణ కోసం ధరించకూడదనే పరమ భక్తి నియమంతో భక్తులు తిరుమలలో పూలు పెట్టుకోరు.',
-    source: 'Sapthagiri Magazine (September 2026), "Flowers in Tirumala Temple Festivities"'
+    answerEn: 'Tirumala is revered as the Pushpa Mandapam where every blossom belongs exclusively to Lord Venkateswara. Devotees abstain from wearing flowers in their hair to preserve them entirely for the Lord\'s sacred worship.',
+    answerTe: 'తిరుమల క్షేత్రం "పుష్ప మండపం". ఇక్కడి ప్రతి పువ్వు స్వామివారి దివ్య కైంకర్యానికే చెందుతుంది కాబట్టి భక్తులు తలలో పూలు ధరించరు.',
+    source: 'Sapthagiri Magazine (September 2026)'
   },
   {
     id: 'faq-varaha-swami-first',
     category: 'rituals',
     questionEn: 'Why should pilgrims visit Sri Bhu Varaha Swami Temple before taking darshan of Lord Venkateswara?',
     questionTe: 'శ్రీవేంకటేశ్వర స్వామి దర్శనానికి ముందే శ్రీ ఆది వరాహస్వామిని ఎందుకు దర్శించుకోవాలి?',
-    answerEn: 'Scriptures record that when Lord Vishnu descended to Earth as Srinivasa, the entire Seshachalam hill was the sovereign hermitage of Sri Adi Varaha Swamy (who had earlier rescued Bhudevi from the demon Hiranyaksha). Lord Srinivasa graciously requested Lord Varaha for land to reside upon. Sri Varaha Swamy granted the sacred site with the covenant that pilgrims must first pay homage, offer worship, and receive the grace of Varaha Swamy before approaching the Ananda Nilayam sanctum. This foundational protocol ensures that the devotee\'s pilgrimage is spiritually complete and fruitful.',
-    answerTe: 'పురాణ కథనం ప్రకారం శ్రీనివాసుడు భూలోకానికి విచ్చేసినప్పుడు శేషాచల పర్వతం శ్రీ ఆది వరాహస్వామివారి నివాసస్థానంగా ఉండేది. స్వామివారు ఇక్కడ కొలువుదీరడానికి వరాహస్వామి అనుమతిని, భూమిని పొందారు. ఆ దివ్య ఒడంబడిక ప్రకారం తిరుమలకు వచ్చే భక్తులు తొలుత స్వామి పుష్కరిణి ఒడ్డున ఉన్న శ్రీ భూవరాహస్వామిని దర్శించి, ఆ తరువాతే శ్రీవేంకటేశ్వర స్వామిని దర్శించుకోవాలని ఆగమ విధి నిర్దేశిస్తుంది.',
-    source: 'Sapthagiri Magazine (September 2025), "Sri Varaha Swami Temple" & Venkatachala Mahatmyam'
+    answerEn: 'Per Puranic covenant, Sri Adi Varaha Swamy granted the sacred hill to Lord Srinivasa on the condition that pilgrims first offer homage at His shrine before entering the main sanctum.',
+    answerTe: 'పురాణ కథనం ప్రకారం శేషాచల క్షేత్రపాలకుడైన శ్రీ భూవరాహస్వామిని దర్శించిన తర్వాతే శ్రీవేంకటేశ్వర స్వామిని దర్శించాలని ఆగమ విధి నిర్దేశిస్తుంది.',
+    source: 'Sapthagiri Magazine & Venkatachala Mahatmyam'
   },
   {
     id: 'faq-hundi-koppera',
     category: 'traditions',
     questionEn: 'Why is the temple hundi referred to as "Koppera", and why do devotees offer wealth into it?',
     questionTe: 'తిరుమల హుండీని "కొప్పెర" అని ఎందుకు అంటారు? అందులో కానుకలు ఎందుకు సమర్పిస్తారు?',
-    answerEn: 'The sacred hundi at Tirumala is situated in the Tirumamani Mandapam opposite the historic Sankeertana Bhandagaram (Annamayya Ara). It comprises a large 3-foot by 2-foot brass cauldron (known locally as a "Koppera") veiled beneath a 9-foot tapering white fabric canopy tied to the ceiling with four drop-openings. According to revered tradition, Lord Venkateswara borrowed a cosmic wealth loan from Kubera to conduct His celestial wedding with Goddess Padmavathi. Devotees drop coins, gold, and offerings into the Koppera as an act of heartfelt love, symbolically participating in helping the Lord repay this sacred debt through the Kali Yuga.',
-    answerTe: 'శ్రీవారి ఆలయంలోని తిరుమామణి మండపంలో అన్నమయ్య అర ఎదురుగా ఉన్న హుండీ 3 అడుగుల పొడవు, 2 అడుగుల వెడల్పు గల భారీ ఇత్తడి పాత్ర (కొప్పెర). దీనిని పైకప్పు వరకు 9 అడుగుల తెల్లటి వస్త్రంతో కప్పి నాలుగు వైపులా కానుకలు వేయడానికి ద్వారాలు ఏర్పాటు చేస్తారు. పద్మావతీ శ్రీనివాసుల దివ్య కల్యాణం కోసం కుబేరుని వద్ద తీసుకున్న రుణాన్ని తీర్చడంలో భక్తులు భాగస్వామ్యులవుతూ తమ భక్తి ప్రపత్తులతో కానుకలను ఈ కొప్పెరలో సమర్పిస్తారు.',
-    source: 'Sapthagiri Magazine (October 2026), "Hundi (Koppera) at Tirumala"'
+    answerEn: 'The Koppera is a sacred brass cauldron where devotees offer coins and gold to symbolically assist Lord Venkateswara in repaying His celestial wedding loan to Kubera.',
+    answerTe: 'శ్రీవారి కల్యాణం కోసం కుబేరుని వద్ద తీసుకున్న రుణాన్ని తీర్చడంలో భక్తితో భాగస్వామ్యం కావడానికి భక్తులు కొప్పెర హుండీలో కానుకలు సమర్పిస్తారు.',
+    source: 'Sapthagiri Magazine (October 2026)'
   },
   {
     id: 'faq-sannidhi-golla',
     category: 'traditions',
     questionEn: 'Who is the Sannidhi Golla, and why do they enter the sanctum before Suprabhatam begins?',
     questionTe: 'సన్నిధి గొల్ల ఎవరు? సుప్రభాతానికి ముందే గర్భాలయంలోకి వారు ఎందుకు ప్రవేశిస్తారు?',
-    answerEn: 'When Lord Srinivasa first manifested on the southern banks of Swami Pushkarini, a humble Yadava cowherd was the very first mortal soul to behold and offer hospitality to the Lord. Deeply touched by his pure devotion, the Lord granted his lineage the eternal privilege of the first daily darshan until the end of Kali Yuga. Every morning at 2:30 AM (Brahma Muhurta), the Sannidhi Golla awakens the Archakas, leads them with a flaming torch proclaiming "The path to the servants of Sri Swamy!", inspects the seals on the Bangaru Vakili locks, and enters the sanctum first before Suprabhatam to illuminate the sacred path.',
-    answerTe: 'స్వామివారు తొలుత పుష్కరిణి ఒడ్డున వెలసినప్పుడు ఒక యాదవ భక్తుడు స్వామిని మొదటగా దర్శించి ఆతిథ్యమిచ్చాడు. ఆ నిష్కల్మష భక్తికి మెచ్చిన స్వామి తన వంశీయులకే ప్రతిరోజూ ప్రథమ దర్శన భాగ్యం లభిస్తుందని వరమిచ్చారు. ఆ సాంప్రదాయం ప్రకారం ప్రతిరోజూ బ్రహ్మముహూర్తంలో (తెల్లవారుజామున 2:30 గంటలకు) దివిటీ పట్టుకుని అర్చకులను ఆలయానికి తోడ్కొని వచ్చి, బంగారు వాకిలి తాళాలను పరిశీలించి, సుప్రభాతానికి ముందే గర్భాలయంలోకి ప్రవేశించే అపురూప గౌరవం సన్నిధి గొల్లదే.',
-    source: 'Sapthagiri Magazine (September 2025), "The Sacred First Glimpse in Tirumala" by Smt. Akhila Madhu'
+    answerEn: 'A devout Yadava cowherd offered the first hospitality to Lord Srinivasa on Earth. By divine boon, his lineage holds the eternal privilege of daily first darshan, entering before Suprabhatam with a flaming torch.',
+    answerTe: 'స్వామివారికి మొదటి ఆతిథ్యమిచ్చిన యాదవ భక్తుని వంశీయుడే సన్నిధి గొల్ల. ప్రతిరోజూ బ్రహ్మముహూర్తంలో దివిటీతో గర్భాలయంలోకి ప్రథమంగా ప్రవేశించే సంప్రదాయ గౌరవం వీరిదే.',
+    source: 'Sapthagiri Magazine (September 2025)'
   },
   {
     id: 'faq-laddu-kiosk',
     category: 'amenities',
     questionEn: 'How do the UPI KIOSK machines work for purchasing additional Tirumala Laddus?',
     questionTe: 'అదనపు లడ్డూలను కొనుగోలు చేయడానికి UPI కియోస్క్ యంత్రాలను ఎలా ఉపయోగించాలి?',
-    answerEn: 'TTD has installed digital touch-screen KIOSK machines outside the Laddu Distribution Complex. Pilgrims choose between two modes: "With Valid Darshan Ticket" (permits up to 2 extra laddus per pilgrim listed on the pass) or "Without Darshan Ticket" (permits up to 2 extra laddus per validated Aadhaar card). After choosing the quantity, scan the generated UPI QR code using any banking app, print your receipt voucher, and instantly claim your laddus at the counter.',
-    answerTe: 'లడ్డూ కాంప్లెక్స్ వద్ద గల టచ్‌స్క్రీన్ కియోస్క్ మెషీన్లలో "దర్శన టికెట్ ఉన్నవారు" లేదా "ఆధార్ నంబర్ ఉన్నవారు" అనే ఆప్షన్ ఎంచుకోవాలి. దర్శన టికెట్ ద్వారా లేదా ఆధార్ ద్వారా ఒక్కొక్కరికి గరిష్టంగా 2 అదనపు లడ్డూల వరకు ఎంపిక చేసుకోవచ్చు. స్క్రీన్‌పై వచ్చే UPI QR కోడ్‌ను ఫోన్‌పే, గూగుల్‌పే ద్వారా స్కాన్ చేసి నగదు చెల్లించిన వెంటనే రశీదు వస్తుంది. దానిని కౌంటర్‌లో ఇచ్చి లడ్డూలు తీసుకోవచ్చు.',
-    source: 'Sapthagiri Magazine (September 2026), "KIOSK machines at Laddu Counters in Tirumala"'
+    answerEn: 'Select your darshan ticket or Aadhaar mode on the touch-screen KIOSK (up to 2 extra laddus), scan the generated UPI QR code, and present the printed receipt at the counter to claim your laddus.',
+    answerTe: 'కియోస్క్ మెషీన్‌లో ఆధార్ లేదా దర్శన టికెట్ ఎంచుకుని, UPI క్యూఆర్ కోడ్ స్కాన్ చేసి నగదు చెల్లించి రశీదుతో కౌంటర్‌లో అదనపు లడ్డూలు పొందవచ్చు.',
+    source: 'Sapthagiri Magazine (September 2026)'
   },
   {
     id: 'faq-wedding-card-blessing',
     category: 'amenities',
     questionEn: 'How can newly married couples receive Lord Venkateswara\'s wedding blessings by post?',
     questionTe: 'కొత్తగా పెళ్లయిన దంపతులు శ్రీవారి కల్యాణ ప్రసాదాన్ని తపాలా ద్వారా ఎలా పొందవచ్చు?',
-    answerEn: 'Families can send their formal printed wedding invitation card at least 30 days before the wedding date addressed to: The Executive Officer, TTD Administrative Building, K.T. Road, Tirupati - 517501, Andhra Pradesh. Include the full return postal address and mobile number. TTD dispatches a sanctified marriage blessings kit containing Akshintalu (Talambralu), Kumkuma, Kankanam (wedding wristbands), Srivari Prasadam, and a spiritual Kalyana book directly to your home.',
-    answerTe: 'వివాహ తేదీకి కనీసం ఒక నెల ముందుగా మీ పెళ్లి పత్రికను "కార్యనిర్వహణాధికారి (Executive Officer), TTD పరిపాలనా భవనం, K.T. రోడ్డు, తిరుపతి - 517 501, ఆంధ్రప్రదేశ్" అను చిరునామాకు పూర్తి తిరుగు చిరునామాతో పంపాలి. TTD వారు స్వామివారి దివ్య అక్షింతలు, కుంకుమ, రక్షా కంకణాలు, పవిత్ర ప్రసాదం మరియు కల్యాణ గ్రంథాన్ని ఉచితంగా మీ ఇంటికి తపాలా ద్వారా పంపుతారు.',
-    source: 'Sapthagiri Magazine (September 2026), "Lord Venkateswara Mahaprasadam - The Lord\'s Blessings at Your Door Step"'
+    answerEn: 'Mail your formal printed wedding invitation card 30 days prior to The Executive Officer, TTD, K.T. Road, Tirupati - 517501 with full return address to receive complimentary sanctified Akshintalu, Kumkuma, and Prasadam by post.',
+    answerTe: 'వివాహానికి 30 రోజుల ముందు పెళ్లి పత్రికను పూర్తి తిరుగు చిరునామాతో టీటీడీ ఈవో చిరునామాకు పంపితే స్వామివారి తలంబ్రాలు, కుంకుమ, ప్రసాదం ఉచితంగా తపాలా ద్వారా అందుతాయి.',
+    source: 'Sapthagiri Magazine (September 2026)'
   },
   {
     id: 'faq-seven-thresholds',
     category: 'rituals',
     questionEn: 'What are the seven sacred doorways and thresholds leading into the sanctum sanctorum?',
     questionTe: 'గర్భాలయానికి దారితీసే ఏడు పవిత్ర ప్రవేశ ద్వారాలు మరియు గడపలు ఏవి?',
-    answerEn: 'Devotees step through seven profound thresholds on their journey to the Mula Virat: 1. Maha Dwaram (Padikavali / Simhadwaram - the grand outer gopuram), 2. Vendi Vakili (Nadimi Padi Kavali - the silver-plated entrance), 3. Bangaru Vakili (the golden portal opening into Tirumamani Mandapam), 4. Snapana Mantapa Door (entrance to the sacred abhishekam hall), 5. Ramulavarimeda Door (chamber dedicated to Sri Rama), 6. Sayana Mantapa Door (the chamber of Ekanta Seva rest), and 7. Kulasekhara Padi (the innermost granite threshold right before the Mula Virat which mortal beings do not cross).',
-    answerTe: 'స్వామివారి మూలవిరాట్ సన్నిధికి చేరుకోవడానికి ఏడు దివ్య ద్వారాలు ఉన్నాయి: 1. మహా ద్వారం (పడికావలి - బాహ్య రాజగోపురం), 2. వెండి వాకిలి (నడిమి పడి కావలి), 3. బంగారు వాకిలి (తిరుమామణి మండప ద్వారం), 4. స్నపన మండప ద్వారం, 5. రాములవారిమేడ ద్వారం, 6. శయన మండప ద్వారం, మరియు 7. కులశేఖర పడి (గర్భాలయం ముందున్న పవిత్ర గడప; దీనిని ఎవరూ దాటకూడదు).',
-    source: 'Sapthagiri Magazine (September 2026), "Architectural Thresholds of the Sanctum"'
+    answerEn: 'Pilgrims pass through 7 sanctified doorways: Maha Dwaram (outer gopuram), Vendi Vakili, Bangaru Vakili, Snapana Mantapa Door, Ramulavarimeda Door, Sayana Mantapa Door, and the innermost Kulasekhara Padi.',
+    answerTe: 'మహా ద్వారం, వెండి వాకిలి, బంగారు వాకిలి, స్నపన మండపం, రాములవారిమేడ, శయన మండపం, మరియు కులశేఖర పడి — ఇవి గర్భాలయానికి గల 7 పవిత్ర ప్రవేశ ద్వారాలు.',
+    source: 'Sapthagiri Magazine (September 2026)'
   },
   {
     id: 'faq-eight-garlands',
     category: 'traditions',
     questionEn: 'What are the specific flower garlands crafted daily for Lord Venkateswara?',
     questionTe: 'శ్రీవారికి ప్రతిరోజూ అలంకరించే ఎనిమిది విశిష్ట పూలమాలలు ఏవి?',
-    answerEn: 'Tirumala follows a rigorous Agamic metric for the Mula Virat\'s floral vestments: 1. Shikhamani (an 8-foot majestic garland draped from crown to shoulders), 2. Saligrama Malas (two 4-foot garlands framing the Saligrama Haram), 3. Kanthasari (two 3.5-foot neck collars), 4. Vakshasthala Lakshmi Malas (two 1.5-foot garlands adorning the chest consorts), 5. Shanku & Chakra Malas (1-foot garlands for the divine Conch and Discus), 6. Khatari Saram (a 2-foot garland decorating sword Nandakam), 7. Tavalams (three cascading garlands sweeping from elbows and waist down to the holy feet), and 8. Tiruvadi Malas (exclusive garlands for the sacred lotus feet).',
-    answerTe: 'శ్రీవారి మూలవిరాట్‌కు సమర్పించే పుష్పమాలలు నిర్దిష్ట కొలతలతో తయారవుతాయి: 1. శిఖామణి (కిరీటం నుండి భుజాల మీదుగా జారే 8 అడుగుల భారీ మాల), 2. సాలిగ్రామ మాలలు (4 అడుగులవి రెండు), 3. కంఠసరి (మెడను అలంకరించే 3.5 అడుగులవి రెండు), 4. వక్షస్థల లక్ష్మి మాలలు (1.5 అడుగులవి రెండు), 5. శంఖ-చక్ర మాలలు (ఒక్కొక్క అడుగు), 6. ఖటారి సరం (నందకం ఖడ్గానికి 2 అడుగుల మాల), 7. తవళాలు (మోచేతులు, నడుము నుండి పాదాల వరకు జారే 3 మాలలు), మరియు 8. తిరువడి మాలలు (స్వామివారి పవిత్ర శ్రీచరణాలకు సమర్పించే ప్రత్యేక మాలలు).',
-    source: 'Sapthagiri Magazine (September 2026), "Flowers in Tirumala Temple Festivities"'
+    answerEn: 'The Mula Virat is adorned with 8 Agamic garlands: Shikhamani (8 ft), Saligrama Malas, Kanthasari, Vakshasthala Lakshmi Malas, Shanku-Chakra Malas, Khatari Saram, Tavalams, and Tiruvadi Malas.',
+    answerTe: 'శిఖామణి, సాలిగ్రామ మాలలు, కంఠసరి, వక్షస్థల లక్ష్మి మాలలు, శంఖ-చక్ర మాలలు, ఖటారి సరం, తవళాలు, మరియు తిరువడి మాలలు స్వామివారికి నిత్యం సమర్పించే 8 దివ్య మాలలు.',
+    source: 'Sapthagiri Magazine (September 2026)'
   },
   {
     id: 'faq-kainkaryaparas-three',
     category: 'rituals',
     questionEn: 'Who are the Three Important Functionaries (Kainkaryaparas) of Tirumala Temple?',
     questionTe: 'తిరుమల ఆలయ ప్రధాన ముగ్గురు కైంకర్యపరులు ఎవరు?',
-    answerEn: 'As systematically codified in the historic British record "Sawal Jawab Patti Fasli 1227 (1817 AD)", the three paramount functionaries who conduct worship are: 1. The Vaikhanasa Archakas (hereditary priests from Bharadwaja and Kausika gotras descending from Gopinatha Deekshitulu who alone touch and bathe the deity), 2. The Jeeyangars (Pedda Jeeyar, Chinna Jeeyar, and Ekangis who oversee rituals, hold keys in wooden boxes, light Akhandam lamps, and present all offerings to the priests), and 3. The 7 Acharya Purushas (hereditary spiritual leaders including Thollappacharya who bring Akasaganga water and lead Veda Parayanam).',
-    answerTe: '1817 నాటి ఈస్టిండియా కంపెనీ చారిత్రక "సవాల్ జవాబ్ పట్టీ" ప్రకారం ఆలయంలో మూడు వర్గాల కైంకర్యపరులు ప్రధానమైనవారు: 1. వైఖానస అర్చకులు (గోపినాథ దీక్షితుల వంశీయులైన భరద్వాజ, కౌశిక గోత్రాల అర్చకులు; వీరు మాత్రమే మూలవిరాట్‌ను స్పృశించి పూజలు చేస్తారు), 2. జీయంగార్లు (పెద్ద జీయర్, చిన్న జీయర్, ఏకాంగులు; ఆలయ నియమాలను పర్యవేక్షిస్తూ, అఖండ దీపాలు వెలిగిస్తూ, పూజా ద్రవ్యాలను అర్చకులకు అందిస్తారు), మరియు 3. ఏడుగురు ఆచార్య పురుషులు (తోళప్పాచార్య, పూరిసై వంటి వంశీయులు; ఆకాశగంగ తీర్థం తేవడం, వేదపారాయణాన్ని నడిపించడం వీరి బాధ్యత).',
-    source: 'Sapthagiri Magazine (September 2025), "The Three Important Functionaries of Tirumala Temple" by Sri Archakam Ramakrishna Deekshitulu'
+    answerEn: 'As recorded in the 1817 Sawal Jawab Patti, the three primary hereditary functionaries are the Vaikhanasa Archakas (who conduct puja), the Jeeyangars (who supervise rituals and lamps), and the Acharya Purushas (who lead Vedic parayanam).',
+    answerTe: '1817 సవాల్ జవాబ్ పట్టీ ప్రకారం: వైఖానస అర్చకులు (పూజా కైంకర్యాలు), జీయంగార్లు (ఆలయ పర్యవేక్షణ, అఖండ దీపాలు), మరియు ఆచార్య పురుషులు (వేద పారాయణం) ఆలయ ప్రధాన ముగ్గురు కైంకర్యపరులు.',
+    source: 'Sapthagiri Magazine (September 2025)'
   },
   {
     id: 'faq-copper-plates-1922',
     category: 'traditions',
     questionEn: 'How were Annamacharya\'s copper plate sankirtanas discovered inside the Tirumala temple?',
     questionTe: 'తిరుమల ఆలయంలో అన్నమాచార్యుల రాగిరేకులు ఎలా బయటపడ్డాయి?',
-    answerEn: 'For over 300 years, the monumental musical legacy of Tallapaka Annamacharya lay hidden inside a small, concealed stone vault known as the Sankeertana Bhandagaram (Annamayya Ara), situated directly opposite the temple hundi. In 1922, during administrative inspections under the Mahants, scholars opened this vault and uncovered approximately 2,500 double-sided copper plates incised with over 14,000 devotional sankirtanas. Revered scholar Veturi Prabhakara Sastry spearheaded the transcription and publication of these invaluable songs under TTD.',
-    answerTe: 'దాదాపు 300 సంవత్సరాలకు పైగా తాళ్లపాక అన్నమాచార్యుల సంకీర్తనలు ఆలయ హుండీ ఎదురుగా ఉన్న "సంకీర్తన భాండాగారం" (అన్నమయ్య అర) అనే రాతి గదిలో మరుగున పడి ఉన్నాయి. 1922లో మహంతుల పాలన కాలంలో ఈ గదిని తెరవగా, సుమారు 2,500 రాగిరేకులపై చెక్కబడిన 14,000కు పైగా దివ్య సంకీర్తనలు వెలుగుచూశాయి. ప్రముఖ పండితుడు వేటూరి ప్రభాకరశాస్త్రి గారి అవిరళ కృషితో TTD వీటిని సేకరించి పరిష్కరించి ప్రచురించింది.',
-    source: 'Sapthagiri Magazine (October 2026), "The Secret of the Tirumala Temple" by Smt. Prema Nandakumar'
+    answerEn: 'In 1922, scholars opened the sealed stone Sankeertana Bhandagaram opposite the hundi and discovered roughly 2,500 copper plates bearing over 14,000 devotional songs composed by Tallapaka Annamacharya.',
+    answerTe: '1922లో హుండీ ఎదురుగా ఉన్న సంకీర్తన భాండాగారాన్ని తెరవగా, తాళ్లపాక అన్నమాచార్యులు రచించిన 14,000కు పైగా సంకీర్తనలు గల 2,500 రాగిరేకులు బయల్పడ్డాయి.',
+    source: 'Sapthagiri Magazine (October 2026)'
   }
 ];

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function EventGalleryCarousel({
@@ -11,20 +11,48 @@ export default function EventGalleryCarousel({
   onNextImage,
   onSelectThumbnail
 }) {
+  const touchStartRef = useRef({ x: 0, y: 0 });
+
   if (allImages.length === 0 || !activeImage) return null;
 
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length === 1) {
+      touchStartRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY
+      };
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (e.changedTouches && e.changedTouches.length > 0 && allImages.length > 1) {
+      const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
+      const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
+
+      if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+        if (deltaX < 0) {
+          onNextImage(e);
+        } else {
+          onPrevImage(e);
+        }
+      }
+    }
+  };
+
   return (
-    <div className="relative w-full bg-[#141923]">
+    <div className="relative w-full bg-[#141923] select-none">
       {/* Main Active Image Display */}
       <div 
         onClick={onImageClick}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         className="relative h-64 sm:h-80 w-full overflow-hidden cursor-pointer group"
-        title="Click picture to expand full screen"
+        title="Click picture to expand full screen (Swipe left/right)"
       >
         <img 
           src={activeImage.url} 
           alt={activeImage.caption || eventTitle} 
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E14] via-transparent to-black/30"></div>
 
@@ -33,14 +61,16 @@ export default function EventGalleryCarousel({
           <>
             <button
               onClick={onPrevImage}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 text-[#FFD700] hover:bg-black border border-[#D4AF37]/40 flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 text-[#FFD700] hover:bg-black border border-[#D4AF37]/40 flex items-center justify-center shadow-lg transition-transform hover:scale-110 z-10"
+              title="Previous photo"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
             <button
               onClick={onNextImage}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 text-[#FFD700] hover:bg-black border border-[#D4AF37]/40 flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 text-[#FFD700] hover:bg-black border border-[#D4AF37]/40 flex items-center justify-center shadow-lg transition-transform hover:scale-110 z-10"
+              title="Next photo"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -48,7 +78,7 @@ export default function EventGalleryCarousel({
         )}
 
         {/* Image Caption & Counter Overlay */}
-        <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between gap-2">
+        <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between gap-2 z-10 pointer-events-none">
           {activeImage.caption && (
             <div className="px-3 py-1 rounded-lg bg-black/80 backdrop-blur-md text-[#FFD700] text-xs font-bold border border-[#D4AF37]/40 max-w-[80%] truncate">
               📷 {activeImage.caption}

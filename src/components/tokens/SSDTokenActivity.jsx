@@ -19,7 +19,6 @@ export default function SSDTokenActivity({
   ssdStatus,
   ddStatus,
   isNoIssuance,
-  isBrahmotsavamPause,
   isTodayWednesday,
 }) {
   const [showRightFade, setShowRightFade] = useState(false);
@@ -106,9 +105,7 @@ export default function SSDTokenActivity({
           </p>
 
           <p className={`text-xs mt-1 ${mutedClass}`}>
-            {isBrahmotsavamPause
-              ? text.brahmotsavamNotice
-              : isTodayWednesday
+            {isTodayWednesday
               ? text.wednesdayNotice
               : isNoIssuance
               ? text.genericNoIssuanceNotice ||

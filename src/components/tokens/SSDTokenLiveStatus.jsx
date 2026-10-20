@@ -137,7 +137,6 @@ export default function SSDTokenLiveStatus({
   ddStatus,
   isNoIssuance,
   isTodayWednesday,
-  isBrahmotsavamPause,
   hasObservation,
   liveSource,
 }) {
@@ -227,37 +226,7 @@ export default function SSDTokenLiveStatus({
         />
       </div>
 
-      {isBrahmotsavamPause ? (
-        <div
-          className={`mt-4 rounded-xl border-2 p-4 flex gap-3 ${
-            isLight
-              ? "bg-amber-50 border-amber-300"
-              : "bg-amber-500/10 border-amber-500/40"
-          }`}
-        >
-          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-
-          <div>
-            <p
-              className={`text-sm font-black ${
-                isLight ? "text-amber-900" : "text-amber-200"
-              }`}
-            >
-              {lang === "te"
-                ? "శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాలు - టోకెన్ల జారీ నిలిపివేత"
-                : "Srivari Navaratri Brahmotsavams - Token Issuance Paused"}
-            </p>
-
-            <p
-              className={`text-xs sm:text-sm mt-1 leading-relaxed ${mutedClass}`}
-            >
-              {lang === "te"
-                ? "శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాల సందర్భంగా అక్టోబర్ 10 నుండి 21 వరకు భూదేవి కాంప్లెక్స్, శ్రీనివాసం మరియు విష్ణు నివాసం వద్ద SSD మరియు DD టోకెన్లు జారీ చేయబడవు. అక్టోబర్ 23 దర్శనం టోకెన్లు అక్టోబర్ 22 సాయంత్రం 4:00 గంటలకు జారీ చేయబడతాయి."
-                : "On the occasion of Srivari Navaratri Brahmotsavams, SSD and DD tokens will not be issued at Bhudevi Complex, Srinivasam, and Vishnu Nivasam from Oct 10 to Oct 21, 2026. Tokens for Oct 23 darshan will resume Oct 22 at 4:00 PM."}
-            </p>
-          </div>
-        </div>
-      ) : isNoIssuance ? (
+      {isNoIssuance ? (
   <div
     className={`mt-4 rounded-xl border p-3 flex gap-3 ${
       isLight

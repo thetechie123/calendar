@@ -2,10 +2,11 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { TEMPLES } from '../data/templeEvents';
 import { getEventStatus, openGoogleCalendar, openAppleCalendar, shareToPlatform, normalizeEventImages } from '../utils/eventStatus';
 import { formatEventTiming } from '../utils/indiaTime';
-import { X, Calendar, Clock, Edit } from 'lucide-react';
+import { X, Calendar, Clock, Edit, Bell, BellRing } from 'lucide-react';
 import EventGalleryCarousel from './event/EventGalleryCarousel';
 import EventShareDropdown from './event/EventShareDropdown';
 import EventImageLightbox from './event/EventImageLightbox';
+import { isEventReminderSet, setEventReminder, removeEventReminder } from '../utils/eventReminders';
 
 const EventGlossaryMatches = lazy(
   () => import('./EventGlossaryMatches')
@@ -42,6 +43,23 @@ export default function EventDetailModal({
   // Share dropdown menu state
   const [isShareMenuOpen, setIsShareMenuOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Per-Event Reminder state
+  const [hasReminder, setHasReminder] = useState(() => isEventReminderSet(event?.id));
+  const [isReminderPickerOpen, setIsReminderPickerOpen] = useState(false);
+
+  const handleToggleReminder = async (timingType = 'morning') => {
+    if (hasReminder && !isReminderPickerOpen) {
+      const removed = removeEventReminder(event.id, lang);
+      if (removed) setHasReminder(false);
+    } else {
+      const success = await setEventReminder(event, timingType, lang);
+      if (success) {
+        setHasReminder(true);
+        setIsReminderPickerOpen(false);
+      }
+    }
+  };
 
   // Gallery & Lightbox State
   const [activeImgIndex, setActiveImgIndex] = useState(0);
@@ -176,8 +194,8 @@ export default function EventDetailModal({
               </p>
             </div>
 
-            {/* Vehicle / Vahanam details if applicable */}
-            {event.vahanam && (
+            {/* Vehicle / Vahanam details if applicable (omitted for ticket/quota releases) */}
+            {event.vahanam && event.category !== 'quota-release' && !event.id?.startsWith('ttd-quota-') && (
               <div className="p-3 rounded-lg bg-[#FF5722]/10 border border-[#FF5722]/40 text-xs font-bold text-[#FF5722] flex items-center gap-2">
                 <span>{lang === 'en' ? '🛕 Vahanam / Procession Vehicle:' : '🛕 వాహనం / ఊరేగింపు వాహనం:'}</span>
                 <span className="vahanam-value font-extrabold">{event.vahanam}</span>
@@ -216,6 +234,70 @@ export default function EventDetailModal({
                   <span className="text-base">🍏</span>
                   <span className="font-extrabold text-[#FFD700]">Apple Calendar</span>
                 </button>
+
+                {/* PER-EVENT PUSH REMINDER BUTTON */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      if (hasReminder) {
+                        handleToggleReminder();
+                      } else {
+                        setIsReminderPickerOpen(!isReminderPickerOpen);
+                      }
+                    }}
+                    className={`px-3.5 py-2 rounded-xl font-extrabold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer border ${
+                      hasReminder
+                        ? 'bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black border-[#FFD700]'
+                        : 'bg-[#1C2436] hover:bg-[#232D42] text-[#FFD700] border-[#D4AF37]/50'
+                    }`}
+                    title={hasReminder ? 'Click to cancel reminder' : 'Set custom event reminder'}
+                  >
+                    {hasReminder ? (
+                      <>
+                        <BellRing className="w-4 h-4 text-black animate-pulse" />
+                        <span>{lang === 'en' ? 'Reminder Set' : 'రిమైండర్ సెట్'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Bell className="w-4 h-4 text-[#FFD700]" />
+                        <span>{lang === 'en' ? 'Remind Me' : 'గుర్తు చేయండి'}</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* TIMING SELECTION POPUP */}
+                  {isReminderPickerOpen && !hasReminder && (
+                    <div className="absolute left-0 bottom-full mb-2 w-64 p-3 rounded-2xl bg-[#0B0E14] border-2 border-[#D4AF37] shadow-2xl z-30 space-y-2 text-xs">
+                      <div className="flex items-center justify-between border-b border-white/10 pb-1.5 font-bold text-[#FFD700]">
+                        <span>{lang === 'en' ? 'Choose Reminder Time' : 'సమయాన్ని ఎంచుకోండి'}</span>
+                        <button
+                          onClick={() => setIsReminderPickerOpen(false)}
+                          className="text-stone-400 hover:text-white"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => handleToggleReminder('morning')}
+                        className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-[#D4AF37]/20 text-white font-medium transition-colors"
+                      >
+                        🌅 {lang === 'en' ? 'Morning of Event (7:00 AM IST)' : 'ఉత్సవం రోజు ఉదయం (7:00 IST)'}
+                      </button>
+                      <button
+                        onClick={() => handleToggleReminder('day_before')}
+                        className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-[#D4AF37]/20 text-white font-medium transition-colors"
+                      >
+                        🌙 {lang === 'en' ? '1 Day Prior (7:00 PM IST)' : 'ఒక రోజు ముందు రాత్రి (7:00 IST)'}
+                      </button>
+                      <button
+                        onClick={() => handleToggleReminder('event_time')}
+                        className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-[#D4AF37]/20 text-white font-medium transition-colors"
+                      >
+                        🛕 {lang === 'en' ? 'At Event Start Time' : 'ఉత్సవం ప్రారంభ సమయానికి'}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* EXPANDED SOCIAL SHARE DROPDOWN MENU */}

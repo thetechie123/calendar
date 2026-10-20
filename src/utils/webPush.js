@@ -27,6 +27,35 @@ function urlBase64ToUint8Array(base64String) {
   return outputArray;
 }
 
+export function getWebPushDiagnostics() {
+  const hasWindow = typeof window !== "undefined";
+  const hasServiceWorker = hasWindow && "serviceWorker" in navigator;
+  const hasPushManager = hasWindow && "PushManager" in window;
+  const hasNotification = hasWindow && "Notification" in window;
+  const isSupported = hasServiceWorker && hasPushManager && hasNotification;
+  const hasVapidKey = Boolean(VAPID_PUBLIC_KEY && VAPID_PUBLIC_KEY.length > 20);
+  const permission = hasNotification ? Notification.permission : "unsupported";
+
+  return {
+    isSupported,
+    hasServiceWorker,
+    hasPushManager,
+    hasNotification,
+    hasVapidKey,
+    vapidKeyLength: VAPID_PUBLIC_KEY ? VAPID_PUBLIC_KEY.length : 0,
+    permission,
+    status: !isSupported
+      ? "unsupported_browser"
+      : !hasVapidKey
+      ? "missing_vapid"
+      : permission === "denied"
+      ? "permission_denied"
+      : permission === "granted"
+      ? "ready"
+      : "needs_permission",
+  };
+}
+
 export async function isPushSupported() {
   return (
     typeof window !== "undefined" &&
@@ -55,11 +84,27 @@ export async function subscribeToWebPush(
   silent = false
 ) {
   if (!(await isPushSupported())) {
+    if (!silent) {
+      toast.warning(
+        lang === "te"
+          ? "మీ బ్రౌజర్ వెబ్ పుష్ నోటిఫికేషన్లను సమర్థించదు."
+          : "Your browser does not support Web Push notifications.",
+        6000
+      );
+    }
     return null;
   }
 
   if (!VAPID_PUBLIC_KEY) {
     console.warn("VITE_VAPID_PUBLIC_KEY is not configured.");
+    if (!silent) {
+      toast.error(
+        lang === "te"
+          ? "వెబ్ పుష్ VAPID కీ కాన్ఫిగర్ చేయబడలేదు. దయచేసి .env ఫైల్‌లో VITE_VAPID_PUBLIC_KEY ని సరిచూడండి."
+          : "Web Push VAPID key is not configured. Please check VITE_VAPID_PUBLIC_KEY in your environment.",
+        7000
+      );
+    }
     return null;
   }
 
@@ -68,6 +113,14 @@ export async function subscribeToWebPush(
   try {
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
+      if (!silent) {
+        toast.warning(
+          lang === "te"
+            ? "నోటిఫికేషన్ల అనుమతి నిరాకరించబడింది. బ్రౌజర్ సెట్టింగ్లలో నోటిఫికేషన్లను అనుమతించండి."
+            : "Notification permission was denied. Please allow notifications in your browser settings.",
+          6000
+        );
+      }
       return null;
     }
 
@@ -136,6 +189,14 @@ export async function subscribeToWebPush(
     return subscription;
   } catch (error) {
     console.error("Failed to subscribe to Web Push:", error);
+    if (!silent) {
+      toast.error(
+        lang === "te"
+          ? "నోటిఫికేషన్ల నమోదులో లోపం ఏర్పడింది: " + (error?.message || "దయచేసి మళ్లీ ప్రయత్నించండి.")
+          : "Could not enable push notifications: " + (error?.message || "Please try again."),
+        6000
+      );
+    }
     return null;
   }
 }

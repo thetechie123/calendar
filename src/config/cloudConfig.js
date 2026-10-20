@@ -1,6 +1,20 @@
+/**
+ * Cloud configuration for Supabase REST API.
+ * API key is sourced from environment variables only — never hardcoded.
+ */
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+if (!supabaseAnonKey) {
+  console.warn(
+    '[cloudConfig] VITE_SUPABASE_ANON_KEY is not set. Cloud sync will not work. ' +
+    'Add it to your .env or .env.local file.'
+  );
+}
+
 export const CLOUD_CONFIG = {
-  endpointUrl: "https://rjdltvopbejhvbheindb.supabase.co/rest/v1",
-  apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJqZGx0dm9wYmVqaHZiaGVpbmRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3MzcwOTMsImV4cCI6MjEwMTMxMzA5M30.yt0YK-rBYsaEYPtVjA0R1eyiGbXCPO6PQEro72aUrXU",
+  endpointUrl: supabaseUrl ? `${supabaseUrl}/rest/v1` : '',
+  apiKey: supabaseAnonKey,
   autoSync: true,
   provider: "supabase_rest"
 };

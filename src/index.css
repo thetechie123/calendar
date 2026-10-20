@@ -45,12 +45,24 @@ body.light-theme {
 /* Light Theme Contrast Overrides */
 body.light-theme .text-slate-400,
 body.light-theme .text-slate-300,
-body.light-theme [class*="text-[#94A3B8]"] {
+body.light-theme .text-slate-200,
+body.light-theme [class*="text-[#94A3B8]"],
+body.light-theme [class*="text-[#CBD5E1]"],
+body.light-theme [class*="text-[#E2E8F0]"] {
   color: #334155 !important;
 }
 
-body.light-theme [class*="bg-[#141923]"],
-body.light-theme [class*="bg-[#0B0E14]"] {
+body.light-theme [class*="text-[#FFD700]"]:not(button):not(button *):not(.gold-gradient-text):not(.dark-hero-card *):not([class*="bg-gradient-to-r"] *) {
+  color: #B45309 !important;
+}
+
+body.light-theme [class*="text-amber-400"]:not(.dark-hero-card *),
+body.light-theme [class*="text-amber-300"]:not(.dark-hero-card *) {
+  color: #92400E !important;
+}
+
+body.light-theme [class*="bg-[#141923]"]:not(.dark-hero-card),
+body.light-theme [class*="bg-[#0B0E14]"]:not(.dark-hero-card) {
   background-color: #FFFFFF !important;
   color: #0F172A !important;
   border-color: rgba(217, 119, 6, 0.3) !important;

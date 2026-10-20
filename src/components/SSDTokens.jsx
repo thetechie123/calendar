@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Ticket, CalendarDays } from "lucide-react";
+import { Ticket } from "lucide-react";
 import SSDTokenActivity from "./tokens/SSDTokenActivity";
 import SSDTokenHistory from "./tokens/SSDTokenHistory";
 import SSDTokenHowItWorks from "./tokens/SSDTokenHowItWorks";
@@ -110,23 +110,8 @@ export default function SSDDTokens({ lang = "en", themeMode = "dark" }) {
   const tokenDay = tokenData.tokenDay;
   const isTodayWednesday = isIndiaWednesday();
 
-const indiaDate = new Date(
-  new Date().toLocaleString("en-US", {
-    timeZone: "Asia/Kolkata",
-  })
-);
-
-// Srivari Navaratri Brahmotsavams: October 10 to October 21, 2026.
-// Token issuance for darshan on October 23, 2026 will resume at 4:00 PM on October 22, 2026.
-const isBrahmotsavamPause =
-  indiaDate.getFullYear() === 2026 &&
-  indiaDate.getMonth() === 9 && // October (0-indexed: 9)
-  ((indiaDate.getDate() >= 10 && indiaDate.getDate() <= 21) ||
-   (indiaDate.getDate() === 22 && indiaDate.getHours() < 16));
-
 const isNoIssuance =
   isTodayWednesday ||
-  isBrahmotsavamPause ||
   tokenDay?.issuance_status === "no_issuance";
   const hasObservation = Boolean(latestObservation);
 
@@ -241,11 +226,6 @@ const isNoIssuance =
         ? "గురువారం దర్శనం కోసం బుధవారం టోకెన్లు జారీ చేయబడవు."
         : "No tokens are issued on Wednesdays for Thursday darshan.",
 
-    brahmotsavamNotice:
-      lang === "te"
-        ? "శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాల సందర్భంగా అక్టోబర్ 10, 2026 నుండి అక్టోబర్ 21, 2026 వరకు భూదేవి కాంప్లెక్స్, శ్రీనివాసం మరియు విష్ణు నివాసం కౌంటర్లలో SSD మరియు DD టోకెన్ల జారీ నిలిపివేయబడింది. అక్టోబర్ 23, 2026 దర్శనం కోసం టోకెన్ల జారీ అక్టోబర్ 22, 2026 సాయంత్రం 4:00 గంటలకు తిరిగి ప్రారంభమవుతుంది."
-        : "On the occasion of Srivari Navaratri Brahmotsavams, SSD and DD tokens will not be issued at Bhudevi Complex, Srinivasam, and Vishnu Nivasam from October 10, 2026 to October 21, 2026. Token issuance for darshan on October 23, 2026 will resume at 4:00 PM on October 22, 2026.",
-
     genericNoIssuanceNotice:
       lang === "te"
         ? "ఈరోజు టోకెన్ల జారీ లేదు."
@@ -306,59 +286,7 @@ const isNoIssuance =
           </div>
         </section>
 
-              {(() => {
-  const indiaDate = new Date(
-    new Date().toLocaleString("en-US", {
-      timeZone: "Asia/Kolkata",
-    })
-  );
-
-  const year = indiaDate.getFullYear();
-  const month = indiaDate.getMonth();
-  const day = indiaDate.getDate();
-
-  // Show notice during Navaratri Brahmotsavams pause (October 10–22, 2026)
-  const showBrahmotsavamNotice =
-    year === 2026 &&
-    month === 9 &&
-    day >= 10 &&
-    day <= 22;
-
-  if (!showBrahmotsavamNotice) return null;
-
-  return (
-    <section
-      className={`rounded-2xl border-2 p-5 sm:p-6 mb-5 ${
-        isLight
-          ? "bg-amber-50 border-amber-300"
-          : "bg-amber-500/10 border-amber-500/40"
-      }`}
-    >
-      <div className="flex gap-4 items-start">
-        <div className="shrink-0 rounded-xl bg-amber-500/15 p-2.5">
-          <CalendarDays className="w-6 h-6 text-amber-500" />
-        </div>
-
-        <div>
-          <h2
-            className={`font-black text-lg sm:text-xl ${headingClass}`}
-          >
-            {lang === "te"
-              ? "శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాలు - టోకెన్ జారీ తాత్కాలికంగా నిలిపివేత"
-              : "Srivari Navaratri Brahmotsavams - Temporary Token Issuance Pause"}
-          </h2>
-
-          <p
-            className={`text-sm sm:text-base mt-2 leading-relaxed font-semibold ${mutedClass}`}
-          >
-            {text.brahmotsavamNotice}
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-})()}
-        <SSDTokenLiveStatus
+                <SSDTokenLiveStatus
           isLight={isLight}
           cardClass={cardClass}
           headingClass={headingClass}
@@ -371,7 +299,6 @@ const isNoIssuance =
           ssdStatus={ssdStatus}
           ddStatus={ddStatus}
           isNoIssuance={isNoIssuance}
-          isBrahmotsavamPause={isBrahmotsavamPause}
           isTodayWednesday={isTodayWednesday}
           hasObservation={hasObservation}
           liveSource={liveSource}
@@ -391,7 +318,6 @@ const isNoIssuance =
           ssdStatus={ssdStatus}
           ddStatus={ddStatus}
           isNoIssuance={isNoIssuance}
-          isBrahmotsavamPause={isBrahmotsavamPause}
           isTodayWednesday={isTodayWednesday}
         />
 
@@ -409,7 +335,6 @@ const isNoIssuance =
           mutedClass={mutedClass}
           text={text}
           isLight={isLight}
-          isBrahmotsavamPause={isBrahmotsavamPause}
           lang={lang}
         />
 
