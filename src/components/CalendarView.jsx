@@ -188,40 +188,7 @@ export default function CalendarView({
         </div>
       </section>
 
-      {/* NAVARATHRI BRAHMOTSAVAM 2026 SPECIAL FEATURE BANNER */}
-      <div className="relative overflow-hidden rounded-2xl border-2 border-[#FF5722]/60 bg-gradient-to-r from-[#FF5722]/20 via-[#141923] to-[#FFD700]/15 p-4 sm:p-5 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="space-y-1.5 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-gradient-to-r from-[#FF5722] to-[#FF9800] text-black shadow-sm flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-black" />
-              <span>Oct 12 – Oct 20, 2026 (Prelude: Oct 11)</span>
-            </span>
-            <span className="text-xs font-bold text-[#FFD700] tracking-wide">
-              {lang === 'en' ? 'Tirumala Srivari Navarathri Brahmotsavams' : 'తిరుమల శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాలు'}
-            </span>
-          </div>
-          <h2 className="text-base sm:text-lg md:text-xl font-serif font-black text-white">
-            {lang === 'en'
-              ? 'Complete Guide to the 2nd Brahmotsavam (Adhika Masa Special)'
-              : 'రెండవ బ్రహ్మోత్సవాల సమగ్ర దర్శిని (అధిక మాస విశిష్టత)'}
-          </h2>
-          <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed max-w-3xl">
-            {lang === 'en'
-              ? 'Official Schedule: Oct 12–20 (Ankurarpanam: Oct 11 eve • Chakra Snanam: Oct 20 • Parveta: Oct 21). 9-day morning & evening Vahana Sevas, 17 Mada Street Harathi points, and Swarna Ratham.'
-              : 'అధికారిక షెడ్యూల్: అక్టోబర్ 12–20 (అంకురార్పణం: అక్టోబర్ 11 సాయంత్రం • చక్రస్నానం: అక్టోబర్ 20 • పార్వేట: అక్టోబర్ 21). 9 రోజుల ఉభయ వాహన సేవల సమగ్ర వివరాలు.'}
-          </p>
-        </div>
-        <a
-          href="/festivals/brahmotsavam"
-          onClick={(e) => handleFestivalGuideClick('/festivals/brahmotsavam', e)}
-          className="shrink-0 w-full md:w-auto text-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFD700] text-black font-black text-xs sm:text-sm hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2"
-        >
-          <span>{lang === 'en' ? 'Open Brahmotsavam Guide' : 'బ్రహ్మోత్సవాల దర్శిని చూడండి'}</span>
-          <span aria-hidden="true">→</span>
-        </a>
-      </div>
-
-      {/* Search & Filter Control Deck */}
+            {/* Search & Filter Control Deck */}
       <div className="glass-card p-4 sm:p-5 border-2 border-[#D4AF37]/40 space-y-4 shadow-xl w-full rounded-2xl">
         
         {/* Top Control Bar: Title + Search Bar + Controls */}

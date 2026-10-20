@@ -28,7 +28,6 @@ export default function Header({
   festivalSlug
 }) {
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showRightFade, setShowRightFade] = useState(false);
 
   const navRef = useRef(null);
@@ -49,17 +48,9 @@ export default function Header({
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    const handleBeforeInstall = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
     };
   }, []);
 
@@ -80,14 +71,6 @@ export default function Header({
     }
   }, [activeTab]);
 
-  const handleInstallClick = () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(() => {
-        setDeferredPrompt(null);
-      });
-    }
-  };
   return (
     <header className="sticky top-0 z-50 bg-[#0B0E14]/95 border-b border-[#D4AF37]/30 shadow-2xl transition-colors">
       
@@ -140,16 +123,6 @@ export default function Header({
                 <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
                 <span className="hidden sm:inline">Offline</span>
               </span>
-            )}
-
-            {deferredPrompt && (
-              <button
-                onClick={handleInstallClick}
-                className="px-2 py-1 rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black text-[10px] sm:text-[11px] font-extrabold flex items-center gap-1 shadow hover:scale-105 transition-all"
-                title="Install Tirumala Utsavam App"
-              >
-                <span>📱 <span className="hidden sm:inline">Install</span></span>
-              </button>
             )}
 
             {/* DESKTOP TTD YOUTUBE LIVE STREAM BUTTON (≥640px ONLY) */}
