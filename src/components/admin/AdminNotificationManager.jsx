@@ -16,11 +16,9 @@ import {
 } from "lucide-react";
 import { supabase } from "../../utils/supabaseClient";
 import { toast } from "../../utils/toast";
-import { getWebPushDiagnostics } from "../../utils/webPush";
 
 export default function AdminNotificationManager({ lang = "en", themeMode = "dark" }) {
   const isLight = themeMode === "light";
-  const pushDiag = getWebPushDiagnostics();
 
   // Form State
   const [title, setTitle] = useState("");
@@ -209,34 +207,9 @@ export default function AdminNotificationManager({ lang = "en", themeMode = "dar
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div
-            className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg border ${
-              pushDiag.hasVapidKey
-                ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300"
-                : "bg-red-950/40 border-red-500/40 text-red-300"
-            }`}
-            title={pushDiag.hasVapidKey ? `VAPID Public Key configured (${pushDiag.vapidKeyLength} chars)` : "VITE_VAPID_PUBLIC_KEY is missing in environment"}
-          >
-            {pushDiag.hasVapidKey ? (
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            ) : (
-              <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-            )}
-            <span>{pushDiag.hasVapidKey ? "VAPID Configured" : "VAPID Missing"}</span>
-          </div>
-
-          <div
-            className={`flex items-center gap-1.5 text-[11px] font-medium px-2 py-1 rounded-lg border ${
-              pushDiag.permission === "granted"
-                ? "bg-blue-950/40 border-blue-500/40 text-blue-300"
-                : pushDiag.permission === "denied"
-                ? "bg-rose-950/40 border-rose-500/40 text-rose-300"
-                : "bg-amber-950/40 border-amber-500/40 text-amber-300"
-            }`}
-          >
-            <span>Browser: {pushDiag.permission}</span>
-          </div>
+        <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#0B0E14] border border-[#D4AF37]/20 text-[#FFD700]">
+          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <span>VAPID Server Dispatch Active</span>
         </div>
       </div>
 

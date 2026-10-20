@@ -6,8 +6,6 @@
 import { getRouteMetadata, SITE_ORIGIN } from './seoMetadata.js';
 import { getFestivalTopic } from '../data/festivalTopics.js';
 import { TOKEN_FAQS } from '../data/tokenFaqData.js';
-import { PILGRIM_FAQS } from '../data/pilgrimData.js';
-import { DARSHAN_FAQS } from '../data/darshanFaqData.js';
 
 export const ROUTE_SCRIPT_ID = 'route-structured-data';
 
@@ -56,22 +54,6 @@ const BREADCRUMB_CONFIG = {
   '/tokens': [
     { name: 'Home', item: `${SITE_ORIGIN}/` },
     { name: 'Darshan Tokens', item: `${SITE_ORIGIN}/tokens` }
-  ],
-  '/pilgrim-guide': [
-    { name: 'Home', item: `${SITE_ORIGIN}/` },
-    { name: 'Pilgrim Guide', item: `${SITE_ORIGIN}/pilgrim-guide` }
-  ],
-  '/faqs': [
-    { name: 'Home', item: `${SITE_ORIGIN}/` },
-    { name: 'FAQs', item: `${SITE_ORIGIN}/faqs` }
-  ],
-  '/guides': [
-    { name: 'Home', item: `${SITE_ORIGIN}/` },
-    { name: 'Heritage Guides', item: `${SITE_ORIGIN}/guides` }
-  ],
-  '/about': [
-    { name: 'Home', item: `${SITE_ORIGIN}/` },
-    { name: 'About Us', item: `${SITE_ORIGIN}/about` }
   ]
 };
 
@@ -177,7 +159,7 @@ export function buildRouteStructuredData(pathname) {
     });
   }
 
-  // 3. FAQPage Schema (For /tokens and /faqs matching visible content)
+  // 3. FAQPage Schema (Strictly for /tokens only, matching visible FAQ content)
   const effectiveFaqs = (Array.isArray(dynamicTokenFaqs) && dynamicTokenFaqs.length > 0)
     ? dynamicTokenFaqs
     : TOKEN_FAQS;
@@ -199,41 +181,6 @@ export function buildRouteStructuredData(pathname) {
         },
       })),
     });
-  } else if (normalizedPath === '/faqs') {
-    const combinedFaqEntities = [
-      ...DARSHAN_FAQS.map(faq => ({
-        '@type': 'Question',
-        name: faq.questionEn,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: faq.answerEn.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)').replace(/\*\*/g, ''),
-        },
-      })),
-      ...activeFaqsForSchema.map(faq => ({
-        '@type': 'Question',
-        name: faq.question,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: faq.answer,
-        },
-      })),
-      ...PILGRIM_FAQS.map(faq => ({
-        '@type': 'Question',
-        name: faq.questionEn,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: faq.answerEn,
-        },
-      }))
-    ];
-
-    if (combinedFaqEntities.length > 0) {
-      graph.push({
-        '@type': 'FAQPage',
-        '@id': `${canonicalUrl}#faq`,
-        mainEntity: combinedFaqEntities,
-      });
-    }
   }
 
   return {

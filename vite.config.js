@@ -9,33 +9,17 @@ export default defineConfig({
     tailwindcss(),
     visualizer({
       filename: './dist/stats.html',
-      open: false,
+      open: true,
       gzipSize: true,
       brotliSize: true
     })
   ],
   build: {
-    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/scheduler/')) {
-            return 'vendor-react';
-          }
-          if (id.includes('node_modules/@supabase/')) {
-            return 'vendor-supabase';
-          }
-          if (id.includes('node_modules/lucide-react/')) {
+          if (id.includes('node_modules/lucide-react')) {
             return 'vendor-icons';
-          }
-          if (id.includes('node_modules/jspdf/') || id.includes('node_modules/jspdf-autotable/')) {
-            return 'vendor-jspdf';
-          }
-          if (id.includes('node_modules/html2canvas/') || id.includes('node_modules/dompurify/')) {
-            return 'vendor-html2canvas';
-          }
-          if (id.includes('node_modules/leaflet/')) {
-            return 'vendor-maps';
           }
         }
       }

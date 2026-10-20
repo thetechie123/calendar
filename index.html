@@ -38,11 +38,9 @@
       (function() {
         try {
           var saved = localStorage.getItem('tirumala_theme_mode_v2');
-          var theme = saved ? JSON.parse(saved) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          var theme = saved ? JSON.parse(saved) : 'light';
           if (theme === 'light') {
             document.documentElement.classList.add('light-theme');
-          } else {
-            document.documentElement.classList.remove('light-theme');
           }
         } catch (e) {}
       })();

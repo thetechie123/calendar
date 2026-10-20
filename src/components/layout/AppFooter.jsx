@@ -37,19 +37,19 @@ export default function AppFooter({ lang, onNavigate, onOpenLogoModal, onOpenFee
         <div className="flex flex-wrap items-center justify-center gap-3">
           <button
             onClick={onOpenFeedbackTab}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFD700] text-black font-extrabold text-xs flex items-center gap-2 shadow-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFD700] text-black font-extrabold text-xs flex items-center gap-2 shadow-lg hover:brightness-110 active:scale-95 transition-all"
           >
             <MessageSquare className="w-4 h-4 text-black" />
-            <span>{lang === 'en' ? 'Give Feedback' : 'అభిప్రాయాన్ని పంపండి'}</span>
+            <span>Give Feedback</span>
           </button>
         </div>
       </div>
 
       {/* INTERNAL NAVIGATION SECTION */}
       <div className="container pt-6 mt-6 border-t border-white/10 light-theme:border-slate-200">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 text-xs text-left max-w-5xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-xs text-left max-w-2xl">
 
-          {/* Column 1: Core Pages */}
+          {/* Core Pages */}
           <div className="space-y-2">
             <h3 className="font-serif font-bold text-xs uppercase tracking-wider text-[#FFD700] light-theme:text-amber-800">
               {lang === 'en' ? 'Core Pages' : 'ముఖ్య విభాగాలు'}
@@ -102,17 +102,17 @@ export default function AppFooter({ lang, onNavigate, onOpenLogoModal, onOpenFee
               </li>
               <li>
                 <a
-                  href="/pilgrim-guide"
-                  onClick={(e) => handleLinkClick('/pilgrim-guide', e)}
+                  href="/about"
+                  onClick={(e) => handleLinkClick('/about', e)}
                   className="text-[#94A3B8] light-theme:text-slate-700 hover:text-[#FFD700] light-theme:hover:text-amber-800 transition-colors inline-block py-0.5"
                 >
-                  {lang === 'en' ? 'Pilgrim Guide' : 'యాత్ర గైడ్'}
+                  {lang === 'en' ? 'About Us' : 'మా గురించి'}
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* Column 2: Festival Guides */}
+          {/* Festival Guides */}
           <div className="space-y-2">
             <h3 className="font-serif font-bold text-xs uppercase tracking-wider text-[#FFD700] light-theme:text-amber-800">
               {lang === 'en' ? 'Festival Guides' : 'ఉత్సవ సమగ్ర మార్గదర్శకాలు'}
@@ -152,33 +152,6 @@ export default function AppFooter({ lang, onNavigate, onOpenLogoModal, onOpenFee
                   className="text-[#94A3B8] light-theme:text-slate-700 hover:text-[#FFD700] light-theme:hover:text-amber-800 transition-colors inline-block py-0.5"
                 >
                   {lang === 'en' ? 'Brahmotsavam Guide' : 'బ్రహ్మోత్సవాల మార్గదర్శిని'}
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: Help & About (Right Side) */}
-          <div className="space-y-2">
-            <h3 className="font-serif font-bold text-xs uppercase tracking-wider text-[#FFD700] light-theme:text-amber-800">
-              {lang === 'en' ? 'Help & About' : 'సహాయం & సమాచారం'}
-            </h3>
-            <ul className="space-y-1.5 font-medium">
-              <li>
-                <a
-                  href="/faqs"
-                  onClick={(e) => handleLinkClick('/faqs', e)}
-                  className="text-[#94A3B8] light-theme:text-slate-700 hover:text-[#FFD700] light-theme:hover:text-amber-800 transition-colors inline-block py-0.5 font-bold"
-                >
-                  {lang === 'en' ? 'FAQs & Helpline' : 'ప్రశ్నోత్తరాలు & హెల్ప్‌లైన్'}
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/about"
-                  onClick={(e) => handleLinkClick('/about', e)}
-                  className="text-[#94A3B8] light-theme:text-slate-700 hover:text-[#FFD700] light-theme:hover:text-amber-800 transition-colors inline-block py-0.5 font-bold"
-                >
-                  {lang === 'en' ? 'About Us' : 'మా గురించి'}
                 </a>
               </li>
             </ul>

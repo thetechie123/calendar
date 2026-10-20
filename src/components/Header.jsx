@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Clock as ClockIcon,
+  MessageSquare,
   Globe,
   Lock,
   Sun,
   Moon,
-  BookOpen,
-  Sparkles
+  BookOpen
 } from 'lucide-react';
 import { isModifiedClick } from '../utils/navigation';
 
@@ -166,7 +166,6 @@ export default function Header({
               </div>
             )}
 
-
             {/* Dark / Light Mode Toggle */}
             <button
               onClick={() => setThemeMode(themeMode === 'dark' ? 'light' : 'dark')}
@@ -250,49 +249,8 @@ export default function Header({
               <span>📅 {lang === 'en' ? 'Calendar' : 'క్యాలెండర్'}</span>
             </a>
 
-            {/* NAVARATHRI BRAHMOTSAVAM 2026 HIGHLIGHT TAB */}
-            <a
-              ref={el => (tabRefs.current['brahmotsavam'] = el)}
-              href="/festivals/brahmotsavam"
-              onClick={(e) => {
-                if (isModifiedClick(e)) return;
-                e.preventDefault();
-                if (onNavigatePath) {
-                  onNavigatePath('/festivals/brahmotsavam');
-                } else {
-                  setActiveTab('festival-topic');
-                }
-              }}
-              className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-1.5 shrink-0 transition-all shadow-md ${
-                activeTab === 'festival-topic' && (festivalSlug === 'brahmotsavam' || !festivalSlug)
-                  ? 'bg-gradient-to-r from-[#FF5722] to-[#FFD700] text-black shadow-lg font-black ring-2 ring-[#FFD700]'
-                  : 'bg-[#FF5722]/15 text-[#FFD700] border border-[#FF5722]/50 hover:bg-[#FF5722]/30'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#FFD700]" />
-              <span>{lang === 'en' ? 'Srivari Nav. Brahmotsavams 2026' : 'శ్రీవారి నవ. బ్రహ్మోత్సవాలు 2026'}</span>
-            </a>
-
-            <a
-              ref={el => (tabRefs.current['pilgrim-guide'] = el)}
-              href="/pilgrim-guide"
-              onClick={(e) => {
-                if (isModifiedClick(e)) return;
-                e.preventDefault();
-                setActiveTab('pilgrim-guide');
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-1.5 shrink-0 transition-all ${
-                activeTab === 'pilgrim-guide'
-                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-[#0B0E14] shadow-md font-extrabold'
-                  : 'text-[#CBD5E1] hover:text-[#FFD700] hover:bg-[#141923]'
-              }`}
-            >
-              <span>🛕</span>
-              <span>{lang === 'en' ? 'Pilgrim Guide' : 'యాత్ర గైడ్'}</span>
-            </a>
-
-
-            <a
+            
+                        <a
               ref={el => (tabRefs.current['glossary'] = el)}
               href="/glossary"
               onClick={(e) => {
@@ -347,6 +305,27 @@ export default function Header({
                 {lang === 'en' ? 'SSD / DD Tokens' : 'SSD / DD టోకెన్లు'}
               </span>
             </a>
+
+
+            {/* COMMUNITY FEEDBACK BUTTON / ADMIN INBOX */}
+            <button
+              ref={el => (tabRefs.current['feedback'] = el)}
+              onClick={() => {
+                if (isAdminLoggedIn) {
+                  onOpenAdmin('feedback-inbox');
+                } else {
+                  setActiveTab('feedback');
+                }
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-1.5 shrink-0 transition-all ${
+                activeTab === 'feedback'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-[#0B0E14] shadow-md'
+                  : 'text-[#CBD5E1] hover:text-[#FFD700] hover:bg-[#141923]'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4 text-[#FF5722]" />
+              <span>{isAdminLoggedIn ? (lang === 'en' ? 'Feedback Inbox' : 'అభిప్రాయాల ఇన్బాక్స్') : (lang === 'en' ? 'Feedback' : 'అభిప్రాయాలు')}</span>
+            </button>
           </nav>
 
           {/* Subtle Mobile Right-Edge Fade Scroll Indicator */}

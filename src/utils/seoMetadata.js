@@ -104,58 +104,6 @@ export const ROUTE_SEO_METADATA = {
     twitterDescription:
       'Help improve The Tirumala Verse portal. Report bugs, submit feature suggestions, or share content corrections with our team.',
   },
-  '/about': {
-    title: 'About The Tirumala Verse | Independent Guide & Cultural Companion',
-    description:
-      'Learn about The Tirumala Verse — an independent, non-commercial guide dedicated to Tirumala festival calendars, real-time SSD & DD tokens, and Agamic traditions.',
-    canonical: `${SITE_ORIGIN}/about`,
-    ogTitle: 'About The Tirumala Verse | Independent Guide & Cultural Companion',
-    ogDescription:
-      'Learn about The Tirumala Verse — an independent, non-commercial guide dedicated to Tirumala festival calendars, real-time SSD & DD tokens, and Agamic traditions.',
-    ogUrl: `${SITE_ORIGIN}/about`,
-    twitterTitle: 'About The Tirumala Verse | Independent Guide & Cultural Companion',
-    twitterDescription:
-      'Learn about The Tirumala Verse — an independent, non-commercial guide dedicated to Tirumala festival calendars, real-time SSD & DD tokens, and Agamic traditions.',
-  },
-  '/pilgrim-guide': {
-    title: 'Comprehensive Pilgrim Guide & Facility Directory | The Tirumala Verse',
-    description:
-      'Essential guide for Tirumala pilgrims: TTD abbreviations, automated Laddu Kiosks, Kalyana Mahaprasadam, temple etiquette rules, and dress codes.',
-    canonical: `${SITE_ORIGIN}/pilgrim-guide`,
-    ogTitle: 'Comprehensive Pilgrim Guide & Facility Directory | The Tirumala Verse',
-    ogDescription:
-      'Essential guide for Tirumala pilgrims: facilities, dress codes, queues, and etiquette.',
-    ogUrl: `${SITE_ORIGIN}/pilgrim-guide`,
-    twitterTitle: 'Comprehensive Pilgrim Guide & Facility Directory | The Tirumala Verse',
-    twitterDescription:
-      'Essential guide for Tirumala pilgrims: facilities, dress codes, queues, and etiquette.',
-  },
-  '/faqs': {
-    title: 'Frequently Asked Questions (FAQs) & Pilgrim Helpline | The Tirumala Verse',
-    description:
-      'Find authoritative answers to frequently asked questions about Tirumala darshan tokens, dress codes, laddu counters, pilgrim rituals, accommodation, and 24/7 TTD helplines.',
-    canonical: `${SITE_ORIGIN}/faqs`,
-    ogTitle: 'Frequently Asked Questions (FAQs) & Pilgrim Helpline | The Tirumala Verse',
-    ogDescription:
-      'Find authoritative answers to frequently asked questions about Tirumala darshan tokens, dress codes, laddu counters, pilgrim rituals, accommodation, and 24/7 TTD helplines.',
-    ogUrl: `${SITE_ORIGIN}/faqs`,
-    twitterTitle: 'Frequently Asked Questions (FAQs) & Pilgrim Helpline | The Tirumala Verse',
-    twitterDescription:
-      'Find authoritative answers to frequently asked questions about Tirumala darshan tokens, dress codes, laddu counters, pilgrim rituals, accommodation, and 24/7 TTD helplines.',
-  },
-  '/guides': {
-    title: 'Heritage & Archival Guides Directory | The Tirumala Verse',
-    description:
-      'Explore deep liturgical, epigraphical, and theological guides on Tirumala traditions, Vahanams, historical royal grants, and temple lore.',
-    canonical: `${SITE_ORIGIN}/guides`,
-    ogTitle: 'Heritage & Archival Guides Directory | The Tirumala Verse',
-    ogDescription:
-      'Explore deep liturgical, epigraphical, and theological guides on Tirumala traditions.',
-    ogUrl: `${SITE_ORIGIN}/guides`,
-    twitterTitle: 'Heritage & Archival Guides Directory | The Tirumala Verse',
-    twitterDescription:
-      'Explore deep liturgical, epigraphical, and theological guides on Tirumala traditions.',
-  },
   '/festivals/garuda-vahanam': {
     title:
       'Garuda Vahanam at Tirumala | Dates, Significance & Seva Guide | The Tirumala Verse',
@@ -346,47 +294,4 @@ export function updateRouteMetadata(pathname) {
   // 6. Update Twitter tags
   setMetaTag('meta[name="twitter:title"]', 'content', meta.twitterTitle);
   setMetaTag('meta[name="twitter:description"]', 'content', meta.twitterDescription);
-
-  // 7. Update Dynamic Social Preview Images (og:image & twitter:image)
-  const ogImage = meta.ogImage || `${SITE_ORIGIN}/logo-512.png`;
-  setMetaTag('meta[property="og:image"]', 'content', ogImage);
-  setMetaTag('meta[property="og:image:alt"]', 'content', meta.title || 'The Tirumala Verse');
-  setMetaTag('meta[name="twitter:card"]', 'content', 'summary_large_image');
-  setMetaTag('meta[name="twitter:image"]', 'content', ogImage);
-}
-
-/**
- * Dynamically updates social preview cards, OpenGraph tags, and title when an individual
- * event modal is active or linked directly.
- *
- * @param {Object} event
- */
-export function updateEventMetadata(event) {
-  if (typeof document === 'undefined' || !event) return;
-
-  const eventTitle = `${event.title} | The Tirumala Verse`;
-  const eventDesc = event.description
-    ? event.description.replace(/\n+/g, ' ').slice(0, 160)
-    : 'Sacred event details at Tirumala Tirupati temples.';
-  const eventCanonical = `${SITE_ORIGIN}/calendar?event=${event.id}`;
-  const eventImage =
-    event.imageUrl ||
-    (Array.isArray(event.images) && event.images[0]?.url) ||
-    `${SITE_ORIGIN}/logo-512.png`;
-
-  if (document.title !== eventTitle) {
-    document.title = eventTitle;
-  }
-
-  setMetaTag('meta[name="description"]', 'content', eventDesc);
-  setCanonicalTag(eventCanonical);
-  setMetaTag('meta[property="og:title"]', 'content', eventTitle);
-  setMetaTag('meta[property="og:description"]', 'content', eventDesc);
-  setMetaTag('meta[property="og:url"]', 'content', eventCanonical);
-  setMetaTag('meta[property="og:image"]', 'content', eventImage);
-  setMetaTag('meta[property="og:image:alt"]', 'content', event.title);
-  setMetaTag('meta[name="twitter:card"]', 'content', 'summary_large_image');
-  setMetaTag('meta[name="twitter:title"]', 'content', eventTitle);
-  setMetaTag('meta[name="twitter:description"]', 'content', eventDesc);
-  setMetaTag('meta[name="twitter:image"]', 'content', eventImage);
 }
