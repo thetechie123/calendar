@@ -2,7 +2,7 @@ name: Telegram Token Poll
 
 on:
   schedule:
-    - cron: "7,22,37,52 * * * *"
+    - cron: "*/10 * * * *"
   repository_dispatch:
     types: [poll-telegram, trigger-token-poll]
   workflow_dispatch:
