@@ -5,7 +5,6 @@
 
 import { getRouteMetadata, SITE_ORIGIN } from './seoMetadata.js';
 import { getFestivalTopic } from '../data/festivalTopics.js';
-import { getDarshanTopic } from '../data/darshanTopics.js';
 import { TOKEN_FAQS } from '../data/tokenFaqData.js';
 
 export const ROUTE_SCRIPT_ID = 'route-structured-data';
@@ -39,10 +38,6 @@ export function updateTokenFaqStructuredData(faqs) {
 const BREADCRUMB_CONFIG = {
   '/': [
     { name: 'Home', item: `${SITE_ORIGIN}/` }
-  ],
-  '/darshan': [
-    { name: 'Home', item: `${SITE_ORIGIN}/` },
-    { name: 'Darshan Guide', item: `${SITE_ORIGIN}/darshan` }
   ],
   '/calendar': [
     { name: 'Home', item: `${SITE_ORIGIN}/` },
@@ -89,18 +84,7 @@ export function getBreadcrumbItems(pathname, metadata = null) {
     return BREADCRUMB_CONFIG[normalizedPath];
   }
 
-  if (normalizedPath.startsWith('/darshan/')) {
-    const slug = normalizedPath.slice('/darshan/'.length);
-    const topic = getDarshanTopic(slug);
-    if (topic) {
-      const canonicalUrl = (metadata && metadata.canonical) || `${SITE_ORIGIN}/darshan/${topic.slug}`;
-      return [
-        { name: 'Home', item: `${SITE_ORIGIN}/` },
-        { name: 'Darshan Guide', item: `${SITE_ORIGIN}/darshan` },
-        { name: topic.titleEn, item: canonicalUrl }
-      ];
-    }
-  }
+
 
   if (normalizedPath.startsWith('/festivals/')) {
     const slug = normalizedPath.slice('/festivals/'.length);
@@ -138,9 +122,7 @@ export function buildRouteStructuredData(pathname) {
   const isCoreSupported = Boolean(BREADCRUMB_CONFIG[normalizedPath]);
   const isFestivalTopic = normalizedPath.startsWith('/festivals/') && Boolean(getFestivalTopic(normalizedPath.slice('/festivals/'.length)));
 
-  const isDarshanTopic = normalizedPath.startsWith('/darshan/') && Boolean(getDarshanTopic(normalizedPath.slice('/darshan/'.length)));
-
-  if (!isCoreSupported && !isFestivalTopic && !isDarshanTopic) {
+  if (!isCoreSupported && !isFestivalTopic) {
     // Utility / unsupported routes (/feedback, /overview, unknown)
     return null;
   }
@@ -201,23 +183,6 @@ export function buildRouteStructuredData(pathname) {
         },
       })),
     });
-  } else if (isDarshanTopic) {
-    const slug = normalizedPath.slice('/darshan/'.length);
-    const topic = getDarshanTopic(slug);
-    if (topic && Array.isArray(topic.faqs) && topic.faqs.length > 0) {
-      graph.push({
-        '@type': 'FAQPage',
-        '@id': `${canonicalUrl}#faq`,
-        mainEntity: topic.faqs.map((faq) => ({
-          '@type': 'Question',
-          name: faq.qEn,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: faq.aEn,
-          },
-        })),
-      });
-    }
   }
 
   return {
