@@ -249,6 +249,14 @@ export default function AdminTokenManager({
         notes: dayForm.notes || null,
       };
 
+      // Preserve or set initial ssd_status and dd_status
+      if (tokenDay?.ssd_status) {
+        payload.ssd_status = tokenDay.ssd_status;
+      }
+      if (tokenDay?.dd_status) {
+        payload.dd_status = tokenDay.dd_status;
+      }
+
       const { data, error: saveError } = await supabase
         .from("token_days")
         .upsert(payload, {
@@ -316,6 +324,25 @@ export default function AdminTokenManager({
 
       if (insertError) throw insertError;
 
+      // Update parent token_day status so live site immediately reflects change
+      const dayStatusUpdate = {
+        ssd_status: observationForm.ssd_status,
+        dd_status: observationForm.dd_status,
+      };
+
+      if (observationForm.ssd_status === "completed" && !tokenDay.ssd_completed_at) {
+        dayStatusUpdate.ssd_completed_at = new Date().toISOString();
+      }
+
+      if (observationForm.dd_status === "completed" && !tokenDay.dd_completed_at) {
+        dayStatusUpdate.dd_completed_at = new Date().toISOString();
+      }
+
+      await supabase
+        .from("token_days")
+        .update(dayStatusUpdate)
+        .eq("id", tokenDay.id);
+
       setObservationForm({
         observed_at: getObservationDateTime(dayForm.issuance_date),
         ssd_remaining: "",
@@ -376,12 +403,21 @@ export default function AdminTokenManager({
       setError("");
 
       const field = type === "ssd" ? "ssd_status" : "dd_status";
+      const completedField = type === "ssd" ? "ssd_completed_at" : "dd_completed_at";
+
+      const updatePayload = {
+        [field]: status,
+      };
+
+      if (status === "completed") {
+        updatePayload[completedField] = new Date().toISOString();
+      } else if (status === "active") {
+        updatePayload[completedField] = null;
+      }
 
       const { data, error: updateError } = await supabase
         .from("token_days")
-        .update({
-          [field]: status,
-        })
+        .update(updatePayload)
         .eq("id", tokenDay.id)
         .select()
         .single();

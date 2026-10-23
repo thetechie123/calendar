@@ -27,6 +27,8 @@ const SSDTokens = lazy(() => import('./components/SSDTokens'));
 const AdminPortalModal = lazy(() => import('./components/AdminPortalModal'));
 const EventDetailModal = lazy(() => import('./components/EventDetailModal'));
 const FestivalTopicPage = lazy(() => import('./components/FestivalTopicPage'));
+const DarshanHubPage = lazy(() => import('./components/darshan/DarshanHubPage'));
+const DarshanTopicPage = lazy(() => import('./components/darshan/DarshanTopicPage'));
 const NotFoundPage = lazy(() => import('./components/NotFoundPage'));
 const AboutPage = lazy(() => import('./components/AboutPage'));
 // Local development components (kept on disk for ongoing work):
@@ -36,6 +38,7 @@ const AboutPage = lazy(() => import('./components/AboutPage'));
 const loadInitialEvents = () =>
   import('./data/initialEvents').then(module => module.INITIAL_EVENTS);
 import { getFestivalTopic } from './data/festivalTopics';
+import { getDarshanTopic } from './data/darshanTopics';
 
 const ROUTE_MAP = {
   '/': 'calendar-page',
@@ -50,6 +53,7 @@ const ROUTE_MAP = {
   '/pilgrim-guide': 'calendar-page',
   '/pilgrim': 'calendar-page',
   '/about': 'about',
+  '/darshan': 'darshan',
   '/faqs': 'calendar-page',
   '/guides': 'calendar-page',
   '/festivals': 'calendar-page',
@@ -64,9 +68,24 @@ const TAB_TO_PATH = {
   'tokens': '/tokens',
   'feedback': '/feedback',
   'about': '/about',
+  'darshan': '/darshan',
   'overview': '/',
   'not-found': '/404',
 };
+
+function getDarshanSlugFromPath(pathname) {
+  if (!pathname) return null;
+  const cleanPath = pathname.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
+  const lowerPath = cleanPath.toLowerCase();
+  if (lowerPath.startsWith('/darshan/')) {
+    const slug = lowerPath.slice('/darshan/'.length);
+    const topic = getDarshanTopic(slug);
+    if (topic) {
+      return topic.slug;
+    }
+  }
+  return null;
+}
 
 function getFestivalSlugFromPath(pathname) {
   if (!pathname) return null;
@@ -86,6 +105,10 @@ function isValidRoute(pathname) {
   const cleanPath = pathname.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
   const lowerPath = cleanPath.toLowerCase();
   if (ROUTE_MAP[lowerPath]) return true;
+  if (lowerPath.startsWith('/darshan/')) {
+    const slug = lowerPath.slice('/darshan/'.length);
+    return Boolean(getDarshanTopic(slug));
+  }
   if (lowerPath.startsWith('/festivals/')) {
     const slug = lowerPath.slice('/festivals/'.length);
     return Boolean(getFestivalTopic(slug));
@@ -97,6 +120,15 @@ function getTabFromPathname(pathname) {
   if (!pathname) return 'calendar-page';
   const cleanPath = pathname.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
   const lowerPath = cleanPath.toLowerCase();
+  if (lowerPath === '/darshan') {
+    return 'darshan';
+  }
+  if (lowerPath.startsWith('/darshan/')) {
+    const slug = lowerPath.slice('/darshan/'.length);
+    if (getDarshanTopic(slug)) {
+      return 'darshan-topic';
+    }
+  }
   if (lowerPath.startsWith('/festivals/')) {
     const slug = lowerPath.slice('/festivals/'.length);
     if (getFestivalTopic(slug)) {
@@ -117,11 +149,13 @@ export default function App() {
   // Custom URL Routing & Tab state: 'calendar-page', 'overview', 'temples', 'references', 'sevas', 'feedback', 'festival-topic'
   const [activeTab, setActiveTabState] = useState(() => getTabFromPathname(window.location.pathname));
   const [festivalSlug, setFestivalSlug] = useState(() => getFestivalSlugFromPath(window.location.pathname));
+  const [darshanSlug, setDarshanSlug] = useState(() => getDarshanSlugFromPath(window.location.pathname));
   const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
 
   const setActiveTab = (tab, replace = false) => {
     setActiveTabState(tab);
     setFestivalSlug(null);
+    setDarshanSlug(null);
     const targetPath = getPathnameFromTab(tab);
     if (window.location.pathname !== targetPath) {
       if (replace) {
@@ -136,6 +170,7 @@ export default function App() {
   const handleNavigateHome = () => {
     setActiveTabState('calendar-page');
     setFestivalSlug(null);
+    setDarshanSlug(null);
     if (window.location.pathname !== '/') {
       window.history.pushState({ tab: 'calendar-page' }, '', '/');
     }
@@ -146,6 +181,7 @@ export default function App() {
   const handleNavigateToCalendarSearch = (searchQuery) => {
     setActiveTabState('calendar-page');
     setFestivalSlug(null);
+    setDarshanSlug(null);
     const targetPath = `/calendar?search=${encodeURIComponent(searchQuery || '')}`;
     window.history.pushState({ tab: 'calendar-page' }, '', targetPath);
     setCurrentPath(targetPath);
@@ -157,8 +193,10 @@ export default function App() {
     const lowerPath = cleanPath.toLowerCase();
     const tab = getTabFromPathname(lowerPath);
     const slug = getFestivalSlugFromPath(lowerPath);
+    const dSlug = getDarshanSlugFromPath(lowerPath);
     setActiveTabState(tab);
     setFestivalSlug(slug);
+    setDarshanSlug(dSlug);
     if (window.location.pathname !== path) {
       window.history.pushState({ tab }, '', path);
     }
@@ -178,8 +216,10 @@ export default function App() {
     const handlePopState = () => {
       const currentTab = getTabFromPathname(window.location.pathname);
       const slug = getFestivalSlugFromPath(window.location.pathname);
+      const dSlug = getDarshanSlugFromPath(window.location.pathname);
       setActiveTabState(currentTab);
       setFestivalSlug(slug);
+      setDarshanSlug(dSlug);
       setCurrentPath(window.location.pathname);
 
       // Deep linking support when navigating browser history
@@ -716,8 +756,9 @@ useEffect(() => {
         setThemeMode={setThemeMode}
         isAdminLoggedIn={isAdminLoggedIn}
         onOpenAdmin={(requestedMode) => {
+          const mode = typeof requestedMode === 'string' ? requestedMode : 'feedback-inbox';
           if (isAdminLoggedIn) {
-            setAdminModalMode(requestedMode || 'feedback-inbox');
+            setAdminModalMode(mode);
           } else {
             setAdminModalMode('login');
           }
@@ -791,6 +832,27 @@ useEffect(() => {
             <CommunityFeedback
               lang={lang}
               onSubmitFeedback={handleAddFeedback}
+            />
+          )}
+
+          {/* DARSHAN HUB OVERVIEW */}
+          {activeTab === 'darshan' && (
+            <DarshanHubPage
+              lang={lang}
+              themeMode={themeMode}
+              onNavigate={handleNavigatePath}
+              onNavigatePath={handleNavigatePath}
+            />
+          )}
+
+          {/* DEDICATED INDIVIDUAL DARSHAN TOPIC PAGE */}
+          {activeTab === 'darshan-topic' && (
+            <DarshanTopicPage
+              slug={darshanSlug || 'sarva-darshanam'}
+              lang={lang}
+              themeMode={themeMode}
+              onNavigate={handleNavigatePath}
+              onNavigatePath={handleNavigatePath}
             />
           )}
 

@@ -63,6 +63,63 @@ function getIndiaDate(date) {
   }).format(date);
 }
 
+function parseDarshanDateTextToIsoDate(telegramDate, darshanDateText) {
+  if (!darshanDateText) return null;
+  const match = darshanDateText.match(/(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)/i);
+  if (!match) return null;
+  const day = Number(match[1]);
+  const monthName = match[2].toLowerCase();
+  const months = {
+    january: "01", february: "02", march: "03", april: "04", may: "05", june: "06",
+    july: "07", august: "08", september: "09", october: "10", november: "11", december: "12"
+  };
+  const monthStr = months[monthName];
+  if (!monthStr) return null;
+
+  const year = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric"
+  }).format(telegramDate);
+
+  return `${year}-${monthStr}-${String(day).padStart(2, "0")}`;
+}
+
+function parseIssueStartToIso(indiaDate, issueStartText) {
+  if (!indiaDate || !issueStartText) return null;
+  const match = issueStartText.trim().match(/^(\d{1,2})(?:[:.](\d{2}))?\s*(AM|PM)?$/i);
+  if (!match) return null;
+
+  let hour = Number(match[1]);
+  const minute = Number(match[2] || 0);
+  const meridiem = match[3]?.toUpperCase();
+
+  if (meridiem === "PM" && hour !== 12) hour += 12;
+  if (meridiem === "AM" && hour === 12) hour = 0;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+
+  const [year, month, day] = indiaDate.split("-").map(Number);
+  const utcMillis = Date.UTC(year, month - 1, day, hour, minute, 0) - (5 * 60 + 30) * 60 * 1000;
+  return new Date(utcMillis).toISOString();
+}
+
+function parseEventTimeToIso(indiaDate, timeText) {
+  if (!indiaDate || !timeText) return null;
+  const match = timeText.trim().match(/^(\d{1,2})(?:[:.](\d{2}))?\s*(AM|PM)?$/i);
+  if (!match) return null;
+
+  let hour = Number(match[1]);
+  const minute = Number(match[2] || 0);
+  const meridiem = match[3]?.toUpperCase();
+
+  if (meridiem === "PM" && hour !== 12) hour += 12;
+  if (meridiem === "AM" && hour === 12) hour = 0;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+
+  const [year, month, day] = indiaDate.split("-").map(Number);
+  const utcMillis = Date.UTC(year, month - 1, day, hour, minute, 0) - (5 * 60 + 30) * 60 * 1000;
+  return new Date(utcMillis).toISOString();
+}
+
 function loadCheckpoint() {
   if (!fs.existsSync(CHECKPOINT_FILE)) {
     return 0;
@@ -123,27 +180,99 @@ async function processMessage(message) {
 
   const messageIndiaDate = getIndiaDate(telegramDate);
 
-  console.log(
-    `Telegram India date: ${messageIndiaDate}`
+  const telegramHourIST = Number(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Kolkata",
+      hour: "numeric",
+      hour12: false
+    }).format(telegramDate)
   );
 
-  const { data: tokenDay, error: tokenDayError } =
-    await supabase
+  const targetDarshanDate = parseDarshanDateTextToIsoDate(
+    telegramDate,
+    parsed.darshan_date_text
+  );
+
+  let effectiveIssuanceDate = messageIndiaDate;
+  const isStartInEvening =
+    parsed.issue_start_text && /PM/i.test(parsed.issue_start_text);
+
+  if (isStartInEvening && telegramHourIST < 8) {
+    const prevDay = new Date(telegramDate.getTime() - 24 * 60 * 60 * 1000);
+    effectiveIssuanceDate = getIndiaDate(prevDay);
+  }
+
+  let tokenDay = null;
+
+  if (targetDarshanDate) {
+    const { data: byDarshan } = await supabase
       .from("token_days")
-      .select("id, issuance_date")
-      .eq("issuance_date", messageIndiaDate)
+      .select("*")
+      .eq("darshan_date", targetDarshanDate)
       .maybeSingle();
 
-  if (tokenDayError) {
-    throw tokenDayError;
+    if (byDarshan) tokenDay = byDarshan;
   }
 
   if (!tokenDay) {
-    console.log(
-      `No token day found for ${messageIndiaDate}.`
-    );
+    const { data: byEffective } = await supabase
+      .from("token_days")
+      .select("*")
+      .eq("issuance_date", effectiveIssuanceDate)
+      .maybeSingle();
 
-    return "no_token_day";
+    if (byEffective) tokenDay = byEffective;
+  }
+
+  if (!tokenDay && effectiveIssuanceDate !== messageIndiaDate) {
+    const { data: byDate } = await supabase
+      .from("token_days")
+      .select("*")
+      .eq("issuance_date", messageIndiaDate)
+      .maybeSingle();
+
+    if (byDate) tokenDay = byDate;
+  }
+
+  const issuanceStartedAt = parseIssueStartToIso(effectiveIssuanceDate, parsed.issue_start_text);
+  const ssdCompletedAt = parseEventTimeToIso(effectiveIssuanceDate, parsed.ssd_completed_at_text);
+  const ddCompletedAt = parseEventTimeToIso(effectiveIssuanceDate, parsed.dd_completed_at_text);
+
+  if (!tokenDay) {
+    console.log(`No token day found for ${effectiveIssuanceDate}. Creating automatically...`);
+    let darshanDate = targetDarshanDate;
+
+    if (!darshanDate) {
+      const nextDay = new Date(`${effectiveIssuanceDate}T12:00:00`);
+      nextDay.setDate(nextDay.getDate() + 1);
+      darshanDate = [
+        nextDay.getFullYear(),
+        String(nextDay.getMonth() + 1).padStart(2, "0"),
+        String(nextDay.getDate()).padStart(2, "0"),
+      ].join("-");
+    }
+
+    const { data: createdTokenDay, error: createError } = await supabase
+      .from("token_days")
+      .insert({
+        issuance_date: effectiveIssuanceDate,
+        darshan_date: darshanDate,
+        issuance_status: "active",
+        ssd_quota: parsed.ssd_quota || null,
+        dd_quota: parsed.dd_quota || null,
+        ssd_status: parsed.ssd_status === "completed" ? "completed" : "active",
+        dd_status: parsed.dd_status === "completed" ? "completed" : "active",
+        issuance_started_at: issuanceStartedAt,
+        source_type: "telegram",
+        source_reference: sourceReference,
+        notes: "Automatically created from Telegram token issuance message.",
+      })
+      .select("*")
+      .single();
+
+    if (createError) throw createError;
+    tokenDay = createdTokenDay;
+    console.log(`Created token day ${tokenDay.id} for issuance ${effectiveIssuanceDate}.`);
   }
 
   const { data: existingObservation, error: existingError } =
@@ -172,40 +301,24 @@ async function processMessage(message) {
   const observation = {
     token_day_id: tokenDay.id,
     observed_at: observedAt,
-
     ssd_remaining: parsed.ssd_remaining,
     dd_remaining: parsed.dd_remaining,
-
     ssd_status: parsed.ssd_status,
     dd_status: parsed.dd_status,
-
     source_type: "telegram",
     source_reference: sourceReference,
-
     raw_text: parsed.raw_text,
   };
-
-  console.log("New observation:", {
-    source_reference: sourceReference,
-    observed_at: observedAt,
-    ssd_remaining: parsed.ssd_remaining,
-    dd_remaining: parsed.dd_remaining,
-    ssd_status: parsed.ssd_status,
-    dd_status: parsed.dd_status,
-  });
 
   const { error: insertError } = await supabase
     .from("token_observations")
     .insert(observation);
 
   if (insertError) {
-    // Another worker/process may have inserted it
-    // between our duplicate check and this insert.
     if (insertError.code === "23505") {
       console.log(
         `Duplicate prevented by database: ${sourceReference}`
       );
-
       return "duplicate";
     }
 
@@ -216,6 +329,34 @@ async function processMessage(message) {
     `SUCCESS — inserted ${sourceReference}`
   );
 
+  // Update status on token_days
+  const dayStatusUpdate = {};
+  if (parsed.ssd_status === "completed" || parsed.ssd_status === "active") {
+    dayStatusUpdate.ssd_status = parsed.ssd_status;
+  }
+  if (parsed.dd_status === "completed" || parsed.dd_status === "active") {
+    dayStatusUpdate.dd_status = parsed.dd_status;
+  }
+  if (parsed.ssd_status === "completed" && !tokenDay.ssd_completed_at) {
+    dayStatusUpdate.ssd_completed_at = ssdCompletedAt || new Date(message.date * 1000).toISOString();
+  }
+  if (parsed.dd_status === "completed" && !tokenDay.dd_completed_at) {
+    dayStatusUpdate.dd_completed_at = ddCompletedAt || new Date(message.date * 1000).toISOString();
+  }
+  if (issuanceStartedAt && !tokenDay.issuance_started_at) {
+    dayStatusUpdate.issuance_started_at = issuanceStartedAt;
+  }
+  if (parsed.ssd_quota && (!tokenDay.ssd_quota || tokenDay.ssd_quota === 0)) {
+    dayStatusUpdate.ssd_quota = parsed.ssd_quota;
+  }
+  if (parsed.dd_quota && (!tokenDay.dd_quota || tokenDay.dd_quota === 0)) {
+    dayStatusUpdate.dd_quota = parsed.dd_quota;
+  }
+
+  if (Object.keys(dayStatusUpdate).length > 0) {
+    await supabase.from("token_days").update(dayStatusUpdate).eq("id", tokenDay.id);
+  }
+
   return "inserted";
 }
 
@@ -224,60 +365,32 @@ async function pollTelegram(channel) {
     `\n[${new Date().toISOString()}] Checking Telegram...`
   );
 
-  const todayIndiaDate = getIndiaDate(new Date());
-
-  /*
-   * CHECK IF TODAY'S TOKENS ARE ALREADY COMPLETED FOR THE DAY
-   * If both SSD & DD tokens are completed, skip polling until midnight (00:00 IST).
-   */
-  const { data: todayTokenDay } = await supabase
-    .from("token_days")
-    .select("id, issuance_status, ssd_status, dd_status")
-    .eq("issuance_date", todayIndiaDate)
-    .maybeSingle();
-
-  if (
-    todayTokenDay &&
-    (todayTokenDay.issuance_status === "completed" ||
-      (todayTokenDay.ssd_status === "completed" && todayTokenDay.dd_status === "completed"))
-  ) {
-    console.log(
-      `\n[COMPLETED FOR TODAY] (${todayIndiaDate}): Both SSD & DD tokens are finished.`
-    );
-    console.log(
-      `Polling paused for the rest of today until midnight (00:00 IST).\n`
-    );
-    return;
-  }
-
   const lastProcessedMessageId = loadCheckpoint();
 
-console.log(
-  `Last processed Telegram message ID: ${lastProcessedMessageId}`
-);
+  console.log(
+    `Last processed Telegram message ID: ${lastProcessedMessageId}`
+  );
 
-let messages;
+  let messages;
 
-if (lastProcessedMessageId === 0) {
-  // First run: establish a baseline using recent history.
-  messages = await telegramClient.getMessages(channel, {
-    limit: 20,
-  });
-} else {
-  // Subsequent runs: request messages newer than our checkpoint.
-  messages = await telegramClient.getMessages(channel, {
-    limit: 100,
-    minId: lastProcessedMessageId,
-  });
-}
+  if (lastProcessedMessageId === 0) {
+    messages = await telegramClient.getMessages(channel, {
+      limit: 20,
+    });
+  } else {
+    messages = await telegramClient.getMessages(channel, {
+      limit: 100,
+      minId: lastProcessedMessageId,
+    });
+  }
 
-const newMessages = messages.filter(
-  (message) => message.id > lastProcessedMessageId
-);
+  const newMessages = messages.filter(
+    (message) => message.id > lastProcessedMessageId
+  );
 
-console.log(
-  `New Telegram messages in fetched window: ${newMessages.length}`
-);
+  console.log(
+    `New Telegram messages in fetched window: ${newMessages.length}`
+  );
 
   const recognizedMessages = [];
 
@@ -322,18 +435,18 @@ console.log(
   }
 
   if (messages.length > 0) {
-  const highestMessageId = Math.max(
-    ...messages.map((message) => message.id)
-  );
-
-  if (highestMessageId > lastProcessedMessageId) {
-    saveCheckpoint(highestMessageId);
-
-    console.log(
-      `Checkpoint saved: ${highestMessageId}`
+    const highestMessageId = Math.max(
+      ...messages.map((message) => message.id)
     );
+
+    if (highestMessageId > lastProcessedMessageId) {
+      saveCheckpoint(highestMessageId);
+
+      console.log(
+        `Checkpoint saved: ${highestMessageId}`
+      );
+    }
   }
-}
 
   console.log(
     `Poll complete — inserted: ${inserted}, duplicates: ${duplicates}, other: ${ignored}`
@@ -447,7 +560,6 @@ async function processPendingAdminNotifications() {
     console.log(`\n[ADMIN PUSH WORKER] Found ${pendingNotifs.length} pending custom notification(s).`);
 
     for (const notif of pendingNotifs) {
-      // 1. Atomically claim notification row to prevent duplicate worker processing
       const { data: claimed, error: claimErr } = await supabase.rpc(
         "claim_admin_notification",
         { p_notification_id: notif.id }
@@ -459,13 +571,11 @@ async function processPendingAdminNotifications() {
       }
 
       if (!claimed) {
-        // Already claimed by another worker instance
         continue;
       }
 
       console.log(`[ADMIN PUSH DISPATCH START] Claimed notification ${notif.id}: "${notif.title}"`);
 
-      // 2. Execute Web Push dispatch via generic dispatcher
       const result = await dispatchWebPushNotification({
         supabase,
         notificationType: "admin_custom",
@@ -479,7 +589,6 @@ async function processPendingAdminNotifications() {
         }
       });
 
-      // 3. Update notification record status & execution stats
       const finalStatus = result.success ? "completed" : "failed";
       await supabase
         .from("admin_custom_notifications")
@@ -501,28 +610,22 @@ async function processPendingAdminNotifications() {
   }
 }
 
-// Initial check on worker startup
 processPendingAdminNotifications().catch((err) =>
   console.error("Initial admin push processing error:", err)
 );
 
-// Periodic outbox polling
 setInterval(async () => {
   await processPendingAdminNotifications();
 }, ADMIN_PUSH_POLL_INTERVAL_MS);
 
 process.on("SIGINT", async () => {
   console.log("\nStopping Telegram worker...");
-
   await telegramClient.disconnect();
-
   process.exit(0);
 });
 
 process.on("SIGTERM", async () => {
   console.log("\nStopping Telegram worker...");
-
   await telegramClient.disconnect();
-
   process.exit(0);
 });

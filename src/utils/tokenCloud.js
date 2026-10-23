@@ -13,7 +13,8 @@ export async function getTodayTokenDay(dateOverride = null) {
       day: "2-digit",
     }).format(new Date());
 
-  const { data, error } = await supabase
+  // 1. Try today's issuance session
+  let { data, error } = await supabase
     .from("token_days")
     .select("*")
     .eq("issuance_date", today)
@@ -22,6 +23,34 @@ export async function getTodayTokenDay(dateOverride = null) {
   if (error) {
     console.error("Failed to load today's token data:", error);
     throw error;
+  }
+
+  // 2. If today's issuance row doesn't exist, check for the session whose darshan_date is today
+  // (e.g. issued yesterday evening for today's darshan)
+  if (!data) {
+    const { data: darshanDay, error: darshanErr } = await supabase
+      .from("token_days")
+      .select("*")
+      .eq("darshan_date", today)
+      .maybeSingle();
+
+    if (!darshanErr && darshanDay) {
+      data = darshanDay;
+    }
+  }
+
+  // 3. Fallback: most recent token day so the live card is never blank
+  if (!data) {
+    const { data: latestDay } = await supabase
+      .from("token_days")
+      .select("*")
+      .order("issuance_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (latestDay) {
+      data = latestDay;
+    }
   }
 
   return data;

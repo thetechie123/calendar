@@ -34,11 +34,12 @@ export default function AdminPortalModal({
   onSaveTtdLiveUrl
 }) {
   // Admin Navigation State
-  const [activeAdminTab, setActiveAdminTab] = useState(mode || 'feedback-inbox');
+  const initialTab = typeof mode === 'string' && mode ? mode : 'feedback-inbox';
+  const [activeAdminTab, setActiveAdminTab] = useState(initialTab);
   const [isAddingGlossary, setIsAddingGlossary] = useState(false);
 
   useEffect(() => {
-    if (mode) setActiveAdminTab(mode);
+    if (typeof mode === 'string' && mode) setActiveAdminTab(mode);
   }, [mode]);
 
   // YouTube Live Form State

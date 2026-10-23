@@ -156,6 +156,7 @@ export function parseTelegramTokenMessage(rawText) {
    * 12:30Am
    * 12.30 AM
    * 1:30 AM
+   * 5:30Pm
    */
   const issueStartMatch = text.match(
     /Issue\s+Started\s*@\s*([0-9]{1,2}(?:[:.][0-9]{2})?\s*(?:AM|PM)?)/i
@@ -165,6 +166,39 @@ export function parseTelegramTokenMessage(rawText) {
     issueStartMatch
       ? issueStartMatch[1].trim()
       : null;
+
+  /*
+   * Extract advertised quotas if present.
+   * Examples:
+   * SSD 10K & DD 2K
+   * SSD 15K
+   */
+  const ssdQuotaMatch = text.match(/SSD\s+(\d+)\s*(k|lac|lakh)?/i);
+  let ssdQuota = null;
+  if (ssdQuotaMatch) {
+    const val = Number(ssdQuotaMatch[1]);
+    const unit = ssdQuotaMatch[2]?.toLowerCase();
+    ssdQuota = unit === "k" ? val * 1000 : unit === "lac" || unit === "lakh" ? val * 100000 : val;
+  }
+
+  const ddQuotaMatch = text.match(/DD\s+(\d+)\s*(k|lac|lakh)?/i);
+  let ddQuota = null;
+  if (ddQuotaMatch) {
+    const val = Number(ddQuotaMatch[1]);
+    const unit = ddQuotaMatch[2]?.toLowerCase();
+    ddQuota = unit === "k" ? val * 1000 : unit === "lac" || unit === "lakh" ? val * 100000 : val;
+  }
+
+  /*
+   * Extract advertised darshan date if present.
+   * Examples:
+   * 23rd October
+   * 24 October
+   */
+  const dateMatch = text.match(
+    /(\d{1,2})(?:st|nd|rd|th)?\s+(January|February|March|April|May|June|July|August|September|October|November|December)/i
+  );
+  const darshanDateText = dateMatch ? dateMatch[0].trim() : null;
 
   /*
    * A message is meaningful if it contains:
@@ -191,6 +225,10 @@ export function parseTelegramTokenMessage(rawText) {
 
     ssd_status: ssdStatus,
     dd_status: ddStatus,
+
+    ssd_quota: ssdQuota,
+    dd_quota: ddQuota,
+    darshan_date_text: darshanDateText,
 
     issue_start_text: issueStartText,
 

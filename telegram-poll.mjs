@@ -2,8 +2,10 @@ import { TelegramClient } from "teleproto";
 import { StringSession } from "teleproto/sessions/index.js";
 import { createClient } from "@supabase/supabase-js";
 import { parseTelegramTokenMessage } from "./src/utils/telegramTokenParser.js";
+import fs from "node:fs";
 
 const CHANNEL_USERNAME = "LaxmiTeluguTechChannel";
+const SESSION_FILE = ".telegram-session";
 
 const apiId = Number(process.env.TELEGRAM_API_ID);
 const apiHash = process.env.TELEGRAM_API_HASH;
@@ -22,7 +24,14 @@ if (!supabaseUrl || !supabaseServiceRoleKey) {
   );
 }
 
-const sessionString = process.env.TELEGRAM_SESSION?.trim();
+let sessionString = process.env.TELEGRAM_SESSION?.trim();
+
+if (!sessionString && fs.existsSync(SESSION_FILE)) {
+  sessionString = fs.readFileSync(
+    SESSION_FILE,
+    "utf8"
+  ).trim();
+}
 
 if (!sessionString) {
   throw new Error(
@@ -51,6 +60,27 @@ function getIndiaDate(date) {
     month: "2-digit",
     day: "2-digit",
   }).format(date);
+}
+
+function parseDarshanDateTextToIsoDate(telegramDate, darshanDateText) {
+  if (!darshanDateText) return null;
+  const match = darshanDateText.match(/(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)/i);
+  if (!match) return null;
+  const day = Number(match[1]);
+  const monthName = match[2].toLowerCase();
+  const months = {
+    january: "01", february: "02", march: "03", april: "04", may: "05", june: "06",
+    july: "07", august: "08", september: "09", october: "10", november: "11", december: "12"
+  };
+  const monthStr = months[monthName];
+  if (!monthStr) return null;
+
+  const year = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric"
+  }).format(telegramDate);
+
+  return `${year}-${monthStr}-${String(day).padStart(2, "0")}`;
 }
 
 function parseIssueStartToIso(indiaDate, issueStartText) {
@@ -162,9 +192,6 @@ function parseEventTimeToIso(indiaDate, timeText) {
 /**
  * Find the highest Telegram message ID that has already
  * been imported into token_observations.
- *
- * This remains useful for logging and future incremental
- * processing, although today's backfill reads recent history.
  */
 async function getLastImportedTelegramMessageId() {
   const { data, error } = await supabase
@@ -228,71 +255,119 @@ async function processMessage(message) {
   const messageIndiaDate =
     getIndiaDate(telegramDate);
 
-  console.log(
-    `Telegram India date: ${messageIndiaDate}`
+  const telegramHourIST = Number(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Kolkata",
+      hour: "numeric",
+      hour12: false
+    }).format(telegramDate)
   );
 
-  let {
-    data: tokenDay,
-    error: tokenDayError,
-  } = await supabase
-    .from("token_days")
-    .select("*")
-    .eq("issuance_date", messageIndiaDate)
-    .maybeSingle();
+  const targetDarshanDate = parseDarshanDateTextToIsoDate(
+    telegramDate,
+    parsed.darshan_date_text
+  );
 
-  if (tokenDayError) {
-    throw tokenDayError;
+  // If the message arrived in the early morning (past midnight, 0-6 AM IST)
+  // but pertains to an issuance that started the previous evening (e.g. 5:30 PM),
+  // the issuance date is the previous calendar day.
+  let effectiveIssuanceDate = messageIndiaDate;
+  const isStartInEvening =
+    parsed.issue_start_text && /PM/i.test(parsed.issue_start_text);
+
+  if (isStartInEvening && telegramHourIST < 8) {
+    const prevDay = new Date(telegramDate.getTime() - 24 * 60 * 60 * 1000);
+    effectiveIssuanceDate = getIndiaDate(prevDay);
+  }
+
+  console.log(
+    `Telegram India date: ${messageIndiaDate}, Effective issuance date: ${effectiveIssuanceDate}, Target darshan date: ${targetDarshanDate || "N/A"}`
+  );
+
+  let tokenDay = null;
+
+  // 1. If target darshan date was extracted, search by darshan_date first to prevent midnight splitting
+  if (targetDarshanDate) {
+    const { data: byDarshan, error: darshanErr } = await supabase
+      .from("token_days")
+      .select("*")
+      .eq("darshan_date", targetDarshanDate)
+      .maybeSingle();
+
+    if (darshanErr) throw darshanErr;
+    if (byDarshan) {
+      tokenDay = byDarshan;
+      console.log(`Matched existing token day ${tokenDay.id} by darshan_date ${targetDarshanDate}`);
+    }
+  }
+
+  // 2. Search by effectiveIssuanceDate
+  if (!tokenDay) {
+    const { data: byEffective, error: effErr } = await supabase
+      .from("token_days")
+      .select("*")
+      .eq("issuance_date", effectiveIssuanceDate)
+      .maybeSingle();
+
+    if (effErr) throw effErr;
+    if (byEffective) {
+      tokenDay = byEffective;
+      console.log(`Matched existing token day ${tokenDay.id} by effective issuance date ${effectiveIssuanceDate}`);
+    }
+  }
+
+  // 3. Search by messageIndiaDate
+  if (!tokenDay && effectiveIssuanceDate !== messageIndiaDate) {
+    const { data: byDate, error: dateErr } = await supabase
+      .from("token_days")
+      .select("*")
+      .eq("issuance_date", messageIndiaDate)
+      .maybeSingle();
+
+    if (dateErr) throw dateErr;
+    if (byDate) {
+      tokenDay = byDate;
+      console.log(`Matched existing token day ${tokenDay.id} by message India date ${messageIndiaDate}`);
+    }
   }
 
   const issuanceStartedAt =
     parseIssueStartToIso(
-      messageIndiaDate,
+      effectiveIssuanceDate,
       parsed.issue_start_text
     );
 
   const ssdCompletedAt =
-   parseEventTimeToIso(
-    messageIndiaDate,
-    parsed.ssd_completed_at_text
-   );
+    parseEventTimeToIso(
+      effectiveIssuanceDate,
+      parsed.ssd_completed_at_text
+    );
 
   const ddCompletedAt =
-   parseEventTimeToIso(
-    messageIndiaDate,
-    parsed.dd_completed_at_text
-   );
+    parseEventTimeToIso(
+      effectiveIssuanceDate,
+      parsed.dd_completed_at_text
+    );
 
   /*
-   * STEP 1 / 2:
-   *
    * If today's token day does not exist, create it.
-   *
-   * The issuance start time is saved when the Telegram
-   * start message contains one.
    */
   if (!tokenDay) {
     console.log(
-      `No token day found for ${messageIndiaDate}. Creating it automatically...`
+      `No token day found for ${effectiveIssuanceDate}. Creating it automatically...`
     );
 
-    const nextDay = new Date(
-      `${messageIndiaDate}T12:00:00`
-    );
+    let darshanDate = targetDarshanDate;
 
-    nextDay.setDate(
-      nextDay.getDate() + 1
-    );
-
-    const darshanDate = [
-      nextDay.getFullYear(),
-      String(
-        nextDay.getMonth() + 1
-      ).padStart(2, "0"),
-      String(
-        nextDay.getDate()
-      ).padStart(2, "0"),
-    ].join("-");
+    if (!darshanDate) {
+      const nextDay = new Date(`${effectiveIssuanceDate}T12:00:00`);
+      nextDay.setDate(nextDay.getDate() + 1);
+      darshanDate = [
+        nextDay.getFullYear(),
+        String(nextDay.getMonth() + 1).padStart(2, "0"),
+        String(nextDay.getDate()).padStart(2, "0"),
+      ].join("-");
+    }
 
     const {
       data: createdTokenDay,
@@ -300,20 +375,17 @@ async function processMessage(message) {
     } = await supabase
       .from("token_days")
       .insert({
-        issuance_date: messageIndiaDate,
+        issuance_date: effectiveIssuanceDate,
         darshan_date: darshanDate,
-
         issuance_status: "active",
-
-        issuance_started_at:
-          issuanceStartedAt,
-
+        ssd_quota: parsed.ssd_quota || null,
+        dd_quota: parsed.dd_quota || null,
+        ssd_status: parsed.ssd_status === "completed" ? "completed" : "active",
+        dd_status: parsed.dd_status === "completed" ? "completed" : "active",
+        issuance_started_at: issuanceStartedAt,
         source_type: "telegram",
-        source_reference:
-          sourceReference,
-
-        notes:
-          "Automatically created from Telegram token issuance message.",
+        source_reference: sourceReference,
+        notes: "Automatically created from Telegram token issuance message.",
       })
       .select("*")
       .single();
@@ -325,80 +397,57 @@ async function processMessage(message) {
     tokenDay = createdTokenDay;
 
     console.log(
-      `Created token day ${tokenDay.id} for ${messageIndiaDate}.`
+      `Created token day ${tokenDay.id} for issuance ${effectiveIssuanceDate} (darshan: ${darshanDate}).`
     );
   }
 
   /*
-   * Save issuance start time if we have discovered it
-   * and today's token day does not already have one.
+   * Save issuance start time / quotas / completion timestamps if newly discovered
    */
-  if (
-  tokenDay &&
-  (
-    (issuanceStartedAt && !tokenDay.issuance_started_at) ||
-    (ssdCompletedAt && !tokenDay.ssd_completed_at) ||
-    (ddCompletedAt && !tokenDay.dd_completed_at)
-  )
-) {
   const timingUpdate = {};
 
-  if (
-    issuanceStartedAt &&
-    !tokenDay.issuance_started_at
-  ) {
-    timingUpdate.issuance_started_at =
-      issuanceStartedAt;
+  if (issuanceStartedAt && !tokenDay.issuance_started_at) {
+    timingUpdate.issuance_started_at = issuanceStartedAt;
   }
 
-  if (
-    ssdCompletedAt &&
-    !tokenDay.ssd_completed_at
-  ) {
-    timingUpdate.ssd_completed_at =
-      ssdCompletedAt;
+  if (ssdCompletedAt && !tokenDay.ssd_completed_at) {
+    timingUpdate.ssd_completed_at = ssdCompletedAt;
   }
 
-  if (
-    ddCompletedAt &&
-    !tokenDay.dd_completed_at
-  ) {
-    timingUpdate.dd_completed_at =
-      ddCompletedAt;
+  if (ddCompletedAt && !tokenDay.dd_completed_at) {
+    timingUpdate.dd_completed_at = ddCompletedAt;
   }
 
-  timingUpdate.source_type = "telegram";
-  timingUpdate.source_reference = sourceReference;
-
-  const {
-    data: updatedTokenDay,
-    error: timingUpdateError,
-  } = await supabase
-    .from("token_days")
-    .update(timingUpdate)
-    .eq("id", tokenDay.id)
-    .select("*")
-    .single();
-
-  if (timingUpdateError) {
-    throw timingUpdateError;
+  if (parsed.ssd_quota && (!tokenDay.ssd_quota || tokenDay.ssd_quota === 0)) {
+    timingUpdate.ssd_quota = parsed.ssd_quota;
   }
 
-  tokenDay = updatedTokenDay;
+  if (parsed.dd_quota && (!tokenDay.dd_quota || tokenDay.dd_quota === 0)) {
+    timingUpdate.dd_quota = parsed.dd_quota;
+  }
 
-  console.log(
-    "Token timing information saved:",
-    timingUpdate
-  );
-}
+  if (Object.keys(timingUpdate).length > 0) {
+    timingUpdate.source_type = "telegram";
+    timingUpdate.source_reference = sourceReference;
+
+    const { data: updatedTokenDay, error: timingUpdateError } =
+      await supabase
+        .from("token_days")
+        .update(timingUpdate)
+        .eq("id", tokenDay.id)
+        .select("*")
+        .single();
+
+    if (timingUpdateError) {
+      throw timingUpdateError;
+    }
+
+    tokenDay = updatedTokenDay;
+    console.log("Token timing/quota information saved:", timingUpdate);
+  }
 
   /*
-   * STEP 4:
-   *
-   * A Telegram message containing only the issuance
-   * start time is NOT an observation.
-   *
-   * Save the start time in token_days and stop here.
+   * Issue-start message without remaining counts is recorded as start time
    */
   if (
     parsed.issue_start_text &&
@@ -419,60 +468,31 @@ async function processMessage(message) {
    */
   const observation = {
     token_day_id: tokenDay.id,
-
     observed_at: message.date
-      ? new Date(
-          message.date * 1000
-        ).toISOString()
+      ? new Date(message.date * 1000).toISOString()
       : new Date().toISOString(),
-
-    ssd_remaining:
-      parsed.ssd_remaining,
-
-    dd_remaining:
-      parsed.dd_remaining,
-
-    ssd_status:
-      parsed.ssd_status,
-
-    dd_status:
-      parsed.dd_status,
-
+    ssd_remaining: parsed.ssd_remaining,
+    dd_remaining: parsed.dd_remaining,
+    ssd_status: parsed.ssd_status,
+    dd_status: parsed.dd_status,
     source_type: "telegram",
-
-    source_reference:
-      sourceReference,
-
-    raw_text:
-      parsed.raw_text,
+    source_reference: sourceReference,
+    raw_text: parsed.raw_text,
   };
 
   console.log(
     "Attempting insert:",
     {
-      source_reference:
-        sourceReference,
-
-      observed_at:
-        observation.observed_at,
-
-      ssd_remaining:
-        observation.ssd_remaining,
-
-      dd_remaining:
-        observation.dd_remaining,
-
-      ssd_status:
-        observation.ssd_status,
-
-      dd_status:
-        observation.dd_status,
+      source_reference: sourceReference,
+      observed_at: observation.observed_at,
+      ssd_remaining: observation.ssd_remaining,
+      dd_remaining: observation.dd_remaining,
+      ssd_status: observation.ssd_status,
+      dd_status: observation.dd_status,
     }
   );
 
-  const {
-    error: insertError,
-  } = await supabase
+  const { error: insertError } = await supabase
     .from("token_observations")
     .insert(observation);
 
@@ -481,7 +501,6 @@ async function processMessage(message) {
       console.log(
         `Duplicate prevented by database: ${sourceReference}`
       );
-
       return "duplicate";
     }
 
@@ -494,23 +513,26 @@ async function processMessage(message) {
 
   /*
    * Update SSD/DD status for the token day.
+   * Note: We NEVER set issuance_status = 'completed' because the database
+   * has a check constraint CHECK (issuance_status IN ('active', 'no_issuance')).
+   * Individual quotas are tracked via ssd_status and dd_status.
    */
   const dayStatusUpdate = {};
 
-  if (parsed.ssd_status === "completed") {
-    dayStatusUpdate.ssd_status = "completed";
+  if (parsed.ssd_status === "completed" || parsed.ssd_status === "active") {
+    dayStatusUpdate.ssd_status = parsed.ssd_status;
   }
 
-  if (parsed.dd_status === "completed") {
-    dayStatusUpdate.dd_status = "completed";
+  if (parsed.dd_status === "completed" || parsed.dd_status === "active") {
+    dayStatusUpdate.dd_status = parsed.dd_status;
   }
 
-  // If both SSD and DD are completed (or existing + new makes both completed), set issuance_status = 'completed'
-  const isSsdDone = dayStatusUpdate.ssd_status === "completed" || tokenDay.ssd_status === "completed";
-  const isDdDone = dayStatusUpdate.dd_status === "completed" || tokenDay.dd_status === "completed";
+  if (parsed.ssd_status === "completed" && !tokenDay.ssd_completed_at) {
+    dayStatusUpdate.ssd_completed_at = ssdCompletedAt || new Date(message.date * 1000).toISOString();
+  }
 
-  if (isSsdDone && isDdDone) {
-    dayStatusUpdate.issuance_status = "completed";
+  if (parsed.dd_status === "completed" && !tokenDay.dd_completed_at) {
+    dayStatusUpdate.dd_completed_at = ddCompletedAt || new Date(message.date * 1000).toISOString();
   }
 
   if (Object.keys(dayStatusUpdate).length > 0) {
@@ -537,36 +559,6 @@ async function runPoll(channel) {
   const nowIST = new Date();
   const todayIndiaDate = getIndiaDate(nowIST);
 
-  /*
-   * CHECK IF TODAY'S TOKENS ARE ALREADY COMPLETED FOR THE DAY
-   * If both SSD & DD tokens are completed, skip polling for the rest of today.
-   */
-  const { data: todayTokenDay } = await supabase
-    .from("token_days")
-    .select("id, issuance_status, ssd_status, dd_status")
-    .eq("issuance_date", todayIndiaDate)
-    .maybeSingle();
-
-  if (
-    todayTokenDay &&
-    (todayTokenDay.issuance_status === "completed" ||
-      (todayTokenDay.ssd_status === "completed" && todayTokenDay.dd_status === "completed"))
-  ) {
-    console.log(
-      `\n========================================`
-    );
-    console.log(
-      `Today's (${todayIndiaDate}) SSD and DD token issuance is already COMPLETED.`
-    );
-    console.log(
-      `Polling skipped for the rest of the day until midnight (00:00 IST).`
-    );
-    console.log(
-      `========================================\n`
-    );
-    return;
-  }
-
   const lastImportedMessageId =
     await getLastImportedTelegramMessageId();
 
@@ -574,18 +566,6 @@ async function runPoll(channel) {
     `Last imported Telegram message ID: ${lastImportedMessageId}`
   );
 
-  /*
-   * STEP 3:
-   *
-   * Read a larger recent Telegram history instead of
-   * starting after the latest imported message.
-   *
-   * This allows us to recover today's messages that were
-   * posted before the current database checkpoint.
-   *
-   * Existing observations are protected by the database
-   * unique source_reference constraint.
-   */
   const messages =
     await telegramClient.getMessages(
       channel,
@@ -601,9 +581,8 @@ async function runPoll(channel) {
   /*
    * Process messages from the last 48 hours (today & yesterday IST)
    * to guarantee no token messages are missed even if GitHub Actions
-   * cron execution is delayed by several hours.
+   * cron execution is delayed.
    */
-
   const yesterdayIST = new Date(nowIST.getTime() - 24 * 60 * 60 * 1000);
   const yesterdayIndiaDate = getIndiaDate(yesterdayIST);
 
@@ -620,58 +599,26 @@ async function runPoll(channel) {
     `Recent 48h Telegram messages: ${recentMessages.length}`
   );
 
-  console.log("\n========================================");
-  console.log("RECENT TELEGRAM MESSAGE DIAGNOSTIC");
-  console.log("========================================");
-
-  for (const message of recentMessages) {
-    console.log("\n----------------------------------------");
-    console.log("Message ID:", message.id);
-
-    if (message.date) {
-      console.log(
-        "India time:",
-        new Intl.DateTimeFormat("en-IN", {
-          timeZone: "Asia/Kolkata",
-          dateStyle: "medium",
-          timeStyle: "medium",
-        }).format(new Date(message.date * 1000))
-      );
-    }
-
-    console.log("Text:");
-    console.log(message.message || "[NO TEXT]");
-  }
-
-  console.log("\n========================================");
-
   const recognizedMessages = [];
 
   for (const message of recentMessages) {
-    const text =
-      message.message || "";
+    const text = message.message || "";
 
     if (!text.trim()) {
       continue;
     }
 
-    const parsed =
-      parseTelegramTokenMessage(
-        text
-      );
+    const parsed = parseTelegramTokenMessage(text);
 
     if (!parsed) {
       continue;
     }
 
-    recognizedMessages.push(
-      message
-    );
+    recognizedMessages.push(message);
   }
 
   recognizedMessages.sort(
-    (a, b) =>
-      a.id - b.id
+    (a, b) => a.id - b.id
   );
 
   console.log(
@@ -682,21 +629,12 @@ async function runPoll(channel) {
   let duplicates = 0;
   let other = 0;
 
-  for (
-    const message of recognizedMessages
-  ) {
-    const result =
-      await processMessage(
-        message
-      );
+  for (const message of recognizedMessages) {
+    const result = await processMessage(message);
 
-    if (
-      result === "inserted"
-    ) {
+    if (result === "inserted") {
       inserted++;
-    } else if (
-      result === "duplicate"
-    ) {
+    } else if (result === "duplicate") {
       duplicates++;
     } else {
       other++;
@@ -706,86 +644,46 @@ async function runPoll(channel) {
   console.log(
     "\n========================================"
   );
-
   console.log(
     "Telegram poll complete."
   );
-
-  console.log(
-    "Inserted:",
-    inserted
-  );
-
-  console.log(
-    "Duplicates:",
-    duplicates
-  );
-
-  console.log(
-    "Other:",
-    other
-  );
-
+  console.log("Inserted:", inserted);
+  console.log("Duplicates:", duplicates);
+  console.log("Other:", other);
   console.log(
     "========================================"
   );
 }
 
-console.log(
-  "========================================"
-);
-
-console.log(
-  "Telegram SSD/DD Token Cron Poll"
-);
-
-console.log(
-  "========================================"
-);
+console.log("========================================");
+console.log("Telegram SSD/DD Token Cron Poll");
+console.log("========================================");
 
 try {
-  console.log(
-    "Connecting to Telegram..."
-  );
+  console.log("Connecting to Telegram...");
 
   await telegramClient.connect();
 
-  console.log(
-    "Telegram connected."
+  console.log("Telegram connected.");
+
+  const channel = await telegramClient.getEntity(
+    CHANNEL_USERNAME
   );
 
-  const channel =
-    await telegramClient.getEntity(
-      CHANNEL_USERNAME
-    );
-
-  console.log(
-    "Channel:",
-    {
-      id: String(channel.id),
-
-      title:
-        channel.title,
-
-      username:
-        channel.username,
-    }
-  );
+  console.log("Channel:", {
+    id: String(channel.id),
+    title: channel.title,
+    username: channel.username,
+  });
 
   await runPoll(channel);
 } catch (error) {
-  console.error(
-    "Telegram cron poll failed:",
-    error
-  );
-
+  console.error("Telegram cron poll failed:", error);
   process.exitCode = 1;
 } finally {
   try {
     await telegramClient.disconnect();
-  } catch (
-    disconnectError
-  ) {
+  } catch (disconnectError) {
     console.error(
       "Failed to disconnect Telegram cleanly:",
       disconnectError
@@ -793,6 +691,4 @@ try {
   }
 }
 
-console.log(
-  "Telegram cron poll finished."
-);
+console.log("Telegram cron poll finished.");

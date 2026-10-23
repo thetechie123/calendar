@@ -1,3 +1,4 @@
+import DarshanNavDropdown from './darshan/DarshanNavDropdown';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Clock as ClockIcon,
@@ -5,9 +6,12 @@ import {
   Lock,
   Sun,
   Moon,
-  BookOpen
+  BookOpen,
+  ChevronDown,
+  ArrowRight
 } from 'lucide-react';
 import { isModifiedClick } from '../utils/navigation';
+import { DARSHAN_TOPICS } from '../data/darshanTopics';
 
 export default function Header({ 
   activeTab, 
@@ -29,6 +33,19 @@ export default function Header({
 }) {
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
   const [showRightFade, setShowRightFade] = useState(false);
+  const [isDarshanOpen, setIsDarshanOpen] = useState(false);
+  const darshanCloseTimerRef = useRef(null);
+
+  const handleDarshanMouseEnter = () => {
+    if (darshanCloseTimerRef.current) clearTimeout(darshanCloseTimerRef.current);
+    setIsDarshanOpen(true);
+  };
+
+  const handleDarshanMouseLeave = () => {
+    darshanCloseTimerRef.current = setTimeout(() => {
+      setIsDarshanOpen(false);
+    }, 250);
+  };
 
   const navRef = useRef(null);
   const tabRefs = useRef({});
@@ -164,7 +181,7 @@ export default function Header({
 
             {/* Admin Login Button */}
             <button
-              onClick={onOpenAdmin}
+              onClick={() => onOpenAdmin('feedback-inbox')}
               className="w-[30px] h-[30px] sm:w-auto sm:h-auto p-1 sm:px-2.5 sm:py-1 rounded-lg bg-[#FF5722]/20 border border-[#FF5722]/50 text-[#FF5722] hover:bg-[#FF5722]/30 text-xs font-extrabold flex items-center justify-center gap-1 transition-colors shadow-sm"
               title="Admin Login"
             >
@@ -202,7 +219,7 @@ export default function Header({
           <nav
             ref={navRef}
             onScroll={checkNavScroll}
-            className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full"
+            className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto sm:overflow-visible no-scrollbar py-0.5 max-w-full"
           >
             <a
               ref={el => (tabRefs.current['calendar-page'] = el)}
@@ -222,7 +239,31 @@ export default function Header({
             </a>
 
             
-                        <a
+            {/* DARSHAN NAV TAB TRIGGER */}
+            <div
+              className="relative shrink-0"
+              onMouseEnter={handleDarshanMouseEnter}
+              onMouseLeave={handleDarshanMouseLeave}
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsDarshanOpen(prev => !prev);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-1.5 shrink-0 transition-all shadow-md cursor-pointer ${
+                  activeTab === 'darshan' || activeTab === 'darshan-topic'
+                    ? 'bg-[#141923] text-[#FFD700] ring-2 ring-[#FFD700] border border-[#FFD700]'
+                    : 'bg-[#141923] text-[#FFD700] border border-[#D4AF37]/50 hover:bg-[#D4AF37]/20'
+                }`}
+              >
+                <span>{lang === 'en' ? 'Darshan' : 'దర్శనం'}</span>
+                <ChevronDown className={`w-3.5 h-3.5 text-[#FFD700] transition-transform duration-200 ${isDarshanOpen ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+
+            {/* Glossary / Meanings Tab */}
+            <a
               ref={el => (tabRefs.current['glossary'] = el)}
               href="/glossary"
               onClick={(e) => {
@@ -240,6 +281,7 @@ export default function Header({
               <span>{lang === 'en' ? 'Glossary / Meanings' : 'నిఘంటువు / పదాల అర్థాలు'}</span>
             </a>
 
+            {/* Sevas Tab */}
             <a
               ref={el => (tabRefs.current['sevas'] = el)}
               href="/sevas"
@@ -258,6 +300,7 @@ export default function Header({
               <span>{lang === 'en' ? 'Sevas' : 'సేవలు'}</span>
             </a>
 
+            {/* SSD / DD Tokens Tab */}
             <a
               ref={el => (tabRefs.current['tokens'] = el)}
               href="/tokens"
@@ -278,8 +321,7 @@ export default function Header({
               </span>
             </a>
 
-
-            </nav>
+          </nav>
 
           {/* Subtle Mobile Right-Edge Fade Scroll Indicator */}
           {showRightFade && (
@@ -290,6 +332,19 @@ export default function Header({
         </div>
 
       </div>
+
+      {/* APPLE-STYLE FULL-WIDTH EXPANDABLE FLYOUT */}
+      <DarshanNavDropdown
+        isOpen={isDarshanOpen}
+        onClose={() => setIsDarshanOpen(false)}
+        lang={lang}
+        onNavigate={(path) => {
+          if (onNavigatePath) onNavigatePath(path);
+          else if (setActiveTab) setActiveTab(path === '/darshan' ? 'darshan' : 'darshan-topic');
+        }}
+        onMouseEnter={handleDarshanMouseEnter}
+        onMouseLeave={handleDarshanMouseLeave}
+      />
     </header>
   );
 }

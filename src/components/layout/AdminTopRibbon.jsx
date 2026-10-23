@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Plus, MessageSquare, Cloud, LogOut } from 'lucide-react';
+import { ShieldCheck, Plus, MessageSquare, Cloud, LogOut, Ticket } from 'lucide-react';
 
 export default function AdminTopRibbon({
   onOpenAddEventModal,
@@ -17,6 +17,16 @@ export default function AdminTopRibbon({
       </div>
 
       <div className="flex items-center gap-2 ml-auto">
+        {/* SSD / DD Tokens Button */}
+        <button
+          onClick={() => onOpenAdminModalMode('token-management')}
+          className="px-2.5 py-1 rounded bg-black/40 text-[#FFD700] hover:bg-black/60 font-extrabold flex items-center gap-1 border border-[#D4AF37]/50"
+          title="Manage SSD / DD Tokens"
+        >
+          <Ticket className="w-3.5 h-3.5 text-[#FFD700]" />
+          <span>Tokens</span>
+        </button>
+
         {/* Live ➕ Add Event Button */}
         <button
           onClick={onOpenAddEventModal}
