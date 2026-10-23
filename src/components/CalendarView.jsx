@@ -145,8 +145,8 @@ export default function CalendarView({
         </h1>
         <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed max-w-4xl font-medium">
           {lang === 'en'
-            ? 'Explore the 2026–2027 festival calendar for Tirumala and Tirupati temples, including annual Brahmotsavams, vahana sevas, utsavams, and other important temple occasions. Use the calendar filters to browse events by month, temple, or festival.'
-            : 'తిరుమల మరియు తిరుపతి దేవాలయాల 2026–2027 ఉత్సవాల క్యాలెండర్, వార్షిక బ్రహ్మోత్సవాలు, వాహన సేవలు, ఉత్సవాలు మరియు ఇతర ముఖ్యమైన పర్వదినాల వివరాలను అన్వేషించండి. నెల, ఆలయం లేదా ఉత్సవం ఆధారంగా ఈవెంట్లను వీక్షించడానికి క్యాలెండర్ ఫిల్టర్లను ఉపయోగించండి.'}
+            ? 'Explore the 2026–2027 festival calendar for Tirumala and Tirupati temples, including sacred vahana sevas, monthly utsavams, and other important temple occasions. Use the calendar filters to browse events by month, temple, or festival.'
+            : 'తిరుమల మరియు తిరుపతి దేవాలయాల 2026–2027 ఉత్సవాల క్యాలెండర్, పవిత్ర వాహన సేవలు, ఉత్సవాలు మరియు ఇతర ముఖ్యమైన పర్వదినాల వివరాలను అన్వేషించండి. నెల, ఆలయం లేదా ఉత్సవం ఆధారంగా ఈవెంట్లను వీక్షించడానికి క్యాలెండర్ ఫిల్టర్లను ఉపయోగించండి.'}
         </p>
 
         {/* Compact Festival Guides Link Row */}
@@ -176,13 +176,6 @@ export default function CalendarView({
               className="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#141923] border border-[#D4AF37]/50 text-[#FFD700] hover:bg-[#D4AF37]/20 hover:border-[#FFD700] transition-colors"
             >
               {lang === 'en' ? 'Pavithrotsavam' : 'పవిత్రోత్సవం'}
-            </a>
-            <a
-              href="/festivals/brahmotsavam"
-              onClick={(e) => handleFestivalGuideClick('/festivals/brahmotsavam', e)}
-              className="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#141923] border border-[#D4AF37]/50 text-[#FFD700] hover:bg-[#D4AF37]/20 hover:border-[#FFD700] transition-colors"
-            >
-              {lang === 'en' ? 'Brahmotsavam' : 'బ్రహ్మోత్సవం'}
             </a>
           </div>
         </div>

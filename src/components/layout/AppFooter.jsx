@@ -1,8 +1,11 @@
-import React from 'react';
-import { MessageSquare } from 'lucide-react';
+import React, { useState } from 'react';
+import { MessageSquare, X } from 'lucide-react';
+import SacredGridGallery from '../common/SacredGridGallery';
 import { isModifiedClick } from '../../utils/navigation';
 
 export default function AppFooter({ lang, onNavigate, onOpenLogoModal, onOpenFeedbackTab }) {
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+
   const handleLinkClick = (href, e) => {
     if (isModifiedClick(e)) return;
     e.preventDefault();
@@ -33,14 +36,14 @@ export default function AppFooter({ lang, onNavigate, onOpenLogoModal, onOpenFee
           </div>
         </div>
 
-        {/* Give Feedback Button */}
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        {/* Action Button: Give Feedback */}
+        <div className="flex items-center justify-center">
           <button
             onClick={onOpenFeedbackTab}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFD700] text-black font-extrabold text-xs flex items-center gap-2 shadow-lg hover:brightness-110 active:scale-95 transition-all"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFD700] text-black font-extrabold text-xs flex items-center gap-2 shadow-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer"
           >
             <MessageSquare className="w-4 h-4 text-black" />
-            <span>Give Feedback</span>
+            <span>{lang === 'en' ? 'Give Feedback' : 'అభిప్రాయాన్ని పంపండి'}</span>
           </button>
         </div>
       </div>
@@ -163,6 +166,15 @@ export default function AppFooter({ lang, onNavigate, onOpenLogoModal, onOpenFee
                   {lang === 'en' ? 'About Us' : 'మా గురించి'}
                 </a>
               </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => setIsGalleryOpen(true)}
+                  className="text-[#94A3B8] light-theme:text-slate-700 hover:text-[#FFD700] light-theme:hover:text-amber-800 transition-colors inline-block py-0.5 text-left cursor-pointer font-medium"
+                >
+                  {lang === 'en' ? 'Gallery' : 'చిత్రమాలిక'}
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -193,6 +205,30 @@ export default function AppFooter({ lang, onNavigate, onOpenLogoModal, onOpenFee
           </p>
         </div>
       </div>
+      {/* GALLERY MODAL DIALOG */}
+      {isGalleryOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in"
+          onClick={() => setIsGalleryOpen(false)}
+        >
+          <div
+            className="gallery-modal-content relative w-full max-w-5xl max-h-[92vh] overflow-y-auto rounded-3xl bg-[#0B0E14] light-theme:bg-white border-2 border-[#D4AF37] shadow-2xl p-4 sm:p-6 text-slate-100 light-theme:text-slate-900"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setIsGalleryOpen(false)}
+              className="absolute top-4 right-4 z-30 p-2 rounded-full bg-black/80 light-theme:bg-slate-100 hover:bg-[#D4AF37] hover:text-black light-theme:hover:bg-amber-100 text-[#FFD700] light-theme:text-slate-800 border border-[#D4AF37]/50 light-theme:border-slate-300 transition-all shadow-md cursor-pointer"
+              title="Close Gallery"
+              aria-label="Close Gallery"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <SacredGridGallery lang={lang} embedded={true} />
+          </div>
+        </div>
+      )}
     </footer>
   );
 }

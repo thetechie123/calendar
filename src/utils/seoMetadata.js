@@ -9,6 +9,7 @@
  */
 
 import { getFestivalTopic } from '../data/festivalTopics.js';
+import { getDarshanTopic } from '../data/darshanTopics.js';
 
 export const SITE_ORIGIN = 'https://thetirumalaverse.in';
 
@@ -25,6 +26,19 @@ export const ROUTE_SEO_METADATA = {
     twitterTitle: 'The Tirumala Verse | Tirumala Festival Calendar 2026-2027, SSD & DD Tokens & Sevas Guide',
     twitterDescription:
       'The Tirumala Verse - Your independent guide to Tirumala & Tirupati. 2026-2027 TTD festival calendar, Brahmotsavam dates, Garuda Vahanam, live SSD vs DD tokens status, and daily sevas schedule.',
+  },
+  '/darshan': {
+    title: 'Tirumala Darshan Guide: 15 Pathways, Booking, Rules & Quotas | The Tirumala Verse',
+    description:
+      'Complete guide to all 15 Tirumala Tirupati Darshan pathways: Free Sarva Darshanam, SSD/DD Tokens, ₹300 SED, Lucky Dips, Senior Citizens, NRI, Infant, Defence, SRIVANI & VIP.',
+    canonical: `${SITE_ORIGIN}/darshan`,
+    ogTitle: 'Tirumala Darshan Guide: 15 Pathways, Booking, Rules & Quotas | The Tirumala Verse',
+    ogDescription:
+      'Complete guide to all 15 Tirumala Tirupati Darshan pathways: Free Sarva Darshanam, SSD/DD Tokens, ₹300 SED, Lucky Dips, Senior Citizens, NRI, Infant, Defence, SRIVANI & VIP.',
+    ogUrl: `${SITE_ORIGIN}/darshan`,
+    twitterTitle: 'Tirumala Darshan Guide: 15 Pathways, Booking, Rules & Quotas | The Tirumala Verse',
+    twitterDescription:
+      'Complete guide to all 15 Tirumala Tirupati Darshan pathways: Free Sarva Darshanam, SSD/DD Tokens, ₹300 SED, Lucky Dips, Senior Citizens, NRI, Infant, Defence, SRIVANI & VIP.',
   },
   '/calendar': {
     title: 'The Tirumala Verse | Tirumala & TTD Festival Calendar 2026-2027: Brahmotsavams & Utsavams',
@@ -191,6 +205,26 @@ export function getRouteMetadata(pathname) {
 
   if (ROUTE_SEO_METADATA[lowerPath]) {
     return ROUTE_SEO_METADATA[lowerPath];
+  }
+
+  // Dynamic /darshan/<slug> handling
+  if (lowerPath.startsWith('/darshan/')) {
+    const slug = lowerPath.slice('/darshan/'.length);
+    const topic = getDarshanTopic(slug);
+    if (topic) {
+      const pageTitle = `${topic.titleEn} | Tirumala Darshan Guide | The Tirumala Verse`;
+      const canonical = `${SITE_ORIGIN}/darshan/${topic.slug}`;
+      return {
+        title: pageTitle,
+        description: topic.subtitleEn,
+        canonical: canonical,
+        ogTitle: pageTitle,
+        ogDescription: topic.subtitleEn,
+        ogUrl: canonical,
+        twitterTitle: pageTitle,
+        twitterDescription: topic.subtitleEn,
+      };
+    }
   }
 
   // Dynamic /festivals/<slug> handling

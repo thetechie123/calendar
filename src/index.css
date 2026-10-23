@@ -56,6 +56,70 @@ body.light-theme [class*="bg-[#0B0E14]"] {
   border-color: rgba(217, 119, 6, 0.3) !important;
 }
 
+/* Sacred Gallery & Image Lightbox Light Theme High Contrast Overrides */
+body.light-theme .gallery-modal-content,
+body.light-theme .gallery-lightbox-modal {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #D4AF37 !important;
+}
+
+body.light-theme .gallery-lightbox-header,
+body.light-theme .gallery-lightbox-footer {
+  background-color: #FFFDF7 !important;
+  border-color: rgba(217, 119, 6, 0.3) !important;
+}
+
+body.light-theme .gallery-lightbox-title {
+  color: #0F172A !important;
+  text-shadow: none !important;
+}
+
+body.light-theme .gallery-lightbox-gold-title {
+  color: #92400E !important;
+  text-shadow: none !important;
+}
+
+body.light-theme .gallery-lightbox-desc {
+  color: #334155 !important;
+}
+
+body.light-theme .gallery-lightbox-author {
+  color: #0F172A !important;
+}
+
+body.light-theme .gallery-lightbox-badge {
+  background-color: #FEF3C7 !important;
+  color: #92400E !important;
+  border-color: #F59E0B !important;
+}
+
+body.light-theme .gallery-lightbox-close {
+  background-color: #F1F5F9 !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+body.light-theme .gallery-lightbox-close:hover {
+  background-color: #FEF3C7 !important;
+  color: #92400E !important;
+}
+
+body.light-theme .gallery-lightbox-nav {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: #92400E !important;
+  border-color: #D97706 !important;
+}
+body.light-theme .gallery-lightbox-nav:hover {
+  background-color: #FEF3C7 !important;
+  color: #78350F !important;
+}
+
+body.light-theme .gallery-lightbox-license {
+  background-color: #FEF3C7 !important;
+  color: #78350F !important;
+  border-color: #D97706 !important;
+}
+
 /* Prominent Card Hover Glow Effect */
 .glossary-card-hover {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -514,4 +578,173 @@ body.light-theme .tv-card-hover:hover {
   .tv-gold-glow:hover {
     box-shadow: none;
   }
+}
+
+/* Apple-style Navigation Mega Menu High Polish & Contrast */
+.apple-nav-header {
+  font-family: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 12px;
+  color: #86868b !important;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.apple-nav-headline {
+  font-family: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 600;
+  text-transform: none !important;
+  letter-spacing: -0.015em;
+  color: #F5F5F7 !important;
+  display: block;
+  transition: color 150ms ease;
+}
+
+body.light-theme .apple-nav-headline {
+  color: #1D1D1F !important;
+}
+
+.apple-nav-headline:hover {
+  color: #FFD700 !important;
+}
+
+body.light-theme .apple-nav-headline:hover {
+  color: #B45309 !important;
+}
+
+.apple-nav-link {
+  font-family: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-transform: none !important;
+  letter-spacing: -0.01em;
+  color: #F5F5F7 !important;
+  display: block;
+  transition: color 150ms ease;
+}
+
+body.light-theme .apple-nav-link {
+  color: #1D1D1F !important;
+}
+
+.apple-nav-link:hover {
+  color: #FFD700 !important;
+}
+
+body.light-theme .apple-nav-link:hover {
+  color: #B45309 !important;
+}
+
+.apple-nav-sublink {
+  font-family: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 12px;
+  color: #86868b !important;
+  transition: color 150ms ease;
+  display: inline-block;
+}
+
+.apple-nav-sublink:hover {
+  color: #FFD700 !important;
+}
+
+body.light-theme .apple-nav-sublink:hover {
+  color: #1D1D1F !important;
+}
+
+
+/* ==========================================================================
+   DARSHAN PAGES & GLOBAL COMPONENT HIGH-CONTRAST LIGHT THEME TYPOGRAPHY
+   ========================================================================== */
+body.light-theme .darshan-page,
+body.light-theme .darshan-hub-page,
+body.light-theme .darshan-topic-page,
+body.light-theme article.darshan-page {
+  color: #0F172A !important;
+}
+
+body.light-theme .darshan-page h1,
+body.light-theme .darshan-page h2,
+body.light-theme .darshan-page h3,
+body.light-theme .darshan-page h4,
+body.light-theme .darshan-page h5,
+body.light-theme .darshan-page h6,
+body.light-theme .darshan-hub-page h1,
+body.light-theme .darshan-hub-page h2,
+body.light-theme .darshan-hub-page h3,
+body.light-theme .darshan-hub-page h4 {
+  color: #0F172A !important;
+}
+
+body.light-theme .darshan-page .text-white:not([class*="bg-emerald-600"] *):not([class*="bg-amber-600"] *):not([class*="bg-blue-600"] *):not([class*="bg-gradient-to-r from-[#D4AF37]"] *):not(.btn-gold *),
+body.light-theme .darshan-page .text-slate-100,
+body.light-theme .darshan-page .text-slate-200,
+body.light-theme .darshan-hub-page .text-white:not([class*="bg-emerald-600"] *):not([class*="bg-amber-600"] *):not([class*="bg-blue-600"] *):not([class*="bg-gradient-to-r from-[#D4AF37]"] *):not(.btn-gold *),
+body.light-theme .darshan-hub-page .text-slate-100,
+body.light-theme .darshan-hub-page .text-slate-200 {
+  color: #0F172A !important;
+}
+
+body.light-theme .darshan-page .text-slate-300,
+body.light-theme .darshan-page .text-slate-400,
+body.light-theme .darshan-hub-page .text-slate-300,
+body.light-theme .darshan-hub-page .text-slate-400 {
+  color: #334155 !important;
+}
+
+body.light-theme .darshan-page .text-\[\#FFD700\],
+body.light-theme .darshan-hub-page .text-\[\#FFD700\],
+body.light-theme .darshan-page .text-yellow-400,
+body.light-theme .darshan-hub-page .text-yellow-400 {
+  color: #92400E !important;
+}
+
+body.light-theme .darshan-page .text-\[\#94A3B8\],
+body.light-theme .darshan-hub-page .text-\[\#94A3B8\] {
+  color: #475569 !important;
+}
+
+body.light-theme .darshan-page .bg-\[\#141923\],
+body.light-theme .darshan-hub-page .bg-\[\#141923\] {
+  background-color: #FFFFFF !important;
+  border-color: rgba(217, 119, 6, 0.35) !important;
+}
+
+body.light-theme .darshan-page .bg-black\/40,
+body.light-theme .darshan-page .bg-black\/30,
+body.light-theme .darshan-page .bg-black\/20,
+body.light-theme .darshan-hub-page .bg-black\/40,
+body.light-theme .darshan-hub-page .bg-black\/30,
+body.light-theme .darshan-hub-page .bg-black\/20 {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+
+body.light-theme .darshan-page .bg-black\/60,
+body.light-theme .darshan-hub-page .bg-black\/60 {
+  background-color: #F1F5F9 !important;
+  color: #0F172A !important;
+}
+
+body.light-theme .darshan-page .border-white\/10,
+body.light-theme .darshan-page .border-white\/5,
+body.light-theme .darshan-page .border-white\/20,
+body.light-theme .darshan-hub-page .border-white\/10,
+body.light-theme .darshan-hub-page .border-white\/5,
+body.light-theme .darshan-hub-page .border-white\/20 {
+  border-color: rgba(203, 213, 225, 0.75) !important;
+}
+
+body.light-theme .darshan-page input,
+body.light-theme .darshan-hub-page input {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+
+body.light-theme .darshan-page input::placeholder,
+body.light-theme .darshan-hub-page input::placeholder {
+  color: #64748B !important;
 }
