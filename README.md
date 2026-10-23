@@ -1,4 +1,4 @@
-# 🛕 The Tirumala Verse — Utsav Calendar & Pilgrim Guide
+#  The Tirumala Verse — Utsav Calendar & Pilgrim Guide
 
 A modern web application built for pilgrims visiting Tirumala and Tirupati temples. Features digitized TTD Panchangam festival schedules, interactive 16-month grid view, live festival countdowns, 1-click Google Calendar & WhatsApp sharing, daily Nitya Seva timetables, and bilingual support.
 
@@ -14,16 +14,3 @@ A modern web application built for pilgrims visiting Tirumala and Tirupati templ
 - **🌐 Bilingual & Dual Theme**: Toggle between English and Telugu (`తెలుగు`) and Dark/Light mode.
 
 ---
-
-## 🚀 Local Setup
-
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build production bundle
-npm run build
-```
