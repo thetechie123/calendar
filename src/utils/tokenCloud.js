@@ -25,35 +25,24 @@ export async function getTodayTokenDay(dateOverride = null) {
     throw error;
   }
 
-  // 2. If today's issuance row doesn't exist, check for the session whose darshan_date is today
-  // (e.g. issued yesterday evening for today's darshan)
+  // 2. If no session started today, check if there is an overnight session for today's darshan that is STILL ACTIVE right now
   if (!data) {
-    const { data: darshanDay, error: darshanErr } = await supabase
+    const { data: activeDarshanDay, error: darshanErr } = await supabase
       .from("token_days")
       .select("*")
       .eq("darshan_date", today)
+      .or("ssd_status.eq.active,dd_status.eq.active")
       .maybeSingle();
 
-    if (!darshanErr && darshanDay) {
-      data = darshanDay;
+    if (!darshanErr && activeDarshanDay) {
+      data = activeDarshanDay;
     }
   }
 
-  // 3. Fallback: most recent token day so the live card is never blank
-  if (!data) {
-    const { data: latestDay } = await supabase
-      .from("token_days")
-      .select("*")
-      .order("issuance_date", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (latestDay) {
-      data = latestDay;
-    }
-  }
-
-  return data;
+  // Do NOT fall back to previous days' completed records.
+  // If today's issuance has not started yet, return null so the live card cleanly reflects
+  // that today's counters have not started yet. Completed past days belong in Recent History.
+  return data || null;
 }
 
 

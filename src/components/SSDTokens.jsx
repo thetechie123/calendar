@@ -188,8 +188,8 @@ const isNoIssuance =
 
     noData:
       lang === "te"
-        ? "డేటా అందుబాటులో లేదు"
-        : "No live data",
+        ? "ఇంకా ప్రారంభం కాలేదు"
+        : "Awaiting Issuance",
 
     unavailable:
       lang === "te"

@@ -22,6 +22,7 @@ function LiveTokenCard({
   remainingKey,
   completedAt,
   text,
+  lang,
 }) {
   return (
     <div
@@ -108,14 +109,14 @@ function LiveTokenCard({
             }`}
           >
             {isNoIssuance
-              ? "No issuance today"
+              ? (lang === "te" ? "ఈరోజు జారీ లేదు" : "No issuance today")
               : status === "completed"
-              ? "Completed"
+              ? (lang === "te" ? "పూర్తయింది" : "Completed")
               : status === "active"
-              ? "Active"
+              ? (lang === "te" ? "ప్రస్తుతం అందుబాటులో ఉంది" : "Active")
               : hasObservation
-              ? "Unavailable"
-              : "Awaiting observation"}
+              ? (lang === "te" ? "అందుబాటులో లేదు" : "Unavailable")
+              : (lang === "te" ? "ఈరోజు జారీ ఇంకా ప్రారంభం కాలేదు" : "Awaiting today's issuance")}
           </span>
         </div>
       </div>
@@ -205,6 +206,7 @@ export default function SSDTokenLiveStatus({
           remainingKey="ssd_remaining"
           completedAt={ssdCompletedAt}
           text={text}
+          lang={lang}
         />
 
         <LiveTokenCard
@@ -223,6 +225,7 @@ export default function SSDTokenLiveStatus({
           remainingKey="dd_remaining"
           completedAt={ddCompletedAt}
           text={text}
+          lang={lang}
         />
       </div>
 
