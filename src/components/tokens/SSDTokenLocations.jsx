@@ -34,6 +34,8 @@ function TokenCentre({
             href={centre.mapUrl}
             target="_blank"
             rel="noopener noreferrer"
+            title={`Open ${centre.name} location in Google Maps`}
+            aria-label={`Open ${centre.name} location in Google Maps`}
             className="shrink-0 px-3 py-2 rounded-lg bg-[#FF5722] text-white text-xs font-extrabold flex items-center gap-1 hover:bg-[#e64a19] transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5" />

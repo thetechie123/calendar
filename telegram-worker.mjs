@@ -2,7 +2,11 @@ import fs from "node:fs";
 import { TelegramClient } from "teleproto";
 import { StringSession } from "teleproto/sessions/index.js";
 import { createClient } from "@supabase/supabase-js";
-import { parseTelegramTokenMessage } from "./src/utils/telegramTokenParser.js";
+import {
+  parseTelegramTokenMessage,
+  parseIssueStartToIso,
+  parseEventTimeToIso,
+} from "./src/utils/telegramTokenParser.js";
 import { dispatchWebPushNotification } from "./pushDispatcher.mjs";
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
@@ -82,42 +86,6 @@ function parseDarshanDateTextToIsoDate(telegramDate, darshanDateText) {
   }).format(telegramDate);
 
   return `${year}-${monthStr}-${String(day).padStart(2, "0")}`;
-}
-
-function parseIssueStartToIso(indiaDate, issueStartText) {
-  if (!indiaDate || !issueStartText) return null;
-  const match = issueStartText.trim().match(/^(\d{1,2})(?:[:.](\d{2}))?\s*(AM|PM)?$/i);
-  if (!match) return null;
-
-  let hour = Number(match[1]);
-  const minute = Number(match[2] || 0);
-  const meridiem = match[3]?.toUpperCase();
-
-  if (meridiem === "PM" && hour !== 12) hour += 12;
-  if (meridiem === "AM" && hour === 12) hour = 0;
-  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
-
-  const [year, month, day] = indiaDate.split("-").map(Number);
-  const utcMillis = Date.UTC(year, month - 1, day, hour, minute, 0) - (5 * 60 + 30) * 60 * 1000;
-  return new Date(utcMillis).toISOString();
-}
-
-function parseEventTimeToIso(indiaDate, timeText) {
-  if (!indiaDate || !timeText) return null;
-  const match = timeText.trim().match(/^(\d{1,2})(?:[:.](\d{2}))?\s*(AM|PM)?$/i);
-  if (!match) return null;
-
-  let hour = Number(match[1]);
-  const minute = Number(match[2] || 0);
-  const meridiem = match[3]?.toUpperCase();
-
-  if (meridiem === "PM" && hour !== 12) hour += 12;
-  if (meridiem === "AM" && hour === 12) hour = 0;
-  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
-
-  const [year, month, day] = indiaDate.split("-").map(Number);
-  const utcMillis = Date.UTC(year, month - 1, day, hour, minute, 0) - (5 * 60 + 30) * 60 * 1000;
-  return new Date(utcMillis).toISOString();
 }
 
 function loadCheckpoint() {
@@ -234,9 +202,23 @@ async function processMessage(message) {
     if (byDate) tokenDay = byDate;
   }
 
-  const issuanceStartedAt = parseIssueStartToIso(effectiveIssuanceDate, parsed.issue_start_text);
-  const ssdCompletedAt = parseEventTimeToIso(effectiveIssuanceDate, parsed.ssd_completed_at_text);
-  const ddCompletedAt = parseEventTimeToIso(effectiveIssuanceDate, parsed.dd_completed_at_text);
+  const issuanceStartedAt = parseIssueStartToIso({
+    indiaDate: effectiveIssuanceDate,
+    issueStartText: parsed.issue_start_text,
+    referenceDate: telegramDate,
+  });
+  const ssdCompletedAt = parseEventTimeToIso({
+    indiaDate: effectiveIssuanceDate,
+    timeText: parsed.ssd_completed_at_text,
+    referenceDate: telegramDate,
+    issuanceStartedAt: issuanceStartedAt || tokenDay?.issuance_started_at,
+  });
+  const ddCompletedAt = parseEventTimeToIso({
+    indiaDate: effectiveIssuanceDate,
+    timeText: parsed.dd_completed_at_text,
+    referenceDate: telegramDate,
+    issuanceStartedAt: issuanceStartedAt || tokenDay?.issuance_started_at,
+  });
 
   if (!tokenDay) {
     console.log(`No token day found for ${effectiveIssuanceDate}. Creating automatically...`);
@@ -337,10 +319,26 @@ async function processMessage(message) {
   if (parsed.dd_status === "completed" || parsed.dd_status === "active") {
     dayStatusUpdate.dd_status = parsed.dd_status;
   }
-  if (parsed.ssd_status === "completed" && !tokenDay.ssd_completed_at) {
+  const effectiveStart = issuanceStartedAt || tokenDay.issuance_started_at;
+  const isCorruptSsd =
+    tokenDay.ssd_completed_at &&
+    effectiveStart &&
+    new Date(tokenDay.ssd_completed_at) < new Date(effectiveStart);
+  const isCorruptDd =
+    tokenDay.dd_completed_at &&
+    effectiveStart &&
+    new Date(tokenDay.dd_completed_at) < new Date(effectiveStart);
+
+  if (
+    parsed.ssd_status === "completed" &&
+    (!tokenDay.ssd_completed_at || isCorruptSsd)
+  ) {
     dayStatusUpdate.ssd_completed_at = ssdCompletedAt || new Date(message.date * 1000).toISOString();
   }
-  if (parsed.dd_status === "completed" && !tokenDay.dd_completed_at) {
+  if (
+    parsed.dd_status === "completed" &&
+    (!tokenDay.dd_completed_at || isCorruptDd)
+  ) {
     dayStatusUpdate.dd_completed_at = ddCompletedAt || new Date(message.date * 1000).toISOString();
   }
   if (issuanceStartedAt && !tokenDay.issuance_started_at) {

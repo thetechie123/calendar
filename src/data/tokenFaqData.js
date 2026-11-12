@@ -14,8 +14,8 @@ export const TOKEN_FAQS = [
   },
   {
     id: "dd-token-meaning",
-    question: "What does DD token mean in Tirumala Tirupati?",
-    questionTe: "తిరుమల తిరుపతిలో DD టోకెన్ అంటే ఏమిటి?",
+    question: "What does DD mean?",
+    questionTe: "DD అంటే ఏమిటి?",
     answer: "DD stands for Divya Darshan. On the physical token slips issued by TTD, it is officially printed as 'SSD Srivari Mettu'. It is a free offline time-slotted darshan token issued exclusively to devotees who trek up on foot via Srivari Mettu. Pilgrims must walk to Srivari Mettu on the day of darshanam only (not on the token collection day) and scan the barcode at the 1200th step checkpoint.",
     answerTe: "DD అంటే దివ్య దర్శనం (Divya Darshan). భక్తులకు ఇచ్చే భౌతిక టోకెన్ స్లిప్‌లపై దీనిని అధికారికంగా 'SSD Srivari Mettu' అని ముద్రిస్తారు. శ్రీవారి మెట్టు మార్గం ద్వారా నడిచి వెళ్లే భక్తులకు మాత్రమే ఈ ఉచిత ఆఫ్‌లైన్ టోకెన్ కేటాయించబడుతుంది. భక్తులు టోకెన్ తీసుకున్న రోజు కాకుండా కేవలం తమ దర్శనం రోజున మాత్రమే శ్రీవారి మెట్టు ద్వారా నడవాలి మరియు 1200వ మెట్టు వద్ద టోకెన్ స్కాన్ చేయించుకోవాలి."
   },
@@ -39,6 +39,13 @@ export const TOKEN_FAQS = [
     questionTe: "టోకెన్ పొందడానికి ఏ పత్రాలు అవసరం?",
     answer: "Pilgrims must carry their original Aadhaar card. Each person must physically stand in the queue to obtain an individual token.",
     answerTe: "భక్తులు తప్పనిసరిగా అసలు (ఒరిజినల్) ఆధార్ కార్డును వెంట తీసుకురావాలి. ప్రతి వ్యక్తి స్వయంగా క్యూ లైనులో నిలబడి తమ టోకెన్ పొందాలి."
+  },
+  {
+    id: "children-token-rule",
+    question: "Are SSD or DD tokens required for children below 12 years of age?",
+    questionTe: "12 సంవత్సరాల లోపు పిల్లలకు SSD లేదా DD టోకెన్లు అవసరమా?",
+    answer: "No. Children below 12 years of age do not require separate SSD or DD tokens. They are permitted to accompany their token-holding parents directly into the darshan line.",
+    answerTe: "లేదు. 12 సంవత్సరాల లోపు పిల్లలకు ప్రత్యేకంగా SSD లేదా DD టోకెన్లు అవసరం లేదు. టోకెన్ కలిగిన తల్లిదండ్రులతో పాటు పిల్లలను నేరుగా దర్శనానికి అనుమతిస్తారు."
   },
   {
     id: "reporting-rules",
@@ -67,12 +74,5 @@ export const TOKEN_FAQS = [
     questionTe: "బుధవారాలలో SSD మరియు DD టోకెన్లు జారీ చేయబడతాయా?",
     answer: "No tokens are issued on Wednesdays for Thursday darshan.",
     answerTe: "గురువారం దర్శనం కోసం బుధవారం నాడు టోకెన్లు జారీ చేయబడవు."
-  },
-  {
-    id: "brahmotsavam-pause",
-    question: "Is SSD and DD token issuance active after Srivari Navaratri Brahmotsavams?",
-    questionTe: "శ్రీవారి నవరాత్రి బ్రహ్మోత్సవాల తర్వాత SSD మరియు DD టోకెన్ల జారీ ప్రారంభమైందా?",
-    answer: "Yes, SSD and DD token issuance has resumed at Bhudevi Complex, Srinivasam, and Vishnu Nivasam counters in Tirupati.",
-    answerTe: "అవును, తిరుపతిలోని భూదేవి కాంప్లెక్స్, శ్రీనివాసం మరియు విష్ణు నివాసం కౌంటర్లలో SSD మరియు DD టోకెన్ల జారీ తిరిగి ప్రారంభించబడింది."
   }
 ];

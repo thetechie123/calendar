@@ -107,10 +107,11 @@ export function parseTelegramTokenMessage(rawText) {
    *
    * Example:
    * Quota Completed @ 2:10Am
+   * Quota Completed @5:25
    */
   const ssdCompletedMatch =
     ssdSection.match(
-      /Quota\s+Completed\s*@\s*([0-9]{1,2}(?:[:.][0-9]{2})?\s*(?:AM|PM)?)/i
+      /Quota\s+Completed(?:\s*[@:-]|\s+at)?\s*([0-9]{1,2}(?:[:.][0-9]{2})?\s*(?:AM|PM)?)/i
     );
 
   /*
@@ -118,10 +119,11 @@ export function parseTelegramTokenMessage(rawText) {
    *
    * Example:
    * Quota Completed @ 2:50Am
+   * Quota Completed @5:28
    */
   const ddCompletedMatch =
     ddSection.match(
-      /Quota\s+Completed\s*@\s*([0-9]{1,2}(?:[:.][0-9]{2})?\s*(?:AM|PM)?)/i
+      /Quota\s+Completed(?:\s*[@:-]|\s+at)?\s*([0-9]{1,2}(?:[:.][0-9]{2})?\s*(?:AM|PM)?)/i
     );
 
   const ssdCompletedAtText =
@@ -159,7 +161,7 @@ export function parseTelegramTokenMessage(rawText) {
    * 5:30Pm
    */
   const issueStartMatch = text.match(
-    /Issue\s+Started\s*@\s*([0-9]{1,2}(?:[:.][0-9]{2})?\s*(?:AM|PM)?)/i
+    /Issue\s+Started(?:\s*[@:-]|\s+at)?\s*([0-9]{1,2}(?:[:.][0-9]{2})?\s*(?:AM|PM)?)/i
   );
 
   const issueStartText =
@@ -242,4 +244,244 @@ export function parseTelegramTokenMessage(rawText) {
 
     raw_text: rawText.trim(),
   };
+}
+
+/**
+ * Parses issuance start time text into an ISO string.
+ * Disambiguates missing AM/PM using reference message time and indiaDate.
+ */
+export function parseIssueStartToIso(indiaDateOrOptions, maybeText, maybeRefDate) {
+  let indiaDate, issueStartText, referenceDate;
+  if (typeof indiaDateOrOptions === "object" && indiaDateOrOptions !== null) {
+    ({ indiaDate, issueStartText, referenceDate } = indiaDateOrOptions);
+  } else {
+    indiaDate = indiaDateOrOptions;
+    issueStartText = maybeText;
+    referenceDate = maybeRefDate;
+  }
+
+  if (!issueStartText || typeof issueStartText !== "string") {
+    return null;
+  }
+
+  const match = issueStartText
+    .trim()
+    .match(/^(\d{1,2})(?:[:.](\d{2}))?\s*(AM|PM)?$/i);
+
+  if (!match) {
+    return null;
+  }
+
+  const rawHour = Number(match[1]);
+  const minute = Number(match[2] || 0);
+  const meridiem = match[3]?.toUpperCase();
+
+  if (rawHour < 0 || rawHour > 23 || minute < 0 || minute > 59) {
+    return null;
+  }
+
+  const ref = referenceDate
+    ? new Date(referenceDate)
+    : indiaDate
+    ? new Date(`${indiaDate}T12:00:00+05:30`)
+    : new Date();
+  const refMillis = ref.getTime();
+
+  let candidateHours = [];
+  if (rawHour >= 13) {
+    candidateHours = [rawHour];
+  } else if (meridiem === "PM") {
+    candidateHours = [rawHour === 12 ? 12 : rawHour + 12];
+  } else if (meridiem === "AM") {
+    candidateHours = [rawHour === 12 ? 0 : rawHour];
+  } else {
+    candidateHours = [
+      rawHour === 12 ? 0 : rawHour,
+      rawHour === 12 ? 12 : rawHour + 12,
+    ];
+  }
+
+  const candidateDates = new Set();
+  if (indiaDate) candidateDates.add(indiaDate);
+
+  const refIndiaDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(ref);
+  if (refIndiaDate) candidateDates.add(refIndiaDate);
+
+  let bestIso = null;
+  let bestScore = Infinity;
+
+  for (const dateStr of candidateDates) {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    for (const h of candidateHours) {
+      const utcMillis =
+        Date.UTC(year, month - 1, day, h, minute, 0) -
+        (5 * 60 + 30) * 60 * 1000;
+
+      const diffFromRef = refMillis - utcMillis;
+      // Issuance start shouldn't be far in the future compared to reference message
+      if (diffFromRef < -30 * 60 * 1000) {
+        continue;
+      }
+
+      const score = Math.abs(diffFromRef);
+      if (score < bestScore) {
+        bestScore = score;
+        bestIso = new Date(utcMillis).toISOString();
+      }
+    }
+  }
+
+  if (!bestIso) {
+    const [year, month, day] = (indiaDate || refIndiaDate).split("-").map(Number);
+    const h = candidateHours[0];
+    const utcMillis =
+      Date.UTC(year, month - 1, day, h, minute, 0) -
+      (5 * 60 + 30) * 60 * 1000;
+    bestIso = new Date(utcMillis).toISOString();
+  }
+
+  return bestIso;
+}
+
+/**
+ * Parses completion time text into an ISO string.
+ * Disambiguates missing AM/PM, prevents earlier-than-start errors, and handles
+ * midnight rollovers (where tokens issued in the evening complete past midnight).
+ */
+export function parseEventTimeToIso(
+  indiaDateOrOptions,
+  maybeText,
+  maybeRefDate,
+  maybeIssuanceStartedAt
+) {
+  let indiaDate, timeText, referenceDate, issuanceStartedAt;
+  if (typeof indiaDateOrOptions === "object" && indiaDateOrOptions !== null) {
+    ({ indiaDate, timeText, referenceDate, issuanceStartedAt } =
+      indiaDateOrOptions);
+  } else {
+    indiaDate = indiaDateOrOptions;
+    timeText = maybeText;
+    referenceDate = maybeRefDate;
+    issuanceStartedAt = maybeIssuanceStartedAt;
+  }
+
+  if (!timeText || typeof timeText !== "string") {
+    return null;
+  }
+
+  const match = timeText
+    .trim()
+    .match(/^(\d{1,2})(?:[:.](\d{2}))?\s*(AM|PM)?$/i);
+
+  if (!match) {
+    return null;
+  }
+
+  const rawHour = Number(match[1]);
+  const minute = Number(match[2] || 0);
+  const meridiem = match[3]?.toUpperCase();
+
+  if (rawHour < 0 || rawHour > 23 || minute < 0 || minute > 59) {
+    return null;
+  }
+
+  const ref = referenceDate
+    ? new Date(referenceDate)
+    : indiaDate
+    ? new Date(`${indiaDate}T12:00:00+05:30`)
+    : new Date();
+  const refMillis = ref.getTime();
+
+  let candidateHours = [];
+  if (rawHour >= 13) {
+    candidateHours = [rawHour];
+  } else if (meridiem === "PM") {
+    candidateHours = [rawHour === 12 ? 12 : rawHour + 12];
+  } else if (meridiem === "AM") {
+    candidateHours = [rawHour === 12 ? 0 : rawHour];
+  } else {
+    candidateHours = [
+      rawHour === 12 ? 0 : rawHour,
+      rawHour === 12 ? 12 : rawHour + 12,
+    ];
+  }
+
+  const candidateDates = new Set();
+  const refIndiaDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(ref);
+
+  if (refIndiaDate) candidateDates.add(refIndiaDate);
+  if (indiaDate) candidateDates.add(indiaDate);
+
+  const prevDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(refMillis - 24 * 3600 * 1000));
+
+  const nextDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(refMillis + 24 * 3600 * 1000));
+
+  candidateDates.add(prevDate);
+  candidateDates.add(nextDate);
+
+  const startMillis = issuanceStartedAt
+    ? new Date(issuanceStartedAt).getTime()
+    : null;
+
+  let bestIso = null;
+  let bestScore = Infinity;
+
+  for (const dateStr of candidateDates) {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    for (const h of candidateHours) {
+      const utcMillis =
+        Date.UTC(year, month - 1, day, h, minute, 0) -
+        (5 * 60 + 30) * 60 * 1000;
+
+      const diffFromRef = refMillis - utcMillis;
+
+      // Allow up to 30 mins clock skew if message reported slightly before clock or roundoff
+      if (diffFromRef < -30 * 60 * 1000) {
+        continue;
+      }
+
+      let penalty = 0;
+      // If event happened before issuance start (allow 10 mins clock skew), penalize heavily
+      if (startMillis && utcMillis < startMillis - 10 * 60 * 1000) {
+        penalty += 1e9;
+      }
+
+      const score = Math.abs(diffFromRef) + penalty;
+      if (score < bestScore) {
+        bestScore = score;
+        bestIso = new Date(utcMillis).toISOString();
+      }
+    }
+  }
+
+  if (!bestIso) {
+    const [year, month, day] = (indiaDate || refIndiaDate).split("-").map(Number);
+    const h = candidateHours[0];
+    const utcMillis =
+      Date.UTC(year, month - 1, day, h, minute, 0) -
+      (5 * 60 + 30) * 60 * 1000;
+    bestIso = new Date(utcMillis).toISOString();
+  }
+
+  return bestIso;
 }

@@ -45,21 +45,71 @@ export async function pullTokenFaqsFromCloud() {
       };
     }
 
-    const faqs = data.map((item, index) => ({
-      id: item.id,
-      question: item.question,
-      questionTe: item.question_te || "",
-      answer: item.answer,
-      answerTe: item.answer_te || "",
-      sortOrder: item.sort_order ?? (index + 1),
-      isActive: item.is_active !== false,
-      createdAt: item.created_at,
-      updatedAt: item.updated_at,
-    }));
+    const validData = data.filter(
+      (item) =>
+        item.id !== "brahmotsavam-pause" &&
+        !item.question?.toLowerCase().includes("brahmotsavam")
+    );
+
+    const cloudMap = new Map(
+      validData.map((item, index) => [
+        item.id,
+        {
+          id: item.id,
+          question:
+            item.id === "dd-token-meaning"
+              ? "What does DD mean?"
+              : item.question,
+          questionTe:
+            item.id === "dd-token-meaning"
+              ? "DD అంటే ఏమిటి?"
+              : item.question_te || "",
+          answer: item.answer,
+          answerTe: item.answer_te || "",
+          sortOrder: item.sort_order ?? index + 1,
+          isActive: item.is_active !== false,
+          createdAt: item.created_at,
+          updatedAt: item.updated_at,
+        },
+      ])
+    );
+
+    const resultFaqs = [...cloudMap.values()];
+
+    // Merge any canonical baseline FAQs that are not yet in the cloud database
+    TOKEN_FAQS.forEach((baselineFaq, baselineIndex) => {
+      if (!cloudMap.has(baselineFaq.id)) {
+        let insertIndex = -1;
+        for (let i = baselineIndex - 1; i >= 0; i--) {
+          const prevId = TOKEN_FAQS[i].id;
+          const foundIdx = resultFaqs.findIndex((f) => f.id === prevId);
+          if (foundIdx !== -1) {
+            insertIndex = foundIdx + 1;
+            break;
+          }
+        }
+
+        const newFaq = {
+          id: baselineFaq.id,
+          question: baselineFaq.question,
+          questionTe: baselineFaq.questionTe || "",
+          answer: baselineFaq.answer,
+          answerTe: baselineFaq.answerTe || "",
+          sortOrder: baselineIndex + 1,
+          isActive: true,
+        };
+
+        if (insertIndex !== -1) {
+          resultFaqs.splice(insertIndex, 0, newFaq);
+        } else {
+          resultFaqs.push(newFaq);
+        }
+      }
+    });
 
     return {
       success: true,
-      faqs,
+      faqs: resultFaqs,
     };
   } catch (err) {
     console.warn("Exception pulling token FAQs from cloud:", err);

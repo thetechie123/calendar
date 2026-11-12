@@ -14,7 +14,7 @@ export default function SSDTokenFAQ({
   const activeFaqs = allFaqs.filter(
     (faq) => faq.isActive !== false && faq.is_active !== false
   );
-  const [openId, setOpenId] = useState(activeFaqs[0]?.id || null);
+  const [openId, setOpenId] = useState(null);
 
   const toggleFaq = (id) => {
     setOpenId((prev) => (prev === id ? null : id));

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Ticket } from "lucide-react";
+import { Zap } from "lucide-react";
 import SSDTokenActivity from "./tokens/SSDTokenActivity";
 import SSDTokenHistory from "./tokens/SSDTokenHistory";
 import SSDTokenHowItWorks from "./tokens/SSDTokenHowItWorks";
@@ -246,47 +246,21 @@ const isNoIssuance =
   return (
     <main className={`min-h-[calc(100vh-120px)] ${pageClass}`}>
       <div className="max-w-6xl mx-auto px-3 sm:px-5 lg:px-8 py-5 sm:py-8">
-        <section
-          className={`rounded-2xl border p-5 sm:p-7 mb-5 overflow-hidden relative ${
-            isLight
-              ? "bg-white border-slate-200"
-              : "bg-gradient-to-br from-[#151A24] to-[#0E121A] border-[#D4AF37]/25"
-          }`}
-        >
-          <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-[#D4AF37]/10 blur-2xl" />
-
-          <div className="relative">
-            <div className="flex items-center gap-2 mb-2">
-              <Ticket className="w-5 h-5 text-[#D4AF37]" />
-
-              <span className="text-[#D4AF37] text-xs font-extrabold uppercase tracking-wider">
-                Free Darshan
-              </span>
-            </div>
-
-            <h1
-              className={`text-2xl sm:text-4xl font-black tracking-tight ${headingClass}`}
-            >
-              {text.title}
-            </h1>
-
-            <p className={`mt-2 text-sm sm:text-base ${mutedClass}`}>
-              {text.subtitle}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-2 mt-4">
-              <span className="px-2.5 py-1 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-[10px] font-bold">
-                Offline
-              </span>
-
-              <span className="px-2.5 py-1 rounded-full bg-[#FF5722]/10 border border-[#FF5722]/30 text-[#FF5722] text-[10px] font-bold">
-                TTD
-              </span>
-            </div>
-          </div>
+        <section className={`rounded-3xl border p-6 sm:p-8 mb-4 ${isLight ? "bg-white border-slate-200" : "bg-gradient-to-br from-[#151A24] to-[#0E121A] border-[#D4AF37]/25"}`}>
+          <span className="text-[#D4AF37] text-xs font-extrabold uppercase tracking-wider">Free Darshan · Offline · TTD</span>
+          <h1 className={`mt-2 text-2xl sm:text-4xl font-black tracking-tight ${headingClass}`}>{text.title}</h1>
+          <p className={`mt-2 text-sm sm:text-base max-w-3xl ${mutedClass}`}>{text.subtitle}</p>
         </section>
 
-                <SSDTokenLiveStatus
+        <nav aria-label="On this page" className="flex gap-2 overflow-x-auto pb-4 [scrollbar-width:none]">
+          {[["#live-status", lang === "te" ? "లైవ్" : "Live"], ["#activity", lang === "te" ? "కార్యకలాపాలు" : "Activity"],
+            ["#where", lang === "te" ? "కౌంటర్లు" : "Counters"], ["#compare", "SSD vs DD"],
+            ["#faq", "FAQ"], ["#history", lang === "te" ? "చరిత్ర" : "History"]].map(([href, label]) => (
+            <a key={href} href={href} className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-bold ${isLight ? "bg-white border-slate-200 text-slate-700" : "bg-[#111722] border-white/10 text-white/80"}`}>{label}</a>
+          ))}
+        </nav>
+
+        <SSDTokenLiveStatus
           isLight={isLight}
           cardClass={cardClass}
           headingClass={headingClass}
@@ -329,22 +303,26 @@ const isNoIssuance =
           lang={lang}
         />
 
-        <SSDTokenLocations
-          cardClass={cardClass}
-          headingClass={headingClass}
-          mutedClass={mutedClass}
-          text={text}
-          isLight={isLight}
-          lang={lang}
-        />
+        <div id="where" className="scroll-mt-24">
+          <SSDTokenLocations
+            cardClass={cardClass}
+            headingClass={headingClass}
+            mutedClass={mutedClass}
+            text={text}
+            isLight={isLight}
+            lang={lang}
+          />
+        </div>
 
-        <SSDVsDDComparison
-          isLight={isLight}
-          cardClass={cardClass}
-          headingClass={headingClass}
-          mutedClass={mutedClass}
-          lang={lang}
-        />
+        <div id="compare" className="scroll-mt-24">
+          <SSDVsDDComparison
+            isLight={isLight}
+            cardClass={cardClass}
+            headingClass={headingClass}
+            mutedClass={mutedClass}
+            lang={lang}
+          />
+        </div>
 
         <SSDTokenHowItWorks
           isLight={isLight}
@@ -361,16 +339,19 @@ const isNoIssuance =
           text={text}
         />
 
-        <SSDTokenFAQ
-          faqs={tokenFaqs}
-          isLight={isLight}
-          cardClass={cardClass}
-          headingClass={headingClass}
-          mutedClass={mutedClass}
-          lang={lang}
-        />
+        <div id="faq" className="scroll-mt-24">
+          <SSDTokenFAQ
+            faqs={tokenFaqs}
+            isLight={isLight}
+            cardClass={cardClass}
+            headingClass={headingClass}
+            mutedClass={mutedClass}
+            lang={lang}
+          />
+        </div>
 
         <SSDTokenHistory
+          lang={lang}
           isLight={isLight}
           cardClass={cardClass}
           headingClass={headingClass}

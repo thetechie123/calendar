@@ -53,6 +53,43 @@ export function buildTokenActivityEvents({
   lang = "en",
 }) {
   const activityEvents = [];
+  const usedObsIds = new Set();
+
+  const toTime = (d) => (d ? new Date(d).getTime() : null);
+
+  // Find observation within 2 minutes of target time to merge duplicate events
+  const findNearObservation = (targetTime) => {
+    if (!targetTime) return null;
+    const t = toTime(targetTime);
+    let best = null;
+    let minDiff = 120000; // 2 minutes
+    observations.forEach((obs) => {
+      if (!obs.observed_at) return;
+      const diff = Math.abs(toTime(obs.observed_at) - t);
+      if (diff <= minDiff) {
+        minDiff = diff;
+        best = obs;
+      }
+    });
+    return best;
+  };
+
+  // Find latest observation on or before a given timestamp
+  const findLatestObservationBefore = (targetTime) => {
+    if (!targetTime || !observations.length) return null;
+    const t = toTime(targetTime);
+    let best = null;
+    observations.forEach((obs) => {
+      if (!obs.observed_at) return;
+      const obsT = toTime(obs.observed_at);
+      if (obsT <= t + 60000) {
+        if (!best || obsT > toTime(best.observed_at)) {
+          best = obs;
+        }
+      }
+    });
+    return best;
+  };
 
   if (tokenDay?.issuance_started_at) {
     activityEvents.push({
@@ -71,6 +108,10 @@ export function buildTokenActivityEvents({
   }
 
   if (tokenDay?.ssd_completed_at) {
+    const nearObs = findNearObservation(tokenDay.ssd_completed_at);
+    if (nearObs) usedObsIds.add(nearObs.id);
+    const fallbackObs = nearObs || findLatestObservationBefore(tokenDay.ssd_completed_at);
+
     activityEvents.push({
       id: "ssd-completed",
       type: "ssd-completed",
@@ -83,10 +124,15 @@ export function buildTokenActivityEvents({
         lang === "te"
           ? "SSD పూర్తయింది"
           : "SSD Completed",
+      observation: fallbackObs,
     });
   }
 
   if (tokenDay?.dd_completed_at) {
+    const nearObs = findNearObservation(tokenDay.dd_completed_at);
+    if (nearObs) usedObsIds.add(nearObs.id);
+    const fallbackObs = nearObs || findLatestObservationBefore(tokenDay.dd_completed_at);
+
     activityEvents.push({
       id: "dd-completed",
       type: "dd-completed",
@@ -99,10 +145,30 @@ export function buildTokenActivityEvents({
         lang === "te"
           ? "DD పూర్తయింది"
           : "DD Completed",
+      observation: fallbackObs,
     });
   }
 
+  const ssdCompTime = toTime(tokenDay?.ssd_completed_at);
+  const ddCompTime = toTime(tokenDay?.dd_completed_at);
+
   observations.forEach((observation) => {
+    if (usedObsIds.has(observation.id)) return;
+
+    const obsTime = toTime(observation.observed_at);
+
+    // Omit empty observations recorded after both quotas were completed
+    if (
+      ssdCompTime &&
+      ddCompTime &&
+      obsTime &&
+      obsTime >= Math.max(ssdCompTime, ddCompTime) &&
+      (observation.ssd_remaining == null || observation.ssd_remaining === "") &&
+      (observation.dd_remaining == null || observation.dd_remaining === "")
+    ) {
+      return;
+    }
+
     activityEvents.push({
       id: `observation-${observation.id}`,
       type: "observation",
@@ -127,27 +193,67 @@ export function getActivityTokenValues({
   tokenDay,
 }) {
   const observation = event?.observation;
+  const toTime = (d) => (d ? new Date(d).getTime() : null);
+  const eventTime = toTime(event?.time);
+  const ssdCompTime = toTime(tokenDay?.ssd_completed_at);
+  const ddCompTime = toTime(tokenDay?.dd_completed_at);
 
   function formatVal(val) {
-    if (val === null || val === undefined || val === "") return "—";
-    return val;
+    if (val === null || val === undefined || val === "" || val === "—") return null;
+    const n = Number(String(val).replace(/,/g, ""));
+    return Number.isFinite(n) ? n.toLocaleString("en-IN") : String(val);
   }
 
   let ssdValue = "—";
   let ddValue = "—";
 
   if (event?.type === "start") {
-    ssdValue = formatVal(tokenDay?.ssd_quota);
-    ddValue = formatVal(tokenDay?.dd_quota);
+    ssdValue = formatVal(tokenDay?.ssd_quota) ?? "—";
+    ddValue = formatVal(tokenDay?.dd_quota) ?? "—";
   } else if (event?.type === "ssd-completed") {
     ssdValue = "Completed";
-    ddValue = formatVal(observation?.dd_remaining);
+    if (ddCompTime && eventTime && ddCompTime <= eventTime) {
+      ddValue = "Completed";
+    } else if (
+      observation?.dd_remaining !== undefined &&
+      observation?.dd_remaining !== null &&
+      observation?.dd_remaining !== ""
+    ) {
+      ddValue = formatVal(observation.dd_remaining) ?? "—";
+    } else {
+      ddValue = "—";
+    }
   } else if (event?.type === "dd-completed") {
-    ssdValue = formatVal(observation?.ssd_remaining);
     ddValue = "Completed";
+    if (ssdCompTime && eventTime && ssdCompTime <= eventTime) {
+      ssdValue = "Completed";
+    } else if (
+      observation?.ssd_remaining !== undefined &&
+      observation?.ssd_remaining !== null &&
+      observation?.ssd_remaining !== ""
+    ) {
+      ssdValue = formatVal(observation.ssd_remaining) ?? "—";
+    } else {
+      ssdValue = "—";
+    }
   } else if (event?.type === "observation") {
-    ssdValue = formatVal(observation?.ssd_remaining);
-    ddValue = formatVal(observation?.dd_remaining);
+    if (
+      observation?.ssd_status === "completed" ||
+      (ssdCompTime && eventTime && eventTime >= ssdCompTime)
+    ) {
+      ssdValue = "Completed";
+    } else {
+      ssdValue = formatVal(observation?.ssd_remaining) ?? "—";
+    }
+
+    if (
+      observation?.dd_status === "completed" ||
+      (ddCompTime && eventTime && eventTime >= ddCompTime)
+    ) {
+      ddValue = "Completed";
+    } else {
+      ddValue = formatVal(observation?.dd_remaining) ?? "—";
+    }
   }
 
   return { ssdValue, ddValue };
