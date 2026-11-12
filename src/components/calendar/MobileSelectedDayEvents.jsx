@@ -7,6 +7,7 @@ import {
 import { TEMPLES } from '../../data/templeEvents';
 import { getEventStatus } from '../../utils/eventStatus';
 import { formatEventTiming, getIndiaDateString } from '../../utils/indiaTime';
+import RemindMeButton from '../common/RemindMeButton';
 
 export default function MobileSelectedDayEvents({
   lang,
@@ -58,13 +59,17 @@ export default function MobileSelectedDayEvents({
             const statusObj = getEventStatus(evt, currentIST);
 
             return (
-              <button
+              <div
                 key={evt.id}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={() =>
                   onSelectEvent(evt)
                 }
-                className="w-full text-left rounded-2xl glass-card border-2 border-[#D4AF37]/60 p-3 shadow-lg active:scale-[0.99] transition-all hover:border-[#FFD700]"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') onSelectEvent(evt);
+                }}
+                className="w-full text-left rounded-2xl glass-card border-2 border-[#D4AF37]/60 p-3 shadow-lg active:scale-[0.99] transition-all hover:border-[#FFD700] cursor-pointer"
               >
                 <div className="flex items-start gap-3">
 
@@ -87,9 +92,12 @@ export default function MobileSelectedDayEvents({
                             evt.title}
                       </h3>
 
-                      <span className={`shrink-0 px-2 py-0.5 rounded text-[9px] font-extrabold uppercase shadow ${statusObj.colorClass}`}>
-                        {lang === 'en' ? statusObj.status : statusObj.statusTe}
-                      </span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <RemindMeButton event={evt} lang={lang} compact />
+                        <span className={`shrink-0 px-2 py-0.5 rounded text-[9px] font-extrabold uppercase shadow ${statusObj.colorClass}`}>
+                          {lang === 'en' ? statusObj.status : statusObj.statusTe}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 mt-1">
@@ -119,7 +127,7 @@ export default function MobileSelectedDayEvents({
 
                   </div>
                 </div>
-              </button>
+              </div>
             );
           })}
         </>

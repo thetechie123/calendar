@@ -359,7 +359,85 @@ export function normalizeImageUrl(url) {
     return `https://lh3.googleusercontent.com/d/${fileId}=s1600`;
   }
 
+  // Convert standalone Imgur image page links to direct image URLs
+  const imgurMatch = cleanUrl.match(/^https?:\/\/(?:i\.)?imgur\.com\/([a-zA-Z0-9]+)(?:\.[a-zA-Z]+)?$/i);
+  if (imgurMatch && !cleanUrl.includes('/a/') && !cleanUrl.includes('/gallery/')) {
+    return `https://i.imgur.com/${imgurMatch[1]}.jpg`;
+  }
+
   return cleanUrl;
+}
+
+// Asynchronously resolve social media webpage links (Twitter/X posts, photos, and articles) to direct image URLs
+export async function resolveSocialImageUrl(url) {
+  if (!url || typeof url !== 'string') return url;
+  const cleanUrl = url.trim();
+
+  // If already a direct Twitter CDN image URL, return immediately
+  if (cleanUrl.includes('pbs.twimg.com/media/')) {
+    return cleanUrl;
+  }
+
+  // Check for Twitter / X status (tweet photo)
+  const statusMatch = cleanUrl.match(
+    /(?:x|twitter)\.com\/(?:#!\/)?(\w+)\/status\/(\d+)(?:\/photo\/(\d+))?/i
+  );
+  if (statusMatch) {
+    const [, username, statusId, photoNum] = statusMatch;
+    try {
+      const res = await fetch(`https://api.fxtwitter.com/${username}/status/${statusId}`);
+      if (res.ok) {
+        const data = await res.json();
+        const photos =
+          data.tweet?.media?.photos ||
+          data.tweet?.media?.all?.filter(m => m.type === 'photo');
+        if (photos && photos.length > 0) {
+          const idx = photoNum ? Math.max(0, parseInt(photoNum, 10) - 1) : 0;
+          const chosen = photos[idx] || photos[0];
+          if (chosen?.url) {
+            return chosen.url;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to resolve Twitter/X status photo URL:', err);
+    }
+  }
+
+  // Check for Twitter / X article media or cover image
+  const articleMatch = cleanUrl.match(
+    /(?:x|twitter)\.com\/(?:#!\/)?(?:(\w+)\/)?article\/(\d+)(?:\/media\/(\d+))?/i
+  );
+  if (articleMatch) {
+    const [, , articleId, mediaId] = articleMatch;
+    try {
+      const res = await fetch(`https://api.fxtwitter.com/i/status/${articleId}`);
+      if (res.ok) {
+        const data = await res.json();
+        const article = data.tweet?.article;
+        if (article) {
+          if (mediaId && Array.isArray(article.media_entities)) {
+            const matchEntity = article.media_entities.find(
+              e => e.media_id === mediaId || e.media_key?.includes(mediaId)
+            );
+            if (matchEntity?.media_info?.original_img_url) {
+              return matchEntity.media_info.original_img_url;
+            }
+          }
+          if (article.cover_media?.media_info?.original_img_url) {
+            return article.cover_media.media_info.original_img_url;
+          }
+          if (article.media_entities?.[0]?.media_info?.original_img_url) {
+            return article.media_entities[0].media_info.original_img_url;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to resolve Twitter/X article media URL:', err);
+    }
+  }
+
+  return normalizeImageUrl(cleanUrl);
 }
 
 // Compress & Resize PC uploaded image files to prevent localStorage / Supabase payload quota overflow

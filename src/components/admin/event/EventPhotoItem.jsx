@@ -1,7 +1,11 @@
-import React from 'react';
-import { Trash2, Upload } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Trash2, Upload, AlertCircle, Loader2 } from 'lucide-react';
 import { uploadFileToSupabaseStorage } from '../../../utils/cloudSync';
-import { normalizeImageUrl, compressImageFile } from '../../../utils/eventStatus';
+import {
+  normalizeImageUrl,
+  compressImageFile,
+  resolveSocialImageUrl,
+} from '../../../utils/eventStatus';
 
 export default function EventPhotoItem({
   imgObj,
@@ -11,6 +15,37 @@ export default function EventPhotoItem({
   handleRemoveImageField,
   handleImageFieldChange
 }) {
+  const [isResolving, setIsResolving] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    setLoadError(false);
+  }, [imgObj.url]);
+
+  const handleUrlInput = async (rawVal) => {
+    const trimmed = (rawVal || '').trim();
+    setLoadError(false);
+
+    const isSocialUrl = /(?:x|twitter)\.com\/[^/]+\/(status|article)\/\d+/i.test(trimmed);
+
+    if (isSocialUrl) {
+      handleImageFieldChange(idx, 'url', trimmed);
+      setIsResolving(true);
+      try {
+        const resolved = await resolveSocialImageUrl(trimmed);
+        if (resolved && resolved !== trimmed) {
+          handleImageFieldChange(idx, 'url', resolved);
+        }
+      } catch (err) {
+        console.warn('Could not auto-resolve social URL:', err);
+      } finally {
+        setIsResolving(false);
+      }
+    } else {
+      handleImageFieldChange(idx, 'url', normalizeImageUrl(rawVal));
+    }
+  };
+
   return (
     <div className="p-2.5 rounded-lg bg-[#0B0E14] border border-white/10 space-y-2 relative group">
       <div className="flex items-center justify-between text-[11px] font-bold text-white/80">
@@ -94,20 +129,32 @@ export default function EventPhotoItem({
           <input
             type="text"
             value={imgObj.url}
-            onChange={e => handleImageFieldChange(idx, 'url', e.target.value)}
-            onBlur={e =>
-              handleImageFieldChange(
-                idx,
-                'url',
-                normalizeImageUrl(e.target.value)
-              )
-            }
+            onChange={e => handleUrlInput(e.target.value)}
+            onPaste={async e => {
+              const pasted = e.clipboardData.getData('text');
+              if (/(?:x|twitter)\.com/i.test(pasted)) {
+                e.preventDefault();
+                await handleUrlInput(pasted);
+              }
+            }}
+            onBlur={async e => {
+              if (/(?:x|twitter)\.com/i.test(e.target.value)) {
+                await handleUrlInput(e.target.value);
+              }
+            }}
             placeholder="https://... or click Upload from PC"
             className="w-full px-2.5 py-1.5 rounded-lg bg-[#141923] border border-[#D4AF37]/40 text-white text-xs font-mono"
           />
 
+          {isResolving && (
+            <div className="flex items-center gap-1.5 text-[10px] text-[#FFD700] mt-1 font-medium animate-pulse">
+              <Loader2 className="w-3 h-3 animate-spin text-[#FFD700]" />
+              <span>Extracting direct photo from X (Twitter)...</span>
+            </div>
+          )}
+
           <span className="text-[9px] text-[#94A3B8] block mt-0.5">
-            💡 Tip: Click "📁 Upload from PC" to select a photo from your computer, or paste a URL!
+            💡 Tip: Paste an X/Twitter post or photo link, or right-click the image & select &quot;Copy Image Address&quot;!
           </span>
         </div>
 
@@ -129,21 +176,44 @@ export default function EventPhotoItem({
       </div>
 
       {imgObj.url && (
-        <div className="h-20 w-full rounded-xl overflow-hidden border border-[#D4AF37]/40 mt-1 bg-[#141923] relative">
-          <img
-            src={normalizeImageUrl(imgObj.url)}
-            alt="Photo Preview"
-            className="w-full h-full object-cover"
-            onError={e => {
-              e.currentTarget.parentElement.innerHTML =
-                '<div class="p-2 text-[10px] text-amber-400 font-mono text-center">⚠️ Invalid image URL. Ensure URL points directly to an image (.jpg, .png, .webp).</div>';
-            }}
-          />
+        <>
+          {isResolving ? (
+            <div className="h-20 w-full rounded-xl border border-[#D4AF37]/40 mt-1 bg-[#141923] flex items-center justify-center gap-2 text-xs text-[#FFD700]">
+              <Loader2 className="w-4 h-4 animate-spin text-[#FFD700]" />
+              <span>Fetching photo from X (Twitter)...</span>
+            </div>
+          ) : loadError ? (
+            <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 mt-1 space-y-1 text-xs">
+              <div className="flex items-center gap-1.5 font-bold text-amber-400">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>Could not load image directly from this URL</span>
+              </div>
+              {/(?:x|twitter)\.com/i.test(imgObj.url) ? (
+                <p className="text-[11px] leading-relaxed text-slate-300">
+                  This is an X (Twitter) webpage link. In Twitter/X, <strong className="text-white">right-click the photo</strong> and click <strong className="text-amber-300">&quot;Copy Image Address&quot;</strong> (or &quot;Copy Image Link&quot;), then paste it here — or click <strong className="text-amber-300">&quot;📁 Upload from PC&quot;</strong>.
+                </p>
+              ) : (
+                <p className="text-[11px] leading-relaxed text-slate-300">
+                  Please ensure the URL points directly to an image file (<code className="text-amber-300 font-mono">.jpg, .png, .webp</code>), or click <strong className="text-amber-300">&quot;📁 Upload from PC&quot;</strong>.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="h-24 w-full rounded-xl overflow-hidden border border-[#D4AF37]/40 mt-1 bg-[#141923] relative">
+              <img
+                src={normalizeImageUrl(imgObj.url)}
+                alt="Photo Preview"
+                className="w-full h-full object-cover"
+                onError={() => setLoadError(true)}
+                onLoad={() => setLoadError(false)}
+              />
 
-          <span className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/80 rounded text-[9px] text-[#FFD700] font-bold border border-[#FFD700]/30">
-            Live Preview
-          </span>
-        </div>
+              <span className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/80 rounded text-[9px] text-[#FFD700] font-bold border border-[#FFD700]/30">
+                Live Preview
+              </span>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

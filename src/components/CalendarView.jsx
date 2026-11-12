@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { TEMPLES } from '../data/templeEvents';
 import { getEventStatus, openGoogleCalendar, downloadIcsCalendarFile, shareToWhatsApp, normalizeImageUrl } from '../utils/eventStatus';
-import { exportPanchangamPdf } from '../utils/pdfExport';
 import { formatEventTiming } from '../utils/indiaTime';
 import useCurrentIST from '../hooks/useCurrentIST';
 import CalendarMonthGrid from './CalendarMonthGrid';
 import CalendarScheduleView from './CalendarScheduleView';
-import { Calendar, Clock, Filter, Tag, Edit, Download, Plus, Trash2, FileText, Search, X as ClearIcon, Share2, List, Sparkles } from 'lucide-react';
+import { Calendar, Clock, Filter, Tag, Edit, Download, Plus, Trash2, Search, X as ClearIcon, Share2, List, Sparkles } from 'lucide-react';
+import RemindMeButton from './common/RemindMeButton';
 import { isModifiedClick } from '../utils/navigation';
 
 import { getTempleFilterLabel } from '../utils/templeHelpers';
@@ -218,21 +218,6 @@ export default function CalendarView({
 
           {/* Controls Right Group: (Admin ➕ Add Event) + View Mode Switcher */}
           <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
-            
-            {/* PDF Export Button */}
-            <button
-              onClick={() => exportPanchangamPdf({
-                events: filteredEvents,
-                selectedMonth: selectedMonthFilter,
-                selectedTemple,
-                lang
-              })}
-              title="Download Printable PDF Calendar"
-              className="px-3 py-2 rounded-xl bg-[#141923] border border-[#D4AF37]/60 text-[#FFD700] hover:bg-[#D4AF37]/20 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all"
-            >
-              <FileText className="w-3.5 h-3.5 text-[#FFD700]" />
-              <span>{lang === 'en' ? 'Export PDF' : 'PDF నివేదిక'}</span>
-            </button>
             
             {/* ADMIN LIVE ➕ ADD EVENT BUTTON */}
             {isAdminLoggedIn && (
@@ -583,6 +568,9 @@ export default function CalendarView({
                             <Calendar className="w-3.5 h-3.5 text-white" />
                             <span>Calendar</span>
                           </button>
+
+                          {/* REMIND ME */}
+                          <RemindMeButton event={evt} lang={lang} />
                         </div>
                       </div>
                     </div>

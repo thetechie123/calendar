@@ -6,6 +6,7 @@ import { X, Calendar, Clock, Edit } from 'lucide-react';
 import EventGalleryCarousel from './event/EventGalleryCarousel';
 import EventShareDropdown from './event/EventShareDropdown';
 import EventImageLightbox from './event/EventImageLightbox';
+import RemindMeButton from './common/RemindMeButton';
 
 const EventGlossaryMatches = lazy(
   () => import('./EventGlossaryMatches')
@@ -197,6 +198,9 @@ export default function EventDetailModal({
             {/* Action Buttons: Google Calendar, Apple Calendar, and Social Share */}
             <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-2.5">
               <div className="flex flex-wrap items-center gap-2">
+                {/* REMIND ME BUTTON */}
+                <RemindMeButton event={event} lang={lang} />
+
                 {/* GOOGLE CALENDAR BUTTON */}
                 <button
                   onClick={() => openGoogleCalendar(event)}

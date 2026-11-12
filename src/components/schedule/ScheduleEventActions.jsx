@@ -6,6 +6,7 @@ import {
   Trash2,
   ChevronRight
 } from 'lucide-react';
+import RemindMeButton from '../common/RemindMeButton';
 
 export default function ScheduleEventActions({
   evt,
@@ -123,6 +124,9 @@ export default function ScheduleEventActions({
           </div>
         )}
       </div>
+
+      {/* REMIND ME */}
+      <RemindMeButton event={evt} lang={lang} compact />
 
       {/* DETAILS */}
       <span className="p-1.5 rounded-lg bg-[#141923] text-[#FFD700] group-hover:bg-[#FFD700] group-hover:text-black transition-colors">

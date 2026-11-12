@@ -1,4 +1,5 @@
 import { Plus, Trash2, Upload } from "lucide-react";
+import { resolveSocialImageUrl } from "../../utils/eventStatus";
 
 export default function AdminGlossaryEditor({
   glossaryForm,
@@ -269,20 +270,36 @@ export default function AdminGlossaryEditor({
                         type="text"
                         placeholder="https://... or click Upload from PC"
                         value={img.url}
-                        onChange={(e) => {
+                        onChange={async (e) => {
+                          const val = e.target.value;
                           const updated = [
                             ...(glossaryForm.images || []),
                           ];
 
                           updated[idx] = {
                             ...updated[idx],
-                            url: e.target.value,
+                            url: val,
                           };
 
                           setGlossaryForm({
                             ...glossaryForm,
                             images: updated,
                           });
+
+                          if (/(?:x|twitter)\.com/i.test(val)) {
+                            const resolved = await resolveSocialImageUrl(val);
+                            if (resolved && resolved !== val) {
+                              const resolvedImages = [...(glossaryForm.images || [])];
+                              resolvedImages[idx] = {
+                                ...resolvedImages[idx],
+                                url: resolved,
+                              };
+                              setGlossaryForm(prev => ({
+                                ...prev,
+                                images: resolvedImages,
+                              }));
+                            }
+                          }
                         }}
                         className="w-full px-2 py-1 bg-[#141923] border border-white/20 text-white text-xs font-mono rounded"
                       />
