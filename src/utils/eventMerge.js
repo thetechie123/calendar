@@ -50,7 +50,10 @@ export function mergeEvents(
        * containing the deleted image URL.
        */
       if (preferInitial) {
-        return event;
+        return {
+          ...stored,
+          ...event
+        };
       }
 
       return {

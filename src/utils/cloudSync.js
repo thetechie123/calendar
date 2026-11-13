@@ -77,8 +77,10 @@ export async function pushEventsToCloud(events) {
       vahanam: e.vahanam || '',
       description: e.description || '',
       description_te: e.descriptionTe || '',
-      image_url: e.imageUrl || '',
-      images: e.images || []
+      image_url: e.imageUrl || e.image_url || '',
+      images: (Array.isArray(e.images) && e.images.length > 0)
+        ? e.images
+        : (e.imageUrl || e.image_url ? [{ url: e.imageUrl || e.image_url, caption: e.title || '' }] : [])
     }));
 
     const { data, error } = await supabase

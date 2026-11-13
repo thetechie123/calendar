@@ -13,7 +13,7 @@
     "process-event-notifications": "node processEventNotifications.mjs",
     "sync-events": "node --env-file=.telegram.env syncEventsToCloud.mjs",
     "test:telegram": "node tests/telegramTokenParser.test.mjs",
-    "test": "node tests/eventTimingAndStatus.test.mjs && node tests/telegramTokenParser.test.mjs"
+    "test": "node tests/eventTimingAndStatus.test.mjs && node tests/telegramTokenParser.test.mjs && node tests/cloudSyncAndMerge.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",

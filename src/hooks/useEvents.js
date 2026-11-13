@@ -107,11 +107,11 @@ export default function useEvents(initialEvents = []) {
    */
   const addEvent = useCallback((newEvent) => {
     setEvents(prevEvents => {
-     const nextEvents = [
-  newEvent,
-  ...prevEvents,
-];
-      pushEventsToCloud(nextEvents).catch(error =>
+      const nextEvents = [
+        newEvent,
+        ...prevEvents,
+      ];
+      pushEventsToCloud([newEvent]).catch(error =>
         console.warn(
           "Auto cloud sync warning:",
           error
@@ -133,7 +133,7 @@ export default function useEvents(initialEvents = []) {
           : event
       );
 
-      pushEventsToCloud(nextEvents).catch(error =>
+      pushEventsToCloud([updatedEvent]).catch(error =>
         console.warn(
           "Auto cloud sync warning:",
           error

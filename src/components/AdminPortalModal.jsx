@@ -120,17 +120,20 @@ useEffect(() => {
     setIsSyncing(true);
     setSyncStatusMsg('Synchronizing temple events to cloud database...');
 
-    // Load canonical initial events directly from source to ensure 100% data integrity
-    const { INITIAL_EVENTS } = await import('../data/initialEvents');
-    const initialIds = new Set(INITIAL_EVENTS.map(e => e.id));
+    // Active events from state (includes admin edits and custom events)
+    const currentEvents = Array.isArray(events) ? events : [];
+    const currentIds = new Set(currentEvents.map(e => e.id));
 
-    // Preserve genuine user custom events (events added by user that are not in initial catalog)
-    const genuineCustomEvents = (Array.isArray(events) ? events : []).filter(
-      e => e && e.id && !initialIds.has(e.id)
+    // Also include any canonical initial events that were not loaded into state and not deleted
+    const { loadDeletedEventIds } = await import('../utils/eventStorage');
+    const deletedIds = loadDeletedEventIds();
+    const { INITIAL_EVENTS } = await import('../data/initialEvents');
+    const missingInitial = INITIAL_EVENTS.filter(
+      e => !currentIds.has(e.id) && !deletedIds.has(e.id)
     );
 
-    // Merge: Canonical INITIAL_EVENTS (authoritative for all official events) + genuine custom events
-    const syncPayload = [...INITIAL_EVENTS, ...genuineCustomEvents];
+    // Current state takes precedence so user edits (description, photos) are preserved
+    const syncPayload = [...currentEvents, ...missingInitial];
 
     const result = await pushEventsToCloud(syncPayload);
     setIsSyncing(false);
