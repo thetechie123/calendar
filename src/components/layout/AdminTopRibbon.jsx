@@ -69,13 +69,77 @@ export default function AdminTopRibbon({
           <span>🔴 YouTube Live</span>
         </button>
 
-        {/* Logout Admin */}
+        {/* Logout Admin — animated expand button */}
         <button
           onClick={onLogout}
-          className="px-2.5 py-1 rounded bg-black/50 text-white hover:bg-black/70 font-bold flex items-center gap-1"
+          title="Logout"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            width: '36px',
+            height: '36px',
+            border: 'none',
+            borderRadius: '50%',
+            cursor: 'pointer',
+            position: 'relative',
+            overflow: 'hidden',
+            transition: 'width 0.3s ease, border-radius 0.3s ease',
+            boxShadow: '2px 2px 10px rgba(0,0,0,0.3)',
+            backgroundColor: 'rgb(255, 65, 65)',
+            padding: 0,
+            flexShrink: 0,
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.width = '110px';
+            e.currentTarget.style.borderRadius = '40px';
+            const icon = e.currentTarget.querySelector('.logout-icon');
+            const text = e.currentTarget.querySelector('.logout-text');
+            if (icon) { icon.style.width = '30%'; icon.style.paddingLeft = '14px'; }
+            if (text) { text.style.opacity = '1'; text.style.width = '70%'; }
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.width = '36px';
+            e.currentTarget.style.borderRadius = '50%';
+            const icon = e.currentTarget.querySelector('.logout-icon');
+            const text = e.currentTarget.querySelector('.logout-text');
+            if (icon) { icon.style.width = '100%'; icon.style.paddingLeft = '0'; }
+            if (text) { text.style.opacity = '0'; text.style.width = '0%'; }
+          }}
+          onMouseDown={e => { e.currentTarget.style.transform = 'translate(2px, 2px)'; }}
+          onMouseUp={e => { e.currentTarget.style.transform = 'translate(0, 0)'; }}
         >
-          <LogOut className="w-3.5 h-3.5" />
-          <span>Logout</span>
+          <span
+            className="logout-icon"
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'width 0.3s ease, padding-left 0.3s ease',
+              flexShrink: 0,
+            }}
+          >
+            <LogOut style={{ width: '15px', height: '15px', color: 'white', flexShrink: 0 }} />
+          </span>
+          <span
+            className="logout-text"
+            style={{
+              position: 'absolute',
+              right: 0,
+              width: '0%',
+              opacity: 0,
+              color: 'white',
+              fontSize: '0.85em',
+              fontWeight: 700,
+              transition: 'opacity 0.3s ease, width 0.3s ease',
+              whiteSpace: 'nowrap',
+              paddingRight: '10px',
+              pointerEvents: 'none',
+            }}
+          >
+            Logout
+          </span>
         </button>
       </div>
     </div>
