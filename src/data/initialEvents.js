@@ -8,7 +8,7 @@
  */
 import { SEPTEMBER_2026_EVENTS } from './templeEvents.js';
 import { PANCHANGAM_EVENTS_2026_2027 } from './panchangamEvents2026_2027.js';
-import { JANUARY_2027_QUOTA_EVENTS } from './quotaReleaseEvents.js';
+import { JANUARY_2027_QUOTA_EVENTS, FEBRUARY_2027_QUOTA_EVENTS } from './quotaReleaseEvents.js';
 
 const BASE_INITIAL_EVENTS = [
   // JANUARY 2026
@@ -1446,7 +1446,8 @@ const BASE_INITIAL_EVENTS = [
     crowdLevel: 'Peak',
     crowdBadge: 'Ultra Peak Lakhs Crowd',
     vahanam: 'Golden Chariot & Vaikunta Dwara Darsanam',
-    description: 'Auspicious Vaikunta Ekadasi opening of the celestial northern gates (Vaikunta Dwaram) at Tirumala shrine.'
+    description: 'Auspicious Vaikunta Ekadasi opening of the celestial northern gates (Vaikunta Dwaram) at Tirumala shrine and Swarna Rathotsavam.',
+    descriptionTe: 'తిరుమల శ్రీవారి ఆలయంలో వైకుంఠ ఏకాదశి పర్వదినం సందర్భంగా వైకుంఠ ద్వార దర్శనం ప్రారంభం మరియు స్వర్ణ రథోత్సవం.'
   }
 ];
 
@@ -1454,6 +1455,7 @@ const baseIds = new Set(BASE_INITIAL_EVENTS.map(e => e.id));
 export const INITIAL_EVENTS = [
   ...BASE_INITIAL_EVENTS,
   ...JANUARY_2027_QUOTA_EVENTS.filter(e => !baseIds.has(e.id)),
+  ...FEBRUARY_2027_QUOTA_EVENTS.filter(e => !baseIds.has(e.id)),
   ...SEPTEMBER_2026_EVENTS.filter(e => !baseIds.has(e.id)),
   ...PANCHANGAM_EVENTS_2026_2027.filter(e => !baseIds.has(e.id))
 ];
