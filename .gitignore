@@ -4,7 +4,6 @@ dist
 *.log
 .env
 .env.local
-README_DETAILED.md
 supabase/backups/
 *.tar.gz
 # Local Telegram API credentials
@@ -17,27 +16,11 @@ telegram-test.mjs
 Available MTProto servers.txt
 postgresqlpostgres.rjdltvopbejhvbhe.txt
 
-# Locally rendered UML diagrams - keep on this computer only
-docs/uml/rendered/
-
-# Local SRS documentation - keep on this computer only
-docs/SRS.md
-
-# Local Beginner Learning Guide & Folder Documentation (Keep on this computer only)
-PROJECT_CODE_GUIDE.md
-src/README.md
-src/components/README.md
-src/components/admin/README.md
-src/components/calendar/README.md
-src/components/layout/README.md
-src/components/tokens/README.md
-src/config/README.md
-src/data/README.md
-src/hooks/README.md
-src/utils/README.md
-public/README.md
-supabase/README.md
-.github/workflows/README.md
-docs/README.md
-scripts/README.md
+# Keep internal documentation local. The root README is the public exception.
+/docs/
+/handoff/
+*.[mM][dD]
+*.[mM][dD][xX]
+*.[mM][aA][rR][kK][dD][oO][wW][nN]
+!/README.md
 scratch/
