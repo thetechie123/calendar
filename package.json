@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/checkPublicAssets.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "worker": "node telegram-worker.mjs",
@@ -13,7 +14,7 @@
     "process-event-notifications": "node processEventNotifications.mjs",
     "sync-events": "node --env-file=.telegram.env syncEventsToCloud.mjs",
     "test:telegram": "node tests/telegramTokenParser.test.mjs",
-    "test": "node tests/eventTimingAndStatus.test.mjs && node tests/telegramTokenParser.test.mjs && node tests/cloudSyncAndMerge.test.mjs"
+    "test": "node tests/eventTimingAndStatus.test.mjs && node tests/telegramTokenParser.test.mjs && node tests/cloudSyncAndMerge.test.mjs && node --test tests/aboutSeo.test.mjs tests/retiredRoutes.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
