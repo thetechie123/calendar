@@ -1,9 +1,9 @@
-const CACHE_NAME = 'tirumala-utsavam-v6';
+const CACHE_NAME = 'tirumala-utsavam-v7';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/logo.svg'
+  '/logo-192.png'
 ];
 
 // Install Event - Pre-cache core app shell & skip waiting immediately
@@ -52,7 +52,8 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          if (response && response.ok) {
+          if (response.ok && url.origin === self.location.origin &&
+              (url.pathname === '/' || url.pathname === '/index.html')) {
             const copy = response.clone();
 
             caches.open(CACHE_NAME).then((cache) => {

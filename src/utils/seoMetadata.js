@@ -3,14 +3,16 @@
  * Establishes unique <title>, <meta name="description">, canonical URL,
  * Open Graph, and Twitter metadata for core public routes.
  *
- * NOTE: Client-side metadata updates do not replace server-side / prerendered HTML
- * for scrapers that do not execute JavaScript. This structures route canonicals and
- * metadata cleanly prior to build-time prerendering.
+ * The build also uses these definitions for the initial About HTML.
  */
 
 import { getFestivalTopic } from '../data/festivalTopics.js';
 
 export const SITE_ORIGIN = 'https://thetirumalaverse.in';
+
+const aboutTitle = 'About The Tirumala Verse | Independent Tirumala Guide';
+const aboutDescription = 'Learn about The Tirumala Verse, an independent guide to Tirumala and Tirupati festivals, sevas, and darshan, and the sources behind its calendars and guides.';
+const aboutUrl = `${SITE_ORIGIN}/about`;
 
 export const ROUTE_SEO_METADATA = {
   '/': {
@@ -91,6 +93,16 @@ export const ROUTE_SEO_METADATA = {
     twitterTitle: 'Experience Sacred Tirumala Utsavams & Festivals | The Tirumala Verse',
     twitterDescription:
       'Explore Tirumala & Tirupati temple festivals, interactive calendar events, and daily Nitya Seva timings based on published TTD schedules.',
+  },
+  '/about': {
+    title: aboutTitle,
+    description: aboutDescription,
+    canonical: aboutUrl,
+    ogTitle: aboutTitle,
+    ogDescription: aboutDescription,
+    ogUrl: aboutUrl,
+    twitterTitle: aboutTitle,
+    twitterDescription: aboutDescription,
   },
   '/feedback': {
     title: 'Community Feedback & Suggestions | The Tirumala Verse',
@@ -173,7 +185,7 @@ export const ROUTE_SEO_METADATA = {
 
 /**
  * Returns the route metadata object for a given path.
- * Strips query parameters and hash, and falls back to homepage metadata.
+ * Strips query parameters and hash, and uses 404 metadata for unknown routes.
  *
  * @param {string} pathname
  * @returns {typeof ROUTE_SEO_METADATA['/']}
@@ -259,6 +271,10 @@ function setCanonicalTag(href) {
   link.setAttribute('href', href);
 }
 
+export function getRobotsDirective(meta) {
+  return meta.noindex ? 'noindex, nofollow' : 'index, follow';
+}
+
 /**
  * Applies route-appropriate SEO metadata to document.head.
  * Ensures the canonical URL never includes search query strings or event deep links.
@@ -277,11 +293,7 @@ export function updateRouteMetadata(pathname) {
   }
 
   // 2. Robots meta directive (noindex for 404s, index for valid pages)
-  if (meta.noindex) {
-    setMetaTag('meta[name="robots"]', 'content', 'noindex, nofollow');
-  } else {
-    setMetaTag('meta[name="robots"]', 'content', 'index, follow');
-  }
+  setMetaTag('meta[name="robots"]', 'content', getRobotsDirective(meta));
 
   // 3. Update canonical URL (self-referencing canonical, strictly without query params)
   setCanonicalTag(meta.canonical);

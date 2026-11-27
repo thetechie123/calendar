@@ -71,15 +71,13 @@ export default function AboutPage({
     },
     {
       icon: Compass,
-      titleEn: 'Pilgrim FAQs & Guide Manual',
-      titleTe: 'యాత్ర గైడ్ & ప్రశ్నోత్తరాల నిధి',
-      descEn:
-        'Comprehensive, official answers on free Sarva Darshanam, SSD & DD tokens, ₹300 Special Entry, NRI & Defence quotas, infant/senior citizen entry, and temple conduct rules.',
-      descTe:
-        'ఉచిత సర్వదర్శనం, SSD & DD టోకెన్లు, ₹300 ప్రత్యేక ప్రవేశ దర్శనం, ఎన్ఆర్ఐ & సీనియర్ సిటిజన్ కోటాలు, డ్రెస్ కోడ్ మరియు ఆలయ నియమావళిపై సమగ్ర సమాచారం.',
-      link: '/faqs',
-      linkTextEn: 'Read Pilgrim FAQs',
-      linkTextTe: 'ప్రశ్నోత్తరాలు చదవండి',
+      titleEn: 'Daily & Weekly Sevas',
+      titleTe: 'రోజువారీ మరియు వారపు సేవలు',
+      descEn: 'Explore daily, weekly, and periodical sevas at the Sri Venkateswara Swamy temple in Tirumala.',
+      descTe: 'తిరుమల శ్రీ వేంకటేశ్వర స్వామి ఆలయంలో జరిగే రోజువారీ, వారపు మరియు ప్రత్యేక సేవల వివరాలు తెలుసుకోండి.',
+      link: '/sevas',
+      linkTextEn: 'View Seva Schedule',
+      linkTextTe: 'సేవల సమయాలు చూడండి',
     },
   ];
 
