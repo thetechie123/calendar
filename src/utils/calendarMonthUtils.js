@@ -1,4 +1,5 @@
 import { getIndiaDateString } from './indiaTime.js';
+import { VAIKUNTHA_2026_DAY_COPY, VAIKUNTHA_2026_FESTIVAL } from '../data/vaikunthaDarshan2026.js';
 
 export const MONTHS_LIST = [
   { year: 2026, month: 0, label: 'January 2026', labelTe: 'జనవరి 2026' },
@@ -30,6 +31,45 @@ export const getDateString = (year, month, day) => {
 export const getMonthPrefix = (year, month) =>
   `${year}-${String(month + 1).padStart(2, '0')}`;
 
+const DAY_MS = 86_400_000;
+const calendarTimestamp = date => Date.parse(`${date}T00:00:00Z`);
+const calendarDayOffset = (start, date) => (calendarTimestamp(date) - calendarTimestamp(start)) / DAY_MS;
+
+export function offsetCalendarDate(date, offset) {
+  return new Date(calendarTimestamp(date) + offset * DAY_MS).toISOString().slice(0, 10);
+}
+
+export function projectVaikunthaDay(event, date = event?.startDate) {
+  if (event?.id !== VAIKUNTHA_2026_FESTIVAL.id || !/^\d{4}-\d{2}-\d{2}$/.test(date || '')
+    || date < event.startDate || date > event.endDate) return event;
+
+  const dayNumber = calendarDayOffset(event.startDate, date) + 1;
+  const copy = dayNumber === 1 ? VAIKUNTHA_2026_DAY_COPY.opening
+    : dayNumber === 2 ? VAIKUNTHA_2026_DAY_COPY.dwadasi
+    : date === event.endDate ? VAIKUNTHA_2026_DAY_COPY.conclusion
+    : VAIKUNTHA_2026_DAY_COPY.continuation;
+
+  return {
+    ...event,
+    ...copy,
+    calendarDate: date,
+    dayNumber,
+    title: `${copy.title || VAIKUNTHA_2026_FESTIVAL.title} (Day ${dayNumber})`,
+    titleTe: `${copy.titleTe || VAIKUNTHA_2026_FESTIVAL.titleTe} (${dayNumber}వ రోజు)`
+  };
+}
+
+export function expandFestivalCalendarEvents(events) {
+  return events.flatMap(event => {
+    if (event.id !== VAIKUNTHA_2026_FESTIVAL.id) return [event];
+    if (event.calendarDateLimit) return [projectVaikunthaDay(event, event.calendarDateLimit)];
+    const numberOfDays = calendarDayOffset(event.startDate, event.endDate) + 1;
+    return Array.from({ length: numberOfDays }, (_, index) =>
+      projectVaikunthaDay(event, offsetCalendarDate(event.startDate, index))
+    );
+  });
+}
+
 export const getInitialMonthIndex = () => {
   const today = getTodayIST();
   const year = Number(today.slice(0, 4));
@@ -59,6 +99,7 @@ export const getEventsForDate = (events, dateStr) => {
   
   const filtered = events.filter(evt => {
     if (!evt?.startDate) return false;
+    if (evt.calendarDateLimit && evt.calendarDateLimit !== dateStr) return false;
     const end = evt.endDate || evt.startDate;
     return evt.startDate <= dateStr && dateStr <= end;
   });
@@ -91,17 +132,16 @@ export const getEventsForDate = (events, dateStr) => {
     const key = `${evt.title}_${evt.startDate}`;
     
     if (!uniqueMap.has(key)) {
+      if (evt.id === VAIKUNTHA_2026_FESTIVAL.id) {
+        uniqueMap.set(key, projectVaikunthaDay(evt, dateStr));
+        return;
+      }
+
       const clonedEvt = { ...evt };
       const end = evt.endDate || evt.startDate;
       
       if (evt.startDate !== end) {
-        const parseDateStr = (ds) => {
-            const [y, m, d] = ds.split('-');
-            return Date.UTC(y, m - 1, d);
-        };
-        const startUTC = parseDateStr(evt.startDate);
-        const currentUTC = parseDateStr(dateStr);
-        const dayDiff = Math.floor((currentUTC - startUTC) / (1000 * 60 * 60 * 24)) + 1;
+        const dayDiff = calendarDayOffset(evt.startDate, dateStr) + 1;
         
         if (dayDiff > 0) {
             let vahanamEn = "";

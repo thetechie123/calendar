@@ -4,6 +4,9 @@ import useAdmin from "./hooks/useAdmin";
 import useTheme from "./hooks/useTheme";
 import useLocalStorage from "./hooks/usePersistentState";
 import useCurrentIST from "./hooks/useCurrentIST";
+import { projectVaikunthaDay } from "./utils/calendarMonthUtils";
+import { useEventReminderScheduler } from "./hooks/useRemindMe";
+import { findDailyAlertEvent } from "./utils/eventNotifications";
 import { STORAGE_KEYS } from "./config/storageKeys";
 import { APP_CONFIG } from "./config/appConfig";
 import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
@@ -188,7 +191,7 @@ export default function App() {
         const eventId = searchParams.get('event');
         if (eventId && Array.isArray(eventsListRef.current) && eventsListRef.current.length > 0) {
           const matched = eventsListRef.current.find(e => e && String(e.id) === String(eventId));
-          if (matched) setSelectedEventModal(matched);
+          if (matched) setSelectedEventModal(projectVaikunthaDay(matched, searchParams.get('eventDay') || undefined));
         } else if (!eventId) {
           setSelectedEventModal(null);
         }
@@ -235,6 +238,7 @@ export default function App() {
     updateEvent,
     deleteEvent,
     eventsInitialized,
+    eventsCloudReady,
   } = useEvents(initialEvents);
 
   eventsListRef.current = eventsList;
@@ -252,14 +256,16 @@ export default function App() {
       if (eventId) {
         const matched = eventsList.find(e => e && String(e.id) === String(eventId));
         if (matched) {
-          setSelectedEventModal(matched);
+          setSelectedEventModal(projectVaikunthaDay(matched, searchParams.get('eventDay') || undefined));
+        } else if (!eventsCloudReady) {
+          return;
         }
       }
       handledDeepLinkRef.current = true;
     } catch (err) {
       console.warn('Failed to parse event deep link:', err);
     }
-  }, [eventsInitialized, eventsList]);
+  }, [eventsCloudReady, eventsInitialized, eventsList]);
 
   useEffect(() => {
     let cancelled = false;
@@ -588,59 +594,33 @@ export default function App() {
     });
   }, [safeEventsList, todayStr]);
 
-  // Automatic Daily Desktop/Mobile Push Notification for Today's Active Utsavam
-  // Automatic Daily Desktop/Mobile Push Notification for Today's Active Utsavam
-useEffect(() => {
-  if (
-    !notificationsEnabled ||
-    !todayEvent ||
-    !('Notification' in window) ||
-    Notification.permission !== 'granted'
-  ) {
-    return;
-  }
+  const latestSelectedEvent = selectedEventModal && safeEventsList.find(event => event.id === selectedEventModal.id);
 
-  const lastNotifiedDate = localStorage.getItem(
-    'tirumala_last_notified_date'
-  );
+  useEventReminderScheduler(safeEventsList, eventsCloudReady);
 
-  if (lastNotifiedDate === todayStr) {
-    return;
-  }
+  useEffect(() => {
+    if (!eventsCloudReady || !notificationsEnabled || !('serviceWorker' in navigator)
+      || !('Notification' in window) || Notification.permission !== 'granted') return;
 
-  const showTodayNotification = async () => {
-    try {
-      if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.ready;
+    let cancelled = false;
+    const showTodayNotification = async () => {
+      if (localStorage.getItem('tirumala_last_notified_date') === todayStr) return;
+      const registration = await navigator.serviceWorker.ready;
+      const event = findDailyAlertEvent(safeEventsList);
+      if (cancelled || !event || localStorage.getItem('tirumala_last_notified_date') === todayStr) return;
 
-        await registration.showNotification(
-          '🌸 Today Tirumala Utsavam Alert!',
-          {
-            body: `${todayEvent.title} is taking place today at Tirumala Tirupati temples! Tap to view details.`,
-            icon: '/logo-64.png',
-            badge: '/logo-64.png',
-            data: {
-              url: 'https://thetirumalaverse.in/'
-            },
-            tag: `tirumala-daily-${todayStr}`
-          }
-        );
-
-        localStorage.setItem(
-          'tirumala_last_notified_date',
-          todayStr
-        );
-      }
-    } catch (error) {
-      console.warn(
-        'Could not show daily Utsavam notification:',
-        error
-      );
-    }
-  };
-
-  showTodayNotification();
-}, [notificationsEnabled, todayEvent, todayStr]);
+      await registration.showNotification('🌸 Today Tirumala Utsavam Alert!', {
+        body: event.title + ' is taking place today at Tirumala Tirupati temples! Tap to view details.',
+        icon: '/logo-64.png',
+        badge: '/logo-64.png',
+        data: { url: 'https://thetirumalaverse.in/' },
+        tag: 'tirumala-daily-' + todayStr
+      });
+      localStorage.setItem('tirumala_last_notified_date', todayStr);
+    };
+    showTodayNotification().catch(error => console.warn('Could not show daily Utsavam notification:', error));
+    return () => { cancelled = true; };
+  }, [eventsCloudReady, notificationsEnabled, safeEventsList, todayStr]);
 
   // Feedback Handlers
   const handleAddFeedback = (newFeedback) => {
@@ -661,7 +641,7 @@ useEffect(() => {
   const handleDeleteEvent = deleteEvent;
 
   const handleOpenEditModalForEvent = (event) => {
-    setTargetEventToEdit(event);
+    setTargetEventToEdit(safeEventsList.find(item => item.id === event.id) || event);
     setAdminModalMode('edit-event');
   };
 
@@ -837,13 +817,14 @@ useEffect(() => {
       {selectedEventModal && (
         <Suspense fallback={null}>
           <EventDetailModal
-            event={selectedEventModal}
+            event={projectVaikunthaDay(latestSelectedEvent || selectedEventModal, selectedEventModal.calendarDate)}
             onClose={() => {
               setSelectedEventModal(null);
               try {
                 if (window.location.search.includes('event=')) {
                   const searchParams = new URLSearchParams(window.location.search);
                   searchParams.delete('event');
+                  searchParams.delete('eventDay');
                   const remaining = searchParams.toString();
                   const newUrl = window.location.pathname + (remaining ? `?${remaining}` : '') + window.location.hash;
                   window.history.replaceState(window.history.state, '', newUrl);

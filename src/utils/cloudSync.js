@@ -3,6 +3,7 @@
  * Supports cloud backend configuration (Supabase / REST API) with offline localStorage fallback.
  */
 import { CLOUD_CONFIG } from "../config/cloudConfig";
+import { normalizeEventFlag } from "./eventNotifications.js";
 import { STORAGE_KEYS } from "../config/storageKeys";
 
 const getSupabase = () => import("./supabaseClient").then(m => m.supabase);
@@ -71,8 +72,8 @@ export async function pushEventsToCloud(events) {
       start_time: e.startTime || null,
       end_time: e.endTime || null,
       timing_source: e.timingSource || (e.startTime ? 'admin' : 'default'),
-      is_cancelled: e.isCancelled || false,
-      notification_eligible: e.notificationEligible !== false,
+      is_cancelled: normalizeEventFlag(e.isCancelled ?? e.is_cancelled, false),
+      notification_eligible: normalizeEventFlag(e.notificationEligible ?? e.notification_eligible, true),
       category: e.category,
       vahanam: e.vahanam || '',
       description: e.description || '',
@@ -155,6 +156,7 @@ if (
 
     const response = await fetch(targetUrl, {
       method: 'GET',
+      signal: typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(10000) : undefined,
       headers: {
         'Content-Type': 'application/json',
         'apikey': config.apiKey || '',
@@ -178,8 +180,8 @@ if (
       startTime: e.start_time || e.startTime || null,
       endTime: e.end_time || e.endTime || null,
       timingSource: e.timing_source || e.timingSource || (e.start_time || e.startTime ? 'admin' : 'default'),
-      isCancelled: e.is_cancelled ?? e.isCancelled ?? false,
-      notificationEligible: e.notification_eligible ?? e.notificationEligible ?? true,
+      isCancelled: normalizeEventFlag(e.is_cancelled ?? e.isCancelled, false),
+      notificationEligible: normalizeEventFlag(e.notification_eligible ?? e.notificationEligible, true),
       category: e.category,
       vahanam: e.vahanam || '',
       description: e.description || '',

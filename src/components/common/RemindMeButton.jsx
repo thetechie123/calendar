@@ -12,11 +12,11 @@
  *  className - extra classes to merge
  */
 import React, { useState } from 'react';
-import { Bell, BellOff, BellRing } from 'lucide-react';
+import { Bell, BellRing } from 'lucide-react';
 import useRemindMe from '../../hooks/useRemindMe';
 
 export default function RemindMeButton({ event, lang = 'en', compact = false, className = '' }) {
-  const { isReminded, toggleReminder } = useRemindMe(event, lang);
+  const { isReminded, toggleReminder, canRemind } = useRemindMe(event, lang);
   const [animating, setAnimating] = useState(false);
 
   const handleClick = async (e) => {
@@ -26,6 +26,8 @@ export default function RemindMeButton({ event, lang = 'en', compact = false, cl
     await toggleReminder();
     setTimeout(() => setAnimating(false), 600);
   };
+
+  if (!canRemind && !isReminded) return null;
 
   const isEn = lang === 'en';
 

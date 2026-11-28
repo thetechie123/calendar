@@ -7,6 +7,7 @@
  * - `isMajor`: Internal website display-priority flag; NOT an official TTD designation.
  */
 import { SEPTEMBER_2026_EVENTS } from './templeEvents.js';
+import { VAIKUNTHA_2026_FESTIVAL, VAIKUNTHA_2026_RELEASES } from './vaikunthaDarshan2026.js';
 import { PANCHANGAM_EVENTS_2026_2027 } from './panchangamEvents2026_2027.js';
 import { JANUARY_2027_QUOTA_EVENTS, FEBRUARY_2027_QUOTA_EVENTS } from './quotaReleaseEvents.js';
 
@@ -1430,30 +1431,13 @@ const BASE_INITIAL_EVENTS = [
     vahanam: 'Gaja Vahanam (Dec 10), Garuda Vahanam (Dec 11), Rathotsavam (Dec 13), Panchami Theertham (Dec 14)',
     description: 'Grand Annual Kartheeka Brahmotsavam of Goddess Padmavathi Devi culminating in Panchami Theertham holy bath.'
   },
-  {
-    id: 'ttd-2026-12-20',
-    templeId: 'tirumala-main',
-    title: 'Vaikunta Ekadasi & Swarna Rathotsavam at Tirumala',
-    titleTe: 'వైకుంఠ ఏకాదశి & తిరుమల శ్రీవారి స్వర్ణ రథోత్సవం',
-    startDate: '2026-12-20',
-    endDate: '2026-12-21',
-    category: 'special-puja',
-    highlight: true,
-    isMajor: true,
-    location: 'Vaikuntam Queue Complex & Mada Streets',
-    time: '01:30 AM (Midnight Opening of Vaikunta Dwaram)',
-    startTime: '01:30:00',
-    crowdLevel: 'Peak',
-    crowdBadge: 'Ultra Peak Lakhs Crowd',
-    vahanam: 'Golden Chariot & Vaikunta Dwara Darsanam',
-    description: 'Auspicious Vaikunta Ekadasi opening of the celestial northern gates (Vaikunta Dwaram) at Tirumala shrine and Swarna Rathotsavam.',
-    descriptionTe: 'తిరుమల శ్రీవారి ఆలయంలో వైకుంఠ ఏకాదశి పర్వదినం సందర్భంగా వైకుంఠ ద్వార దర్శనం ప్రారంభం మరియు స్వర్ణ రథోత్సవం.'
-  }
+  VAIKUNTHA_2026_FESTIVAL
 ];
 
 const baseIds = new Set(BASE_INITIAL_EVENTS.map(e => e.id));
 export const INITIAL_EVENTS = [
   ...BASE_INITIAL_EVENTS,
+  ...VAIKUNTHA_2026_RELEASES,
   ...JANUARY_2027_QUOTA_EVENTS.filter(e => !baseIds.has(e.id)),
   ...FEBRUARY_2027_QUOTA_EVENTS.filter(e => !baseIds.has(e.id)),
   ...SEPTEMBER_2026_EVENTS.filter(e => !baseIds.has(e.id)),

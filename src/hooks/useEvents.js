@@ -18,6 +18,7 @@ import {
 export default function useEvents(initialEvents = []) {
   const [events, setEvents] = useState([]);
   const [eventsInitialized, setEventsInitialized] = useState(false);
+  const [eventsCloudReady, setEventsCloudReady] = useState(false);
 
   /*
    * Load the initial/static events and merge them with
@@ -92,6 +93,8 @@ export default function useEvents(initialEvents = []) {
           "Automatic cloud event pull warning:",
           error
         );
+      } finally {
+        if (!cancelled) setEventsCloudReady(true);
       }
     };
 
@@ -188,5 +191,6 @@ export default function useEvents(initialEvents = []) {
   updateEvent,
   deleteEvent,
   eventsInitialized,
+  eventsCloudReady,
 };
 }

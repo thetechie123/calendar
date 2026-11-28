@@ -1,3 +1,5 @@
+import { VAIKUNTHA_2026_FESTIVAL } from '../data/vaikunthaDarshan2026.js';
+
 export function getIndiaDateString(date = new Date()) {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Kolkata",
@@ -131,7 +133,10 @@ export function formatTime12Hr(timeStr) {
  * - If legacy time string exists: return it
  * - Fallback: "7:00 AM"
  */
-export function formatEventTiming(event) {
+export function formatEventTiming(event, lang = 'en') {
+  if (event?.id === VAIKUNTHA_2026_FESTIVAL.id) {
+    return lang === 'te' ? 'దర్శన సమయం ప్రకటించలేదు' : 'Darshan time not announced';
+  }
   if (!event) return '7:00 AM';
 
   const startTime = event.startTime;

@@ -85,7 +85,7 @@ export default function AboutPage({
     <div className="space-y-8 py-4 max-w-4xl mx-auto">
       {/* HERO SECTION */}
       <section
-        className={`p-6 sm:p-10 rounded-2xl relative overflow-hidden text-center space-y-4 border transition-colors ${
+        className={`p-6 sm:p-10 rounded-2xl relative overflow-hidden flex flex-col items-center gap-4 text-center border transition-colors ${
           isLight
             ? 'bg-white border-amber-300/60 shadow-lg'
             : 'glass-card border-[#D4AF37]/40 shadow-2xl'

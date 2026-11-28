@@ -22,10 +22,12 @@ export default function ScheduleEventCard({
   onEditEvent,
   onDeleteEvent
 }) {
-  const dateInfo = formatScheduleDate(evt.startDate, lang);
+  const date = evt.calendarDate || evt.startDate;
+  const endDate = evt.calendarDate || evt.endDate;
+  const dateInfo = formatScheduleDate(date, lang);
 
-  const isToday = evt.startDate <= todayStr && evt.endDate >= todayStr;
-  const isFuture = evt.startDate > todayStr;
+  const isToday = date <= todayStr && endDate >= todayStr;
+  const isFuture = date > todayStr;
 
   const temple = TEMPLES.find(t => t.id === evt.templeId);
 
@@ -103,7 +105,7 @@ export default function ScheduleEventCard({
             <span
               className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase shadow ${statusObj.colorClass}`}
             >
-              {lang === 'en' ? statusObj.status : statusObj.statusTe}
+              {lang === 'en' ? (statusObj.statusEn || statusObj.status) : statusObj.statusTe}
             </span>
 
             {evtImages.length > 0 && (
@@ -123,14 +125,12 @@ export default function ScheduleEventCard({
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#CBD5E1]">
             <span className="font-mono text-[#FFD700] font-bold flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5 dark:text-[#FF5722] text-[#D84315]" />
-              {evt.startDate === evt.endDate
-                ? evt.startDate
-                : `${evt.startDate} to ${evt.endDate}`}
+              {date === endDate ? date : date + ' to ' + endDate}
             </span>
 
             <span className="font-mono text-amber-500 dark:text-[#FFD700] font-bold flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-[#FF5722]" />
-              {formatEventTiming(evt)}
+              {formatEventTiming(evt, lang)}
             </span>
 
             {evt.vahanam && (

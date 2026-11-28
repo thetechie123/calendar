@@ -12,6 +12,7 @@ import {
   formatScheduleDate
 } from '../utils/calendarScheduleUtils';
 
+import { expandFestivalCalendarEvents } from '../utils/calendarMonthUtils';
 import useCurrentIST from '../hooks/useCurrentIST';
 
 import ScheduleViewHeader from './schedule/ScheduleViewHeader';
@@ -65,16 +66,16 @@ export default function CalendarScheduleView({
    *  endDate >= todayStr
    * -------------------------------------------------------------
    */
-  const upcomingEvents = (Array.isArray(events) ? events : [])
+  const upcomingEvents = expandFestivalCalendarEvents(Array.isArray(events) ? events : [])
     .filter(evt => {
       if (!evt?.startDate || !evt?.endDate) {
         return false;
       }
 
-      return evt.endDate >= todayStr;
+      return (evt.calendarDate || evt.endDate) >= todayStr;
     })
     .sort((a, b) => {
-      const dateCompare = a.startDate.localeCompare(b.startDate);
+      const dateCompare = (a.calendarDate || a.startDate).localeCompare(b.calendarDate || b.startDate);
 
       if (dateCompare !== 0) {
         return dateCompare;
@@ -89,7 +90,7 @@ export default function CalendarScheduleView({
    * -------------------------------------------------------------
    */
   const eventsByMonth = upcomingEvents.reduce((acc, evt) => {
-    const { monthFull } = formatScheduleDate(evt.startDate, lang);
+    const { monthFull } = formatScheduleDate(evt.calendarDate || evt.startDate, lang);
 
     const key = monthFull || evt.startDate.substring(0, 7);
 
@@ -186,7 +187,7 @@ export default function CalendarScheduleView({
             <div className="space-y-3 pl-1 sm:pl-2">
               {monthEvents.map(evt => (
                 <ScheduleEventCard
-                  key={evt.id}
+                  key={evt.calendarDate ? evt.id + ':' + evt.calendarDate : evt.id}
                   evt={evt}
                   lang={lang}
                   todayStr={todayStr}

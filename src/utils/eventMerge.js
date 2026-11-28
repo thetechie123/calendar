@@ -1,3 +1,7 @@
+import { VAIKUNTHA_2026_FESTIVAL } from '../data/vaikunthaDarshan2026.js';
+import { normalizeEventFlag } from './eventNotifications.js';
+import { isRetiredEvent } from './retiredEvents.js';
+
 export function mergeEvents(
   initialEvents,
   storedEvents,
@@ -5,13 +9,18 @@ export function mergeEvents(
   options = {}
 ) {
   const { preferInitial = false } = options;
+  const isVisible = event => event?.id && !deletedIds.has(event.id) && !isRetiredEvent(event);
+  const applyFestivalNotice = event => event.id === VAIKUNTHA_2026_FESTIVAL.id
+    ? { ...event, ...VAIKUNTHA_2026_FESTIVAL }
+    : event;
+  const canonical = initialEvents.filter(isVisible);
 
   if (!Array.isArray(storedEvents) || storedEvents.length === 0) {
-    return initialEvents.filter(event => !deletedIds.has(event.id));
+    return canonical.map(applyFestivalNotice);
   }
 
   const cleanStored = storedEvents.filter(event => {
-    if (!event || !event.id || deletedIds.has(event.id)) return false;
+    if (!isVisible(event)) return false;
 
     const title = (event.title || "").toLowerCase();
     const titleTe = event.titleTe || "";
@@ -28,8 +37,7 @@ export function mergeEvents(
     cleanStored.map(event => [event.id, event])
   );
 
-  const mergedInitial = initialEvents
-    .filter(event => !deletedIds.has(event.id))
+  const mergedInitial = canonical
     .map(event => {
       if (!storedMap.has(event.id)) {
         return event;
@@ -66,15 +74,10 @@ export function mergeEvents(
             ? event.startTime
             : null,
 
-        notificationEligible:
-          event.notificationEligible !== undefined
-            ? event.notificationEligible
-            : true,
-
-        isCancelled:
-          event.isCancelled !== undefined
-            ? event.isCancelled
-            : false,
+        notificationEligible: normalizeEventFlag(event.notificationEligible ?? event.notification_eligible, true)
+          && normalizeEventFlag(stored.notificationEligible ?? stored.notification_eligible, true),
+        isCancelled: normalizeEventFlag(event.isCancelled ?? event.is_cancelled, false)
+          || normalizeEventFlag(stored.isCancelled ?? stored.is_cancelled, false),
       };
     });
 
@@ -90,5 +93,5 @@ export function mergeEvents(
     event => !initialIds.has(event.id)
   );
 
-  return [...mergedInitial, ...customEvents];
+  return [...mergedInitial, ...customEvents].map(applyFestivalNotice);
 }
