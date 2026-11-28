@@ -103,7 +103,7 @@ export default function ScheduleEventCard({
             <span
               className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase shadow ${statusObj.colorClass}`}
             >
-              {lang === 'en' ? statusObj.status : statusObj.statusTe}
+              {lang === 'en' ? (statusObj.statusEn || statusObj.status) : statusObj.statusTe}
             </span>
 
             {evtImages.length > 0 && (
@@ -130,7 +130,7 @@ export default function ScheduleEventCard({
 
             <span className="font-mono text-amber-500 dark:text-[#FFD700] font-bold flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-[#FF5722]" />
-              {formatEventTiming(evt)}
+              {formatEventTiming(evt, lang)}
             </span>
 
             {evt.vahanam && (

@@ -123,30 +123,6 @@ export default function EventShareDropdown({
             </span>
           </button>
 
-          {/* THREADS */}
-          <button
-            onClick={() => onShareClick('threads')}
-            className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 text-xs font-bold text-white flex items-center gap-2.5 transition-colors"
-          >
-            <svg
-              className="w-4 h-4 shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M17.2 11.1c-.2-3.1-2-5.1-5.2-5.1-3.4 0-5.4 2-5.4 5.9 0 4.2 2.1 6.5 5.8 6.5 3.2 0 5.2-1.6 5.2-4.1 0-2.3-1.7-3.7-4.4-3.7-2.2 0-3.5 1-3.5 2.5 0 1.2 1 2 2.3 2 1.2 0 2-.6 2-1.6 0-.8-.6-1.3-1.6-1.3"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span className="text-[#111827] font-bold">
-              Threads
-            </span>
-          </button>
-
           {/* COPY LINK */}
           <button
             onClick={() => onShareClick('copy')}

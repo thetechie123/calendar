@@ -10,6 +10,7 @@ import RemindMeButton from './common/RemindMeButton';
 import { isModifiedClick } from '../utils/navigation';
 
 import { getTempleFilterLabel } from '../utils/templeHelpers';
+import { filterCalendarEvents } from '../utils/calendarSearch';
 
 export default function CalendarView({
   events,
@@ -25,7 +26,6 @@ export default function CalendarView({
 }) {
   const currentIST = useCurrentIST();
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'schedule' | 'cards'
-  const [selectedMonthFilter, setSelectedMonthFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -69,43 +69,9 @@ export default function CalendarView({
     };
   }, []);
 
-  // Filter events based on temple selection, month filter, and search query
-  const filteredEvents = events.filter(evt => {
-    // Temple filter
-    if (selectedTemple !== 'all' && evt.templeId !== selectedTemple) {
-      return false;
-    }
-
-    // Month filter
-    if (selectedMonthFilter !== 'all') {
-      const evtMonth = evt.startDate.substring(0, 7); // 'YYYY-MM'
-      if (evtMonth !== selectedMonthFilter) {
-        return false;
-      }
-    }
-
-    // Search query filter
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      const title = (evt.title || '').toLowerCase();
-      const titleTe = (evt.titleTe || '').toLowerCase();
-      const location = (evt.location || '').toLowerCase();
-      const description = (evt.description || '').toLowerCase();
-      const descriptionTe = (evt.descriptionTe || '').toLowerCase();
-      const vahanam = (evt.vahanam || '').toLowerCase();
-      if (
-        !title.includes(q) &&
-        !titleTe.includes(q) &&
-        !location.includes(q) &&
-        !description.includes(q) &&
-        !descriptionTe.includes(q) &&
-        !vahanam.includes(q)
-      ) {
-        return false;
-      }
-    }
-
-    return true;
+  const filteredEvents = filterCalendarEvents(events, {
+    query: searchQuery,
+    templeId: selectedTemple
   });
 
   // Sort filtered events chronologically by startDate in ascending order (primary sort for Card/List view)
@@ -447,7 +413,7 @@ export default function CalendarView({
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase shadow-md ${statusObj.colorClass}`}>
-                          {lang === 'en' ? statusObj.status : statusObj.statusTe}
+                          {lang === 'en' ? (statusObj.statusEn || statusObj.status) : statusObj.statusTe}
                         </span>
 
                         <span 
@@ -517,7 +483,7 @@ export default function CalendarView({
 
                           <div className="flex items-center gap-1 text-amber-600 dark:text-[#FFD700]">
                             <Clock className="w-3.5 h-3.5 text-[#FF5722]" />
-                            <span>{formatEventTiming(evt)}</span>
+                            <span>{formatEventTiming(evt, lang)}</span>
                           </div>
 
                           {evt.vahanam && evt.category !== 'quota-release' && !evt.id?.startsWith('ttd-quota-') && (

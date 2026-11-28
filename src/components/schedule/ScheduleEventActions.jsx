@@ -58,7 +58,6 @@ export default function ScheduleEventActions({
                   'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white'
                 ],
                 ['facebook', 'Facebook', 'bg-[#1877F2] text-white'],
-                ['threads', 'Threads', 'bg-black text-white border border-white/20'],
                 ['telegram', 'Telegram', 'bg-[#229ED9] text-white'],
                 ['reddit', 'Reddit', 'bg-[#FF4500] text-white'],
                 [

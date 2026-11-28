@@ -3,7 +3,7 @@ import { MessageSquare, X } from 'lucide-react';
 import SacredGridGallery from '../common/SacredGridGallery';
 import { isModifiedClick } from '../../utils/navigation';
 
-export default function AppFooter({ lang, onNavigate, onOpenLogoModal, onOpenFeedbackTab }) {
+export default function AppFooter({ lang, onNavigate, onOpenLogoModal, onOpenFeedbackTab, showGallery = true }) {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   const handleLinkClick = (href, e) => {
@@ -166,15 +166,17 @@ export default function AppFooter({ lang, onNavigate, onOpenLogoModal, onOpenFee
                   {lang === 'en' ? 'About Us' : 'మా గురించి'}
                 </a>
               </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => setIsGalleryOpen(true)}
-                  className="text-[#94A3B8] light-theme:text-slate-700 hover:text-[#FFD700] light-theme:hover:text-amber-800 transition-colors inline-block py-0.5 text-left cursor-pointer font-medium"
-                >
-                  {lang === 'en' ? 'Gallery' : 'చిత్రమాలిక'}
-                </button>
-              </li>
+              {showGallery && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setIsGalleryOpen(true)}
+                    className="text-[#94A3B8] light-theme:text-slate-700 hover:text-[#FFD700] light-theme:hover:text-amber-800 transition-colors inline-block py-0.5 text-left cursor-pointer font-medium"
+                  >
+                    {lang === 'en' ? 'Gallery' : 'చిత్రమాలిక'}
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -206,7 +208,7 @@ export default function AppFooter({ lang, onNavigate, onOpenLogoModal, onOpenFee
         </div>
       </div>
       {/* GALLERY MODAL DIALOG */}
-      {isGalleryOpen && (
+      {showGallery && isGalleryOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in"
           onClick={() => setIsGalleryOpen(false)}

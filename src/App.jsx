@@ -4,6 +4,8 @@ import useAdmin from "./hooks/useAdmin";
 import useTheme from "./hooks/useTheme";
 import useLocalStorage from "./hooks/usePersistentState";
 import useCurrentIST from "./hooks/useCurrentIST";
+import { useEventReminderScheduler } from "./hooks/useRemindMe";
+import { findDailyAlertEvent } from "./utils/eventNotifications";
 import { STORAGE_KEYS } from "./config/storageKeys";
 import { APP_CONFIG } from "./config/appConfig";
 import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
@@ -235,6 +237,7 @@ export default function App() {
     updateEvent,
     deleteEvent,
     eventsInitialized,
+    eventsCloudReady,
   } = useEvents(initialEvents);
 
   eventsListRef.current = eventsList;
@@ -253,13 +256,15 @@ export default function App() {
         const matched = eventsList.find(e => e && String(e.id) === String(eventId));
         if (matched) {
           setSelectedEventModal(matched);
+        } else if (!eventsCloudReady) {
+          return;
         }
       }
       handledDeepLinkRef.current = true;
     } catch (err) {
       console.warn('Failed to parse event deep link:', err);
     }
-  }, [eventsInitialized, eventsList]);
+  }, [eventsCloudReady, eventsInitialized, eventsList]);
 
   useEffect(() => {
     let cancelled = false;
@@ -588,59 +593,33 @@ export default function App() {
     });
   }, [safeEventsList, todayStr]);
 
-  // Automatic Daily Desktop/Mobile Push Notification for Today's Active Utsavam
-  // Automatic Daily Desktop/Mobile Push Notification for Today's Active Utsavam
-useEffect(() => {
-  if (
-    !notificationsEnabled ||
-    !todayEvent ||
-    !('Notification' in window) ||
-    Notification.permission !== 'granted'
-  ) {
-    return;
-  }
+  const latestSelectedEvent = selectedEventModal && safeEventsList.find(event => event.id === selectedEventModal.id);
 
-  const lastNotifiedDate = localStorage.getItem(
-    'tirumala_last_notified_date'
-  );
+  useEventReminderScheduler(safeEventsList, eventsCloudReady);
 
-  if (lastNotifiedDate === todayStr) {
-    return;
-  }
+  useEffect(() => {
+    if (!eventsCloudReady || !notificationsEnabled || !('serviceWorker' in navigator)
+      || !('Notification' in window) || Notification.permission !== 'granted') return;
 
-  const showTodayNotification = async () => {
-    try {
-      if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.ready;
+    let cancelled = false;
+    const showTodayNotification = async () => {
+      if (localStorage.getItem('tirumala_last_notified_date') === todayStr) return;
+      const registration = await navigator.serviceWorker.ready;
+      const event = findDailyAlertEvent(safeEventsList);
+      if (cancelled || !event || localStorage.getItem('tirumala_last_notified_date') === todayStr) return;
 
-        await registration.showNotification(
-          '🌸 Today Tirumala Utsavam Alert!',
-          {
-            body: `${todayEvent.title} is taking place today at Tirumala Tirupati temples! Tap to view details.`,
-            icon: '/logo-64.png',
-            badge: '/logo-64.png',
-            data: {
-              url: 'https://thetirumalaverse.in/'
-            },
-            tag: `tirumala-daily-${todayStr}`
-          }
-        );
-
-        localStorage.setItem(
-          'tirumala_last_notified_date',
-          todayStr
-        );
-      }
-    } catch (error) {
-      console.warn(
-        'Could not show daily Utsavam notification:',
-        error
-      );
-    }
-  };
-
-  showTodayNotification();
-}, [notificationsEnabled, todayEvent, todayStr]);
+      await registration.showNotification('🌸 Today Tirumala Utsavam Alert!', {
+        body: event.title + ' is taking place today at Tirumala Tirupati temples! Tap to view details.',
+        icon: '/logo-64.png',
+        badge: '/logo-64.png',
+        data: { url: 'https://thetirumalaverse.in/' },
+        tag: 'tirumala-daily-' + todayStr
+      });
+      localStorage.setItem('tirumala_last_notified_date', todayStr);
+    };
+    showTodayNotification().catch(error => console.warn('Could not show daily Utsavam notification:', error));
+    return () => { cancelled = true; };
+  }, [eventsCloudReady, notificationsEnabled, safeEventsList, todayStr]);
 
   // Feedback Handlers
   const handleAddFeedback = (newFeedback) => {
@@ -837,7 +816,7 @@ useEffect(() => {
       {selectedEventModal && (
         <Suspense fallback={null}>
           <EventDetailModal
-            event={selectedEventModal}
+            event={latestSelectedEvent || selectedEventModal}
             onClose={() => {
               setSelectedEventModal(null);
               try {
@@ -904,6 +883,7 @@ useEffect(() => {
       {/* Footer with Disclaimer & Feedback Link */}
       <AppFooter
         lang={lang}
+        showGallery={activeTab !== 'about'}
         onNavigate={handleNavigatePath}
         onOpenLogoModal={() => setIsLogoModalOpen(true)}
         onOpenFeedbackTab={() => {

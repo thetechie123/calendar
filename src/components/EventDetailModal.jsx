@@ -1,4 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { TTD_BOOKING_PORTAL, VAIKUNTHA_2026_EVENT_IDS, VAIKUNTHA_2026_SOURCE } from '../data/vaikunthaDarshan2026';
 import { TEMPLES } from '../data/templeEvents';
 import { getEventStatus, openGoogleCalendar, openAppleCalendar, shareToPlatform, normalizeEventImages } from '../utils/eventStatus';
 import { formatEventTiming } from '../utils/indiaTime';
@@ -122,7 +123,7 @@ export default function EventDetailModal({
             <div className="flex flex-wrap items-center justify-between gap-2 pr-10">
               <div className="flex items-center gap-2">
                 <span className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase shadow-md ${statusObj.colorClass}`}>
-                  {lang === 'en' ? statusObj.status : statusObj.statusTe}
+                  {lang === 'en' ? (statusObj.statusEn || statusObj.status) : statusObj.statusTe}
                 </span>
 
                 <span
@@ -165,7 +166,7 @@ export default function EventDetailModal({
 
                 <div className="flex items-center gap-1.5 text-amber-400">
                   <Clock className="w-4 h-4 text-[#FF5722]" />
-                  <span>{formatEventTiming(event)} (IST)</span>
+                  <span>{formatEventTiming(event, lang)} (IST)</span>
                 </div>
               </div>
             </div>
@@ -176,6 +177,17 @@ export default function EventDetailModal({
                 {lang === 'en' ? event.description : (event.descriptionTe || event.description)}
               </p>
             </div>
+
+            {VAIKUNTHA_2026_EVENT_IDS.has(event.id) && (
+              <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold">
+                <a href={TTD_BOOKING_PORTAL} target="_blank" rel="noreferrer" className="text-[#FFD700] [.light-theme_&]:text-amber-900 underline">
+                  {lang === 'te' ? 'టీటీడీ అధికారిక బుకింగ్ పోర్టల్' : 'Official TTD booking portal'}
+                </a>
+                <a href={VAIKUNTHA_2026_SOURCE} target="_blank" rel="noreferrer" className="text-[#FFD700] [.light-theme_&]:text-amber-900 underline">
+                  {lang === 'te' ? 'టీటీడీ ప్రకటన · నవంబర్ 27, 2026' : 'TTD announcement · November 27, 2026'}
+                </a>
+              </div>
+            )}
 
             {/* Vehicle / Vahanam details if applicable */}
             {event.vahanam && (

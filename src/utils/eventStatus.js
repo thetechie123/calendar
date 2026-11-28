@@ -109,10 +109,14 @@ export function getEventStatus(eventOrStartDate, endDateParam, timeParam, custom
     currentIST = getISTNowComponents();
   }
 
+  const isQuotaRelease = eventOrStartDate?.category === 'quota-release';
   const liveObj = {
     status: 'LIVE',
-    statusTe: '🔴 ప్రత్యక్ష సేవ / ప్రసారం',
-    colorClass: 'bg-red-600 text-white font-extrabold animate-pulse shadow-lg ring-2 ring-red-400',
+    statusEn: isQuotaRelease ? 'Scheduled time reached' : 'LIVE',
+    statusTe: isQuotaRelease ? 'షెడ్యూల్ సమయం వచ్చింది' : '🔴 ప్రత్యక్ష సేవ / ప్రసారం',
+    colorClass: isQuotaRelease
+      ? 'bg-amber-100 text-amber-950 font-extrabold'
+      : 'bg-red-600 text-white font-extrabold animate-pulse shadow-lg ring-2 ring-red-400',
     bgCardBorder: 'border-red-500/80 shadow-[0_0_20px_rgba(239,68,68,0.3)]',
   };
 
@@ -125,7 +129,8 @@ export function getEventStatus(eventOrStartDate, endDateParam, timeParam, custom
 
   const completedObj = {
     status: 'COMPLETED',
-    statusTe: 'పూర్తయినది',
+    statusEn: isQuotaRelease ? 'Scheduled date passed' : 'COMPLETED',
+    statusTe: isQuotaRelease ? 'షెడ్యూల్ తేదీ ముగిసింది' : 'పూర్తయినది',
     colorClass: 'bg-[#94A3B8]/30 text-[#94A3B8]',
     bgCardBorder: 'border-white/10',
   };
@@ -264,7 +269,7 @@ END:VCALENDAR`;
   }
 }
 
-// Multi-Platform Social Sharing Utility (WhatsApp, X, Reddit, Facebook, Threads, Copy Link)
+// Multi-Platform Social Sharing Utility (WhatsApp, X, Reddit, Facebook, Copy Link)
 export function shareToPlatform(platform, event, lang = 'en') {
   const title = lang === 'te' && event.titleTe ? event.titleTe : event.title;
   const date = event.startDate === event.endDate ? event.startDate : `${event.startDate} to ${event.endDate}`;
@@ -295,11 +300,6 @@ export function shareToPlatform(platform, event, lang = 'en') {
     }
     case 'reddit': {
       const url = `https://www.reddit.com/submit?url=${encodeURIComponent(eventUrl)}&title=${encodeURIComponent(`Tirumala Utsavam: ${title}`)}`;
-      window.open(url, '_blank');
-      break;
-    }
-    case 'threads': {
-      const url = `https://www.threads.net/intent/post?text=${encodeURIComponent(shareText)}`;
       window.open(url, '_blank');
       break;
     }
