@@ -885,7 +885,6 @@ export default function App() {
       {/* Footer with Disclaimer & Feedback Link */}
       <AppFooter
         lang={lang}
-        showGallery={activeTab !== 'about'}
         onNavigate={handleNavigatePath}
         onOpenLogoModal={() => setIsLogoModalOpen(true)}
         onOpenFeedbackTab={() => {
