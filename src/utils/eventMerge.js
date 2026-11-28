@@ -1,4 +1,4 @@
-import { VAIKUNTHA_2026_FIRST_DAYS } from '../data/vaikunthaDarshan2026.js';
+import { VAIKUNTHA_2026_FESTIVAL } from '../data/vaikunthaDarshan2026.js';
 import { normalizeEventFlag } from './eventNotifications.js';
 import { isRetiredEvent } from './retiredEvents.js';
 
@@ -10,8 +10,8 @@ export function mergeEvents(
 ) {
   const { preferInitial = false } = options;
   const isVisible = event => event?.id && !deletedIds.has(event.id) && !isRetiredEvent(event);
-  const applyFestivalNotice = event => event.id === VAIKUNTHA_2026_FIRST_DAYS.id
-    ? { ...event, ...VAIKUNTHA_2026_FIRST_DAYS }
+  const applyFestivalNotice = event => event.id === VAIKUNTHA_2026_FESTIVAL.id
+    ? { ...event, ...VAIKUNTHA_2026_FESTIVAL }
     : event;
   const canonical = initialEvents.filter(isVisible);
 

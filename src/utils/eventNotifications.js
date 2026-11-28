@@ -1,3 +1,4 @@
+import { VAIKUNTHA_2026_FESTIVAL } from '../data/vaikunthaDarshan2026.js';
 import { getISTNowComponents, parseTimeToMinutes } from './indiaTime.js';
 import { parseTimeWindow } from './eventStatus.js';
 import { isRetiredEvent } from './retiredEvents.js';
@@ -23,6 +24,9 @@ export function getEventStartInstant(event) {
   if (!DATE.test(date || '')) return null;
   const midnight = Date.parse(date + 'T00:00:00+05:30');
   if (!Number.isFinite(midnight) || getISTNowComponents(new Date(midnight)).dateStr !== date) return null;
+
+  // The series uses the beginning of its calendar date as the reminder cutoff.
+  if (event.id === VAIKUNTHA_2026_FESTIVAL.id) return midnight;
 
   const explicit = event.startTime ?? event.start_time;
   const minutes = explicit ? parseTimeToMinutes(explicit) : (parseTimeWindow(event.time)?.startMins ?? 420);
@@ -50,7 +54,7 @@ export function getReminderTime(start, now) {
 export function findDailyAlertEvent(events, now = Date.now()) {
   const today = getISTNowComponents(new Date(now)).dateStr;
   return events.find(event => {
-    if (!canUseEventNotifications(event)
+    if (event?.id === VAIKUNTHA_2026_FESTIVAL.id || !canUseEventNotifications(event)
       || !normalizeEventFlag(event.notificationEligible ?? event.notification_eligible, true)) return false;
     const temple = event.templeId ?? event.temple_id;
     const startDate = event.startDate ?? event.start_date;

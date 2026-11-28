@@ -1,5 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { TTD_BOOKING_PORTAL, VAIKUNTHA_2026_EVENT_IDS, VAIKUNTHA_2026_SOURCE } from '../data/vaikunthaDarshan2026';
+import { TTD_BOOKING_PORTAL, VAIKUNTHA_2026_BOOKING_IDS, VAIKUNTHA_2026_FESTIVAL, VAIKUNTHA_2026_SOURCE } from '../data/vaikunthaDarshan2026';
 import { TEMPLES } from '../data/templeEvents';
 import { getEventStatus, openGoogleCalendar, openAppleCalendar, shareToPlatform, normalizeEventImages } from '../utils/eventStatus';
 import { formatEventTiming } from '../utils/indiaTime';
@@ -158,15 +158,15 @@ export default function EventDetailModal({
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-[#FF5722]" />
                   <span>
-                    {event.startDate === event.endDate
+                    {event.calendarDate || (event.startDate === event.endDate
                       ? event.startDate
-                      : `${event.startDate} to ${event.endDate}`}
+                      : `${event.startDate} to ${event.endDate}`)}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-1.5 text-amber-400">
                   <Clock className="w-4 h-4 text-[#FF5722]" />
-                  <span>{formatEventTiming(event, lang)} (IST)</span>
+                  <span>{formatEventTiming(event, lang)}{event.id !== VAIKUNTHA_2026_FESTIVAL.id && ' (IST)'}</span>
                 </div>
               </div>
             </div>
@@ -178,7 +178,7 @@ export default function EventDetailModal({
               </p>
             </div>
 
-            {VAIKUNTHA_2026_EVENT_IDS.has(event.id) && (
+            {VAIKUNTHA_2026_BOOKING_IDS.has(event.id) && (
               <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold">
                 <a href={TTD_BOOKING_PORTAL} target="_blank" rel="noreferrer" className="text-[#FFD700] [.light-theme_&]:text-amber-900 underline">
                   {lang === 'te' ? 'టీటీడీ అధికారిక బుకింగ్ పోర్టల్' : 'Official TTD booking portal'}

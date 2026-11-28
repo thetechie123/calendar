@@ -1,3 +1,4 @@
+import { VAIKUNTHA_2026_FESTIVAL } from '../data/vaikunthaDarshan2026.js';
 import { getISTNowComponents, parseTimeToMinutes } from './indiaTime.js';
 
 /**
@@ -77,8 +78,8 @@ export function getEventStatus(eventOrStartDate, endDateParam, timeParam, custom
   let startDate, endDate, startTimeStr, endTimeStr, timeStr, istOverride;
 
   if (typeof eventOrStartDate === 'object' && eventOrStartDate !== null) {
-    startDate = eventOrStartDate.startDate;
-    endDate = eventOrStartDate.endDate || eventOrStartDate.startDate;
+    startDate = eventOrStartDate.calendarDate || eventOrStartDate.startDate;
+    endDate = eventOrStartDate.calendarDate || eventOrStartDate.endDate || eventOrStartDate.startDate;
     startTimeStr = eventOrStartDate.startTime;
     endTimeStr = eventOrStartDate.endTime;
     timeStr = eventOrStartDate.time;
@@ -109,12 +110,13 @@ export function getEventStatus(eventOrStartDate, endDateParam, timeParam, custom
     currentIST = getISTNowComponents();
   }
 
+  const isFestivalSeries = eventOrStartDate?.id === VAIKUNTHA_2026_FESTIVAL.id;
   const isQuotaRelease = eventOrStartDate?.category === 'quota-release';
   const liveObj = {
     status: 'LIVE',
-    statusEn: isQuotaRelease ? 'Scheduled time reached' : 'LIVE',
-    statusTe: isQuotaRelease ? 'షెడ్యూల్ సమయం వచ్చింది' : '🔴 ప్రత్యక్ష సేవ / ప్రసారం',
-    colorClass: isQuotaRelease
+    statusEn: isFestivalSeries ? 'Festival in progress' : isQuotaRelease ? 'Scheduled time reached' : 'LIVE',
+    statusTe: isFestivalSeries ? 'ఉత్సవం కొనసాగుతోంది' : isQuotaRelease ? 'షెడ్యూల్ సమయం వచ్చింది' : '🔴 ప్రత్యక్ష సేవ / ప్రసారం',
+    colorClass: isQuotaRelease || isFestivalSeries
       ? 'bg-amber-100 text-amber-950 font-extrabold'
       : 'bg-red-600 text-white font-extrabold animate-pulse shadow-lg ring-2 ring-red-400',
     bgCardBorder: 'border-red-500/80 shadow-[0_0_20px_rgba(239,68,68,0.3)]',
@@ -145,6 +147,8 @@ export function getEventStatus(eventOrStartDate, endDateParam, timeParam, custom
   if (currentIST.dateStr > endDate) {
     return completedObj;
   }
+
+  if (isFestivalSeries) return liveObj;
 
   // 3. Resolve start & end times in minutes past midnight
   let startMins = null;
@@ -216,13 +220,20 @@ export function getEventStatus(eventOrStartDate, endDateParam, timeParam, custom
 }
 
 // Open Google Calendar Event Creation URL directly
+function projectedCalendarDates(event) {
+  if (!event.calendarDate) return [];
+  const nextDay = new Date(Date.parse(event.calendarDate + 'T00:00:00Z') + 86_400_000);
+  return [event.calendarDate.replace(/-/g, ''), nextDay.toISOString().slice(0, 10).replace(/-/g, '')];
+}
+
 export function openGoogleCalendar(event) {
   const title = encodeURIComponent(event.title || 'Tirumala Temple Event');
   const description = encodeURIComponent((event.description || '') + (event.location ? `\n\nLocation: ${event.location}` : ''));
   const location = encodeURIComponent(event.location || 'Tirumala Tirupati Devasthanams');
   
-  const start = (event.startDate || '').replace(/-/g, '');
-  let end = (event.endDate || event.startDate || '').replace(/-/g, '');
+  const [dayStart, dayEnd] = projectedCalendarDates(event);
+  const start = dayStart || (event.startDate || '').replace(/-/g, '');
+  let end = dayEnd || (event.endDate || event.startDate || '').replace(/-/g, '');
   
  if (start === end) {
   const [year, month, day] = event.startDate.split('-').map(Number);
@@ -239,8 +250,9 @@ export function openGoogleCalendar(event) {
 export function openAppleCalendar(event) {
   const title = event.title || 'Tirumala Temple Event';
   const description = event.description || 'Tirumala Utsavam Event';
-  const startDateStr = (event.startDate || '').replace(/-/g, '');
-  const endDateStr = (event.endDate || event.startDate || '').replace(/-/g, '');
+  const [dayStart, dayEnd] = projectedCalendarDates(event);
+  const startDateStr = dayStart || (event.startDate || '').replace(/-/g, '');
+  const endDateStr = dayEnd || (event.endDate || event.startDate || '').replace(/-/g, '');
 
   const icsData = `BEGIN:VCALENDAR
 VERSION:2.0
@@ -272,12 +284,13 @@ END:VCALENDAR`;
 // Multi-Platform Social Sharing Utility (WhatsApp, X, Reddit, Facebook, Copy Link)
 export function shareToPlatform(platform, event, lang = 'en') {
   const title = lang === 'te' && event.titleTe ? event.titleTe : event.title;
-  const date = event.startDate === event.endDate ? event.startDate : `${event.startDate} to ${event.endDate}`;
+  const date = event.calendarDate || (event.startDate === event.endDate ? event.startDate : `${event.startDate} to ${event.endDate}`);
   const time = event.time ? `\n⏰ Time: ${event.time}` : '';
   const location = event.location ? `\n🛕 Location: ${event.location}` : '';
   const vahanam = (event.vahanam && event.category !== 'quota-release' && !event.id?.startsWith('ttd-quota-')) ? `\n🐎 Vahanam: ${event.vahanam}` : '';
   const origin = window.location.origin || `${window.location.protocol}//${window.location.host}`;
-  const eventUrl = event && event.id ? `${origin}/?event=${encodeURIComponent(event.id)}` : window.location.href;
+  const dayParam = event?.calendarDate ? '&eventDay=' + encodeURIComponent(event.calendarDate) : '';
+  const eventUrl = event && event.id ? `${origin}/?event=${encodeURIComponent(event.id)}` + dayParam : window.location.href;
 
   const shareText = `🙏 *Tirumala Temple Event Update* 🙏\n\n✨ *${title}*\n📅 Date: ${date}${time}${location}${vahanam}\n\n📖 Read full schedule on The Tirumala Verse:\n${eventUrl}`;
 

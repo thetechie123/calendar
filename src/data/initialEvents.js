@@ -7,7 +7,7 @@
  * - `isMajor`: Internal website display-priority flag; NOT an official TTD designation.
  */
 import { SEPTEMBER_2026_EVENTS } from './templeEvents.js';
-import { VAIKUNTHA_2026_FIRST_DAYS, VAIKUNTHA_2026_RELEASES, VAIKUNTHA_2026_REMAINING_DAYS } from './vaikunthaDarshan2026.js';
+import { VAIKUNTHA_2026_FESTIVAL, VAIKUNTHA_2026_RELEASES } from './vaikunthaDarshan2026.js';
 import { PANCHANGAM_EVENTS_2026_2027 } from './panchangamEvents2026_2027.js';
 import { JANUARY_2027_QUOTA_EVENTS, FEBRUARY_2027_QUOTA_EVENTS } from './quotaReleaseEvents.js';
 
@@ -1431,28 +1431,13 @@ const BASE_INITIAL_EVENTS = [
     vahanam: 'Gaja Vahanam (Dec 10), Garuda Vahanam (Dec 11), Rathotsavam (Dec 13), Panchami Theertham (Dec 14)',
     description: 'Grand Annual Kartheeka Brahmotsavam of Goddess Padmavathi Devi culminating in Panchami Theertham holy bath.'
   },
-  {
-    ...VAIKUNTHA_2026_FIRST_DAYS,
-    templeId: 'tirumala-main',
-    startDate: '2026-12-20',
-    endDate: '2026-12-21',
-    category: 'special-puja',
-    highlight: true,
-    isMajor: true,
-    location: 'Vaikuntam Queue Complex & Mada Streets',
-    time: '01:30 AM (December 20 calendar time; awaiting TTD confirmation)',
-    startTime: '01:30:00',
-    crowdLevel: 'Peak',
-    crowdBadge: 'Ultra Peak Lakhs Crowd',
-    vahanam: 'Golden Chariot & Vaikunta Dwara Darsanam'
-  }
+  VAIKUNTHA_2026_FESTIVAL
 ];
 
 const baseIds = new Set(BASE_INITIAL_EVENTS.map(e => e.id));
 export const INITIAL_EVENTS = [
   ...BASE_INITIAL_EVENTS,
   ...VAIKUNTHA_2026_RELEASES,
-  VAIKUNTHA_2026_REMAINING_DAYS,
   ...JANUARY_2027_QUOTA_EVENTS.filter(e => !baseIds.has(e.id)),
   ...FEBRUARY_2027_QUOTA_EVENTS.filter(e => !baseIds.has(e.id)),
   ...SEPTEMBER_2026_EVENTS.filter(e => !baseIds.has(e.id)),

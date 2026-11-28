@@ -4,6 +4,7 @@ import useAdmin from "./hooks/useAdmin";
 import useTheme from "./hooks/useTheme";
 import useLocalStorage from "./hooks/usePersistentState";
 import useCurrentIST from "./hooks/useCurrentIST";
+import { projectVaikunthaDay } from "./utils/calendarMonthUtils";
 import { useEventReminderScheduler } from "./hooks/useRemindMe";
 import { findDailyAlertEvent } from "./utils/eventNotifications";
 import { STORAGE_KEYS } from "./config/storageKeys";
@@ -190,7 +191,7 @@ export default function App() {
         const eventId = searchParams.get('event');
         if (eventId && Array.isArray(eventsListRef.current) && eventsListRef.current.length > 0) {
           const matched = eventsListRef.current.find(e => e && String(e.id) === String(eventId));
-          if (matched) setSelectedEventModal(matched);
+          if (matched) setSelectedEventModal(projectVaikunthaDay(matched, searchParams.get('eventDay') || undefined));
         } else if (!eventId) {
           setSelectedEventModal(null);
         }
@@ -255,7 +256,7 @@ export default function App() {
       if (eventId) {
         const matched = eventsList.find(e => e && String(e.id) === String(eventId));
         if (matched) {
-          setSelectedEventModal(matched);
+          setSelectedEventModal(projectVaikunthaDay(matched, searchParams.get('eventDay') || undefined));
         } else if (!eventsCloudReady) {
           return;
         }
@@ -640,7 +641,7 @@ export default function App() {
   const handleDeleteEvent = deleteEvent;
 
   const handleOpenEditModalForEvent = (event) => {
-    setTargetEventToEdit(event);
+    setTargetEventToEdit(safeEventsList.find(item => item.id === event.id) || event);
     setAdminModalMode('edit-event');
   };
 
@@ -816,13 +817,14 @@ export default function App() {
       {selectedEventModal && (
         <Suspense fallback={null}>
           <EventDetailModal
-            event={latestSelectedEvent || selectedEventModal}
+            event={projectVaikunthaDay(latestSelectedEvent || selectedEventModal, selectedEventModal.calendarDate)}
             onClose={() => {
               setSelectedEventModal(null);
               try {
                 if (window.location.search.includes('event=')) {
                   const searchParams = new URLSearchParams(window.location.search);
                   searchParams.delete('event');
+                  searchParams.delete('eventDay');
                   const remaining = searchParams.toString();
                   const newUrl = window.location.pathname + (remaining ? `?${remaining}` : '') + window.location.hash;
                   window.history.replaceState(window.history.state, '', newUrl);

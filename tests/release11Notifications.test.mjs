@@ -73,13 +73,13 @@ test('date-only, timed, multi-day, and retired events use their respective bound
 
 test('Golden Chariot search in either language points to December 20 without relabeling the official two-day schedule', () => {
   const event = INITIAL_EVENTS.find(item => item.id === 'ttd-2026-12-20');
-  assert.equal(event.endDate, '2026-12-21');
+  assert.equal(event.endDate, '2026-12-29');
   for (const query of ['Golden Chariot', 'Swarna Rathotsavam', 'స్వర్ణ రథోత్సవం']) {
     const results = filterCalendarEvents([event], { query });
     assert.equal(results.length, 1);
     assert.equal(getEventsForDate(results, '2026-12-20')[0].id, event.id);
     assert.equal(getEventsForDate(results, '2026-12-21').length, 0);
   }
-  assert.match(formatEventTiming(event), /Dec 20.*1:30 AM.*awaiting TTD confirmation/);
-  assert.match(formatEventTiming(event, 'te'), /డిసెంబర్ 20.*1:30.*నిర్ధారణ/);
+  assert.equal(formatEventTiming(event), 'Darshan time not announced');
+  assert.equal(formatEventTiming(event, 'te'), 'దర్శన సమయం ప్రకటించలేదు');
 });

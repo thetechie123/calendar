@@ -7,6 +7,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { dispatchWebPushNotification } from "./pushDispatcher.mjs";
 
+import { VAIKUNTHA_2026_FESTIVAL } from './src/data/vaikunthaDarshan2026.js';
 import { isRetiredEvent } from './src/utils/retiredEvents.js';
 
 export const ELIGIBLE_TEMPLES = ["tirumala-main"];
@@ -70,6 +71,10 @@ export function parseTimeToMinutes(timeStr) {
 export function evaluateEventNotificationDue(event, nowISTObj, options = {}) {
   if (isRetiredEvent(event)) {
     return { isDue: false, reason: "retired_event" };
+  }
+
+  if (event?.id === VAIKUNTHA_2026_FESTIVAL.id) {
+    return { isDue: false, reason: "festival_time_unpublished" };
   }
 
   const timedGraceWindowMinutes = options.timedGraceWindowMinutes ?? 15;

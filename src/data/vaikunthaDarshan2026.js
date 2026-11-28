@@ -1,12 +1,48 @@
 export const VAIKUNTHA_2026_SOURCE = 'https://news.tirumala.org/%E0%B0%B5%E0%B1%88%E0%B0%95%E0%B1%81%E0%B0%82%E0%B0%A0-%E0%B0%A6%E0%B1%8D%E0%B0%B5%E0%B0%BE%E0%B0%B0-%E0%B0%A6%E0%B0%B0%E0%B1%8D%E0%B0%B6%E0%B0%A8%E0%B0%BE%E0%B0%B2-%E0%B0%9F%E0%B0%BF%E0%B0%95/';
 export const TTD_BOOKING_PORTAL = 'https://ttdevasthanams.ap.gov.in';
 
-export const VAIKUNTHA_2026_FIRST_DAYS = {
+export const VAIKUNTHA_2026_FESTIVAL = {
   id: 'ttd-2026-12-20',
-  title: 'Vaikuntha Ekadasi & Dwadasi at Tirumala',
-  titleTe: 'తిరుమలలో వైకుంఠ ఏకాదశి, ద్వాదశి',
-  description: 'Vaikuntha Dwara Darshan at Sri Venkateswara Swamy Temple runs December 20–29. Ekadasi is December 20, when Vaikuntha Dwaram opens and Swarna Rathotsavam is observed. Dwadasi is December 21. For these two days, TTD allots Slotted Sarva Darshan tokens online through e-DIP. VIP Break Darshan is cancelled except for protocol dignitaries. ₹300 Special Entry Darshan and SRIVANI Darshan are unavailable.',
-  descriptionTe: 'తిరుమల శ్రీ వేంకటేశ్వర స్వామి ఆలయంలో డిసెంబర్ 20 నుంచి 29 వరకు వైకుంఠ ద్వార దర్శనం జరుగుతుంది. డిసెంబర్ 20న వైకుంఠ ఏకాదశి సందర్భంగా వైకుంఠ ద్వారం తెరుస్తారు, స్వర్ణ రథోత్సవం నిర్వహిస్తారు. డిసెంబర్ 21న ద్వాదశి. ఈ రెండు రోజులకు స్లాటెడ్ సర్వదర్శనం టోకెన్లను టీటీడీ ఆన్‌లైన్‌లో ఈ-డిప్ ద్వారా కేటాయిస్తుంది. ప్రోటోకాల్ ప్రముఖులకు మినహా వీఐపీ బ్రేక్ దర్శనం రద్దు. రూ.300 ప్రత్యేక ప్రవేశ దర్శనం, శ్రీవాణి దర్శనం అందుబాటులో ఉండవు.'
+  templeId: 'tirumala-main',
+  title: 'Vaikunta Dwara Darshanam',
+  titleTe: 'వైకుంఠ ద్వార దర్శనం',
+  startDate: '2026-12-20',
+  endDate: '2026-12-29',
+  category: 'special-puja',
+  location: 'Sri Venkateswara Swamy Temple, Tirumala',
+  highlight: true,
+  isMajor: true,
+  startTime: null,
+  endTime: null,
+  time: '',
+  timingSource: 'default',
+  vahanam: '',
+  notificationEligible: false,
+  description: 'At Tirumala, Vaikunta Dwaram opens on Vaikunta Ekadasi. Devotees worship Sri Venkateswara Swamy through the sacred doorway during this ten-day observance, which concludes on December 29. Swarna Rathotsavam, the Golden Chariot procession, is observed on Ekadasi.',
+  descriptionTe: 'తిరుమలలో వైకుంఠ ఏకాదశి నాడు వైకుంఠ ద్వారం తెరుస్తారు. పది రోజుల పాటు భక్తులు పవిత్రమైన వైకుంఠ ద్వారం గుండా శ్రీ వేంకటేశ్వర స్వామివారిని దర్శించుకుంటారు. ఈ పర్వదినాల దర్శనం డిసెంబర్ 29న ముగుస్తుంది. ఏకాదశి సందర్భంగా స్వర్ణ రథోత్సవం నిర్వహిస్తారు.'
+};
+
+export const VAIKUNTHA_2026_DAY_COPY = {
+  opening: {
+    title: 'Vaikunta Ekadasi',
+    titleTe: 'వైకుంఠ ఏకాదశి',
+    description: 'On Vaikunta Ekadasi, the sacred Vaikunta Dwaram opens at the Srivari temple, beginning ten days of darshan through the doorway. Swarna Rathotsavam, the Golden Chariot procession, is also observed on Ekadasi.',
+    descriptionTe: 'వైకుంఠ ఏకాదశి నాడు తిరుమల శ్రీవారి ఆలయంలో వైకుంఠ ద్వారం తెరుస్తారు. పవిత్ర ద్వారం గుండా పది రోజుల దర్శనం ప్రారంభమవుతుంది. ఏకాదశి సందర్భంగా శ్రీవారి స్వర్ణ రథోత్సవం కూడా నిర్వహిస్తారు.'
+  },
+  dwadasi: {
+    title: 'Vaikunta Dwadasi',
+    titleTe: 'వైకుంఠ ద్వాదశి',
+    description: 'On Vaikunta Dwadasi, devotees continue to worship Sri Venkateswara Swamy through the sacred Vaikunta Dwaram.',
+    descriptionTe: 'వైకుంఠ ద్వాదశి నాడు భక్తులు పవిత్ర వైకుంఠ ద్వారం గుండా శ్రీ వేంకటేశ్వర స్వామివారిని దర్శించుకుంటారు.'
+  },
+  continuation: {
+    description: 'The ten-day Vaikunta Dwara Darshanam continues at the Srivari temple, where devotees worship Sri Venkateswara Swamy through the sacred doorway.',
+    descriptionTe: 'తిరుమల శ్రీవారి ఆలయంలో పది రోజుల వైకుంఠ ద్వార దర్శనం కొనసాగుతుంది. భక్తులు పవిత్ర ద్వారం గుండా శ్రీ వేంకటేశ్వర స్వామివారిని దర్శించుకుంటారు.'
+  },
+  conclusion: {
+    description: 'The ten-day Vaikunta Dwara Darshanam concludes at the Srivari temple on December 29. Pedda Sattumora marks the conclusion with sacred recitations.',
+    descriptionTe: 'తిరుమల శ్రీవారి ఆలయంలో పది రోజుల వైకుంఠ ద్వార దర్శనం డిసెంబర్ 29న ముగుస్తుంది. ఈ ముగింపు సందర్భంగా పెద్ద శాత్తుమొఱ పారాయణం నిర్వహిస్తారు.'
+  }
 };
 
 const release = (key, startDate, startTime, time, title, titleTe, description, descriptionTe) => ({
@@ -59,23 +95,4 @@ export const VAIKUNTHA_2026_RELEASES = [
     'దాతల దర్శన కోటాను టీటీడీ డిసెంబర్ 8న ఉదయం 10 గంటలకు (IST) విడుదల చేస్తుంది. బుకింగ్ వివరాలకు అధికారిక పోర్టల్ చూడండి.')
 ];
 
-export const VAIKUNTHA_2026_REMAINING_DAYS = {
-  id: 'ttd-2026-12-vaikuntha-dwara-dec22-29',
-  templeId: 'tirumala-main',
-  title: 'Vaikuntha Dwara Darshan Continues',
-  titleTe: 'వైకుంఠ ద్వార దర్శనం కొనసాగింపు',
-  startDate: '2026-12-22',
-  endDate: '2026-12-29',
-  category: 'special-puja',
-  highlight: true,
-  notificationEligible: false,
-  location: 'Sri Venkateswara Swamy Temple, Tirumala',
-  description: 'The ten-day Vaikuntha Dwara Darshan at Tirumala runs December 20–29. December 22–29 are the eligible dates stated in the SRIVANI and ₹300 Special Entry Darshan booking notices.',
-  descriptionTe: 'తిరుమలలో పది రోజుల వైకుంఠ ద్వార దర్శనం డిసెంబర్ 20 నుంచి 29 వరకు జరుగుతుంది. శ్రీవాణి, రూ.300 ప్రత్యేక ప్రవేశ దర్శనాల బుకింగ్ ప్రకటనల ప్రకారం డిసెంబర్ 22 నుంచి 29 వరకు దర్శన తేదీలు అందుబాటులో ఉంటాయి.'
-};
-
-export const VAIKUNTHA_2026_EVENT_IDS = new Set([
-  VAIKUNTHA_2026_FIRST_DAYS.id,
-  VAIKUNTHA_2026_REMAINING_DAYS.id,
-  ...VAIKUNTHA_2026_RELEASES.map(event => event.id)
-]);
+export const VAIKUNTHA_2026_BOOKING_IDS = new Set(VAIKUNTHA_2026_RELEASES.map(event => event.id));

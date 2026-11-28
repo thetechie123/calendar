@@ -21,6 +21,7 @@ export default function ScheduleEventActions({
   onEditEvent,
   onDeleteEvent
 }) {
+  const menuId = evt.calendarDate ? evt.id + ':' + evt.calendarDate : evt.id;
   return (
     <div className="flex items-center gap-1.5 ml-auto sm:ml-0">
       {/* SHARE MENU */}
@@ -30,7 +31,7 @@ export default function ScheduleEventActions({
           onClick={e => {
             e.stopPropagation();
             setOpenCalendarMenuId(null);
-            setOpenShareMenuId(prev => (prev === evt.id ? null : evt.id));
+            setOpenShareMenuId(prev => (prev === menuId ? null : menuId));
           }}
           className="p-1.5 rounded-lg bg-[#FF5722] hover:bg-[#E64A19] text-white font-extrabold text-xs shadow"
           title="Share Event"
@@ -39,7 +40,7 @@ export default function ScheduleEventActions({
           <Share2 className="w-3.5 h-3.5 text-white" />
         </button>
 
-        {openShareMenuId === evt.id && (
+        {openShareMenuId === menuId && (
           <div
             className="absolute right-0 top-full mt-2 z-50 w-48 rounded-xl border border-[#D4AF37]/50 bg-[#0B0E14] shadow-2xl p-2"
             onClick={e => e.stopPropagation()}
@@ -87,7 +88,7 @@ export default function ScheduleEventActions({
           onClick={e => {
             e.stopPropagation();
             setOpenShareMenuId(null);
-            setOpenCalendarMenuId(prev => (prev === evt.id ? null : evt.id));
+            setOpenCalendarMenuId(prev => (prev === menuId ? null : menuId));
           }}
           className="p-1.5 rounded-lg bg-[#4285F4] hover:bg-[#3367D6] text-white font-extrabold text-xs shadow"
           title="Add to Calendar"
@@ -96,7 +97,7 @@ export default function ScheduleEventActions({
           <Calendar className="w-3.5 h-3.5 text-white" />
         </button>
 
-        {openCalendarMenuId === evt.id && (
+        {openCalendarMenuId === menuId && (
           <div
             className="absolute right-0 top-full mt-2 z-50 w-44 rounded-xl border border-[#D4AF37]/50 bg-[#0B0E14] shadow-2xl p-2"
             onClick={e => e.stopPropagation()}

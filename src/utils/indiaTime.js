@@ -1,4 +1,4 @@
-import { VAIKUNTHA_2026_FIRST_DAYS } from '../data/vaikunthaDarshan2026.js';
+import { VAIKUNTHA_2026_FESTIVAL } from '../data/vaikunthaDarshan2026.js';
 
 export function getIndiaDateString(date = new Date()) {
   return new Intl.DateTimeFormat("en-CA", {
@@ -134,10 +134,8 @@ export function formatTime12Hr(timeStr) {
  * - Fallback: "7:00 AM"
  */
 export function formatEventTiming(event, lang = 'en') {
-  if (event?.id === VAIKUNTHA_2026_FIRST_DAYS.id) {
-    return lang === 'te'
-      ? 'డిసెంబర్ 20 క్యాలెండర్ సమయం: తెల్లవారుజామున 1:30 (టీటీడీ నిర్ధారణ పెండింగ్‌లో ఉంది)'
-      : 'Dec 20 calendar time: 1:30 AM (awaiting TTD confirmation)';
+  if (event?.id === VAIKUNTHA_2026_FESTIVAL.id) {
+    return lang === 'te' ? 'దర్శన సమయం ప్రకటించలేదు' : 'Darshan time not announced';
   }
   if (!event) return '7:00 AM';
 

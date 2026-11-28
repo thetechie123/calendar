@@ -10,6 +10,8 @@ import RemindMeButton from './common/RemindMeButton';
 import { isModifiedClick } from '../utils/navigation';
 
 import { getTempleFilterLabel } from '../utils/templeHelpers';
+import { expandFestivalCalendarEvents } from '../utils/calendarMonthUtils';
+import { VAIKUNTHA_2026_FESTIVAL } from '../data/vaikunthaDarshan2026';
 import { filterCalendarEvents } from '../utils/calendarSearch';
 
 export default function CalendarView({
@@ -76,9 +78,9 @@ export default function CalendarView({
 
   // Sort filtered events chronologically by startDate in ascending order (primary sort for Card/List view)
   const sortedFilteredEvents = React.useMemo(() => {
-    return [...filteredEvents].sort((a, b) => {
-      const dateA = (a?.startDate || '').trim();
-      const dateB = (b?.startDate || '').trim();
+    return expandFestivalCalendarEvents(filteredEvents).sort((a, b) => {
+      const dateA = (a.calendarDate || a.startDate || '').trim();
+      const dateB = (b.calendarDate || b.startDate || '').trim();
       const dateCompare = dateA.localeCompare(dateB);
       if (dateCompare !== 0) {
         return dateCompare;
@@ -380,7 +382,7 @@ export default function CalendarView({
 
                 return (
                   <div
-                    key={evt.id}
+                    key={evt.calendarDate ? evt.id + ':' + evt.calendarDate : evt.id}
                     onClick={() => onSelectEvent(evt)}
                     className={`glass-card rounded-2xl border-2 ${statusObj.bgCardBorder} hover:border-[#FFD700] transition-all overflow-hidden flex flex-col justify-between group shadow-xl bg-[#0B0E14] relative p-4 space-y-3 cursor-pointer hover:scale-[1.01]`}
                   >
@@ -423,7 +425,7 @@ export default function CalendarView({
                           {lang === 'en' ? templeObj?.name : templeObj?.nameTe}
                         </span>
 
-                        {isAdminLoggedIn && evt.timingSource === 'default' && (
+                        {isAdminLoggedIn && evt.timingSource === 'default' && evt.id !== VAIKUNTHA_2026_FESTIVAL.id && (
                           <span 
                             className="text-[9px] text-amber-300 font-mono font-bold bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/30"
                             title="Unconfigured timing: Default 7:00 AM"
@@ -475,9 +477,7 @@ export default function CalendarView({
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3.5 h-3.5 text-[#FF5722]" />
                             <span>
-                              {evt.startDate === evt.endDate
-                                ? evt.startDate
-                                : `${evt.startDate} to ${evt.endDate}`}
+                              {evt.calendarDate || (evt.startDate === evt.endDate ? evt.startDate : `${evt.startDate} to ${evt.endDate}`)}
                             </span>
                           </div>
 
